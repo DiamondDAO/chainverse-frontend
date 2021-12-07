@@ -23,6 +23,7 @@ export const NavBar: FC<INavbar> = ({}) => {
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Image
+          alt="nav-logo"
           mr="7px"
           width="18px"
           height="15px"

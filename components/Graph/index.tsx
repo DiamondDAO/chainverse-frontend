@@ -20,7 +20,7 @@ export const Graph: FC<IGraph> = ({ title, value, metric }) => {
       <Text mt="7px" fontSize="xs" color="chart.green">
         {metric}
       </Text>
-      <Image mt="10px" src="./img/temp-graph.png" />
+      <Image alt="temp-graph" mt="10px" src="./img/temp-graph.png" />
     </Box>
   );
 };
