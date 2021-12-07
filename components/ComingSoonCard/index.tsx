@@ -21,7 +21,12 @@ export const ComingSoonCard = () => {
       alignItems="center"
       height="80vh"
     >
-      <Image mb="40px" width="65px" src="./img/diamond_logo.png" />
+      <Image
+        alt="diamond-logo"
+        mb="40px"
+        width="65px"
+        src="./img/diamond_logo.png"
+      />
       <Text fontSize="xl" fontWeight="600">
         This Dashboard is coming soon.
       </Text>

@@ -25,6 +25,7 @@ export const DateFilter = (props: Props) => {
           const isSelected = selected === date;
           return (
             <Box
+              key={date}
               background={isSelected ? "diamond.blue.0" : "diamond.white"}
               cursor="pointer"
               sx={{
