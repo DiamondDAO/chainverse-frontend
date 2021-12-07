@@ -1,2 +1,1 @@
-# chainverse-frontend
-Frontend for the Chainverse application
+# Chainverse Frontend
