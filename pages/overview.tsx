@@ -1,10 +1,8 @@
-import { Box, Grid, Heading, Text, Image, Input } from "@chakra-ui/react";
+import { Box, Grid } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import React from "react";
-import { borderStyles } from "../common/theme";
-import { AnchorSidebar } from "../components/AnchorSidebar";
-import { Graph } from "../components/Graph";
+import { DirectoryHeader } from "../components/DirectoryHeader";
+import { GraphGrid } from "../components/Graph/GraphGrid";
 import { Layout } from "../components/Layout";
 import { List } from "../components/List";
 import { Properties } from "../components/Properties";
@@ -27,13 +25,7 @@ const Overview: NextPage = () => {
   return (
     <Layout>
       <Grid templateColumns="2fr 5fr 1fr">
-        <Box>
-          <Heading as="h1" fontSize="2xl" mb="20px">
-            Diamond DAO
-          </Heading>
-          <AnchorSidebar links={linksArray} />
-        </Box>
-
+        <DirectoryHeader title="Overview" links={linksArray} />
         <Box>
           {/* Overview */}
           <Box id="overview">
@@ -42,19 +34,7 @@ const Overview: NextPage = () => {
               subheader="Here's what's happening in Diamond DAO"
             >
               <SummaryBanner summaryFacts={overviewSummaryFacts} />
-              {overviewGraphFixtures.map(
-                (graph: { title: string; value: string; metric: string }) => {
-                  return (
-                    <Box key={graph.title} gridRow="span 2">
-                      <Graph
-                        title={graph.title}
-                        value={graph.value}
-                        metric={graph.metric}
-                      />
-                    </Box>
-                  );
-                }
-              )}
+              <GraphGrid graphItems={overviewGraphFixtures} />
             </Section>
           </Box>
           <Box id="activity" mt="90px">

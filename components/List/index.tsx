@@ -25,7 +25,7 @@ export const List: FC<IList> = ({ name, listItems }) => {
         >
           <Text flexGrow="1">{name}</Text>
           <Text mr="15px">Show: All</Text>
-          <Text>Sorty By: Recent</Text>
+          <Text>Sort By: Recent</Text>
         </Box>
       </Box>
       <Box
@@ -35,7 +35,7 @@ export const List: FC<IList> = ({ name, listItems }) => {
         sx={{
           overflow: "scroll",
           scrollbarWidth: "none",
-          "-ms-overflow-style": "none",
+          msOverflowStyle: "none",
           "&::-webkit-scrollbar": {
             width: 0,
             height: 0,
@@ -64,7 +64,7 @@ export const List: FC<IList> = ({ name, listItems }) => {
               <Grid templateColumns={`repeat(${listItem.col}, 1fr)`} mt="10px">
                 {listItem.items.map((item) => {
                   return (
-                    <>
+                    <React.Fragment key={item.key}>
                       <Text color="diamond.gray.4">{item.key}</Text>
                       {item.link && (
                         <Link href={item.link}>
@@ -74,7 +74,7 @@ export const List: FC<IList> = ({ name, listItems }) => {
                       {!item.link && (
                         <Text color="diamond.gray.5">{item.value}</Text>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </Grid>
