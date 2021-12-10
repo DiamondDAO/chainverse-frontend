@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "install-build-start": "npm i && npm run build && npm start",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
