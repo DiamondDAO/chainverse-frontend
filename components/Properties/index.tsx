@@ -34,7 +34,7 @@ export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
         sx={{
           overflow: "scroll",
           scrollbarWidth: "none",
-          "-ms-overflow-style": "none",
+          msOverflowStyle: "none",
           "&::-webkit-scrollbar": {
             width: 0,
             height: 0,
@@ -44,14 +44,14 @@ export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
         <Grid templateColumns="1fr 1fr">
           {/* Left Col */}
           <Box>
-            {leftCol.map((item) => {
+            {leftCol.map((item, idx) => {
               return (
-                <>
+                <Box key={idx}>
                   {item.title && <Text> {item.title}</Text>}
                   <Grid templateColumns="1fr 1fr">
                     {item.group.map((property) => {
                       return (
-                        <>
+                        <React.Fragment key={property.key}>
                           <Text color="diamond.gray.4">{property.key}</Text>
                           {property.link && (
                             <Link href={property.link}>
@@ -61,24 +61,24 @@ export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
                           {!property.link && (
                             <Text color="diamond.gray.5">{property.value}</Text>
                           )}
-                        </>
+                        </React.Fragment>
                       );
                     })}
                   </Grid>
-                </>
+                </Box>
               );
             })}
           </Box>
           {/* Right Col */}
           <Box>
-            {rightCol.map((item) => {
+            {rightCol.map((item, idx) => {
               return (
-                <>
+                <Box key={idx}>
                   {item.title && <Text> {item.title}</Text>}
                   <Grid templateColumns="1fr 1fr">
                     {item.group.map((property) => {
                       return (
-                        <>
+                        <React.Fragment key={property.key}>
                           <Text color="diamond.gray.4">{property.key}</Text>
                           {property.link && (
                             <Link href={property.link}>
@@ -88,11 +88,11 @@ export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
                           {!property.link && (
                             <Text color="diamond.gray.5">{property.value}</Text>
                           )}
-                        </>
+                        </React.Fragment>
                       );
                     })}
                   </Grid>
-                </>
+                </Box>
               );
             })}
           </Box>

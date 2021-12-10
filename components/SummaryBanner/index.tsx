@@ -9,7 +9,7 @@ interface ISummaryBanner {
 export const SummaryBanner: FC<ISummaryBanner> = ({ summaryFacts }) => {
   const factLength = summaryFacts.length;
   return (
-    <Box maxH="90px" gridColumn="span 3">
+    <Box gridColumn="span 3">
       <Grid
         templateColumns={`repeat(${factLength}, 1fr)`}
         py="20px"

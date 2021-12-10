@@ -18,12 +18,7 @@ export const Section: FC<ISection> = ({ header, subheader, children }) => {
           {subheader}
         </Text>
       </Box>
-      <Grid
-        gridAutoRows="1fr"
-        templateColumns="1fr 1fr 1fr"
-        maxWidth="750px"
-        gap="20px"
-      >
+      <Grid templateColumns="1fr 1fr 1fr" maxWidth="750px" gap="20px">
         {children}
       </Grid>
     </>

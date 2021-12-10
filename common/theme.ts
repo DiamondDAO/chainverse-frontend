@@ -58,4 +58,5 @@ export const borderStyles = {
   border: "0.5px solid",
   borderColor: "diamond.gray.2",
   borderRadius: "5px",
+  overflow: "hidden",
 };
