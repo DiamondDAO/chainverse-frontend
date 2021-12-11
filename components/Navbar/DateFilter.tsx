@@ -4,8 +4,8 @@ import React, { useState } from "react";
 interface Props {}
 
 export const DateFilter = (props: Props) => {
-  const dates = ["7d", "1mo", "3mo", "All"];
-  const [selected, setSelected] = useState("7d");
+  const dates = ["14d", "1mo", "3mo", "All"];
+  const [selected, setSelected] = useState("14d");
   const isLarge = useBreakpointValue({ lg: true });
   return (
     <Box

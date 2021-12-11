@@ -16,17 +16,17 @@ export const participationOverviewGraphFixtures = [
   {
     title: "TOTAL NEW MEMBERS",
     value: "16",
-    metric: "+40% COMPARED TO PREV 7D",
+    metric: "+40% COMPARED TO PREV 14D",
   },
   {
     title: "ACTIVATION RATE",
     value: "40%",
-    metric: "+18% COMPARED TO PREV 7D",
+    metric: "+18% COMPARED TO PREV 14D",
   },
   {
     title: "TOTAL DROPOFF %",
     value: "40%",
-    metric: "-18% COMPARED TO PREV 7D",
+    metric: "-18% COMPARED TO PREV 14D",
   },
 ];
 
@@ -57,12 +57,12 @@ export const participationNewMemberGraphFixtures = [
   {
     title: "ACTIVATION RATE",
     value: "40%",
-    metric: "+18% COMPARED TO PREV 7D",
+    metric: "+18% COMPARED TO PREV 14D",
   },
   {
     title: "TOTAL NEW MEMBERS",
     value: "16",
-    metric: "+40% COMPARED TO PREV 7D",
+    metric: "+40% COMPARED TO PREV 14D",
   },
 ];
 
@@ -168,34 +168,34 @@ export const participationMemberGraphFixtures1 = [
   {
     title: "TOTAL PROPOSAL INTERACTIONS",
     value: "5",
-    metric: "+20% COMPARED TO PREV 7D",
+    metric: "+20% COMPARED TO PREV 14D",
   },
   {
     title: "TOTAL FORUM INTERACTIONS",
     value: "16",
-    metric: "-12.5% COMPARED TO PREV 7D",
+    metric: "-12.5% COMPARED TO PREV 14D",
   },
   {
     title: "TOTAL DISCORD MEMBERS",
     value: "140",
-    metric: "-40% COMPARED TO PREV 7D",
+    metric: "-40% COMPARED TO PREV 14D",
   },
 ];
 export const participationMemberGraphFixtures2 = [
   {
     title: "MEMBERS WITH PROPOSAL INTERACTIONS",
     value: "5",
-    metric: "+20% COMPARED TO PREV 7D",
+    metric: "+20% COMPARED TO PREV 14D",
   },
   {
     title: "MEMBERS WITH FORUM INTERACTIONS",
     value: "16",
-    metric: "-12.5% COMPARED TO PREV 7D",
+    metric: "-12.5% COMPARED TO PREV 14D",
   },
   {
     title: "MEMBERS WITH DISCORD ACTIVITY",
     value: "140",
-    metric: "-40% COMPARED TO PREV 7D",
+    metric: "-40% COMPARED TO PREV 14D",
   },
 ];
 
@@ -352,19 +352,19 @@ export const participationRetentionGraphs = [
   {
     title: "NEW MEMBER DROPOFF %",
     value: "65%",
-    metric: "+20% COMPARED TO PREV 7D",
+    metric: "+20% COMPARED TO PREV 14D",
     reverseSign: true,
   },
   {
     title: "ACTIVATED MEMBER DROPOFF %",
     value: "12%",
-    metric: "-12.5% COMPARED TO PREV 7D",
+    metric: "-12.5% COMPARED TO PREV 14D",
     reverseSign: true,
   },
   {
     title: "TOTAL DROPOFF %",
     value: "22%",
-    metric: "+20% COMPARED TO PREV 7D",
+    metric: "+20% COMPARED TO PREV 14D",
     reverseSign: true,
   },
 ];

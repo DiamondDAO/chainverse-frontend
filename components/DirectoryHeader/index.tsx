@@ -14,7 +14,7 @@ export const DirectoryHeader: FC<IDirectoryHeader> = ({
   links,
 }) => {
   return (
-    <Box>
+    <Box mr="20px">
       <Box top="20px" position="sticky">
         <Heading as="h1" fontSize="2xl" mb="20px">
           {title}

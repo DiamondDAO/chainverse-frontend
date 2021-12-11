@@ -33,7 +33,7 @@ const Participation: NextPage = () => {
 
   return (
     <Layout>
-      <Grid templateColumns="2fr 5fr 1fr">
+      <Grid templateColumns="2fr 5.175fr 1fr">
         <DirectoryHeader
           title={"Participation"}
           links={linksArray}

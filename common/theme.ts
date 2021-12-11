@@ -60,3 +60,21 @@ export const borderStyles = {
   borderRadius: "5px",
   overflow: "hidden",
 };
+
+export const scrollStyles = {
+  overflow: "scroll",
+  scrollbarWidth: "thin",
+  msOverflowStyle: {
+    width: "5px",
+    height: "5px",
+    bg: "diamond.gray.0",
+  },
+  "&::-webkit-scrollbar": {
+    width: "5px",
+    height: "5px",
+    bg: "diamond.gray.0",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    background: "diamond.blue.2",
+  },
+};

@@ -24,7 +24,7 @@ const Overview: NextPage = () => {
   ];
   return (
     <Layout>
-      <Grid templateColumns="2fr 5fr 1fr">
+      <Grid templateColumns="2fr 5.175fr 1fr">
         <DirectoryHeader title="Overview" links={linksArray} />
         <Box>
           {/* Overview */}
@@ -52,11 +52,7 @@ const Overview: NextPage = () => {
             {/* Links */}
 
             <Section header="Links" subheader="External links for Diamond DAO">
-              <Properties
-                title="Links"
-                leftCol={linksProperties.leftCol}
-                rightCol={linksProperties.rightCol}
-              />
+              <Properties title="Links" data={linksProperties} />
             </Section>
           </Box>
         </Box>
