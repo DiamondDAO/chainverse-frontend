@@ -1,5 +1,6 @@
 import { Box, Text, Input, Grid, Link } from "@chakra-ui/react";
 import React, { FC } from "react";
+import { useMediaBreakpoints } from "../../common/hooks/use-media-breakpoints";
 import { borderStyles } from "../../common/theme";
 
 type ColData = {
@@ -8,13 +9,27 @@ type ColData = {
 }[];
 interface IList {
   title: string;
-  leftCol: ColData;
-  rightCol: ColData;
+  data: {
+    title?: string;
+    properties: {
+      key: string;
+      value: string;
+      link?: string;
+    }[];
+  }[];
 }
 
-export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
+export const Properties: FC<IList> = ({ title, data }) => {
+  const {
+    mediaBreakpoints: { sm: isSmall },
+    ref,
+  } = useMediaBreakpoints({
+    sm: 250,
+    md: 523,
+    lg: 790,
+  });
   return (
-    <Box gridRow="span 4" gridColumn="span 3" {...borderStyles}>
+    <Box ref={ref} gridRow="span 4" gridColumn="span 3" {...borderStyles}>
       <Box bg="diamond.blue.0">
         <Box
           fontSize="sm"
@@ -41,61 +56,36 @@ export const Properties: FC<IList> = ({ title, leftCol, rightCol }) => {
           },
         }}
       >
-        <Grid templateColumns="1fr 1fr">
-          {/* Left Col */}
-          <Box>
-            {leftCol.map((item, idx) => {
-              return (
-                <Box key={idx}>
-                  {item.title && <Text> {item.title}</Text>}
-                  <Grid templateColumns="1fr 1fr">
-                    {item.group.map((property) => {
-                      return (
-                        <React.Fragment key={property.key}>
-                          <Text color="diamond.gray.4">{property.key}</Text>
-                          {property.link && (
-                            <Link href={property.link}>
-                              <Text color="diamond.link">{property.value}</Text>
-                            </Link>
-                          )}
-                          {!property.link && (
-                            <Text color="diamond.gray.5">{property.value}</Text>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Grid>
-                </Box>
-              );
-            })}
-          </Box>
-          {/* Right Col */}
-          <Box>
-            {rightCol.map((item, idx) => {
-              return (
-                <Box key={idx}>
-                  {item.title && <Text> {item.title}</Text>}
-                  <Grid templateColumns="1fr 1fr">
-                    {item.group.map((property) => {
-                      return (
-                        <React.Fragment key={property.key}>
-                          <Text color="diamond.gray.4">{property.key}</Text>
-                          {property.link && (
-                            <Link href={property.link}>
-                              <Text color="diamond.link">{property.value}</Text>
-                            </Link>
-                          )}
-                          {!property.link && (
-                            <Text color="diamond.gray.5">{property.value}</Text>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Grid>
-                </Box>
-              );
-            })}
-          </Box>
+        <Grid templateColumns={isSmall ? "1fr" : "1fr 1fr"}>
+          {data.map((item, idx) => {
+            return (
+              <Box key={idx}>
+                {item.title && (
+                  <Text mb="10px" color="diamond.gray.3">
+                    {" "}
+                    {item.title}
+                  </Text>
+                )}
+                {item.properties.map((property) => {
+                  return (
+                    <Grid templateColumns="1fr 1fr" key={property.key}>
+                      <Text color="diamond.gray.4" minWidth="170px">
+                        {property.key}
+                      </Text>
+                      {property.link && (
+                        <Link href={property.link}>
+                          <Text color="diamond.link">{property.value}</Text>
+                        </Link>
+                      )}
+                      {!property.link && (
+                        <Text color="diamond.gray.5">{property.value}</Text>
+                      )}
+                    </Grid>
+                  );
+                })}
+              </Box>
+            );
+          })}
         </Grid>
       </Box>
     </Box>

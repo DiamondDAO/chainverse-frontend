@@ -1,16 +1,17 @@
 import { Box, Text } from "@chakra-ui/react";
 import React, { PropsWithChildren, ReactElement } from "react";
 import { TableOptions, useGridLayout, useTable } from "react-table";
-import { borderStyles } from "../../common/theme";
+import { borderStyles, scrollStyles } from "../../common/theme";
 
 interface ITable<T extends Record<string, unknown>> extends TableOptions<T> {
   title: string;
+  minColWidth?: string;
 }
 
 export function Table<T extends Record<string, unknown>>(
   props: PropsWithChildren<ITable<T>>
 ): ReactElement {
-  const { data, columns, title } = props;
+  const { data, columns, title, minColWidth } = props;
 
   const { headerGroups, rows, prepareRow } = useTable(
     { columns, data },
@@ -38,27 +39,12 @@ export function Table<T extends Record<string, unknown>>(
         // {...getTableProps()}
         display="grid"
         overflowX="scroll"
-        gridTemplateColumns={`repeat(${headerGroups[0].headers.length},minmax(110px,1fr))`}
+        gridTemplateColumns={`repeat(${headerGroups[0].headers.length},minmax(${
+          minColWidth ?? "110px"
+        },1fr))`}
         width="100%"
         height="320px"
-        sx={{
-          overflow: "scroll",
-          scrollbarWidth: "thin",
-          msOverflowStyle: {
-            width: "5px",
-            height: "5px",
-            bg: "diamond.gray.0",
-          },
-
-          "&::-webkit-scrollbar": {
-            width: "5px",
-            height: "5px",
-            bg: "diamond.gray.0",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "diamond.blue.2",
-          },
-        }}
+        sx={scrollStyles}
       >
         {headerGroups.map((headerGroup) => {
           return headerGroup.headers.map((column, idx) => {

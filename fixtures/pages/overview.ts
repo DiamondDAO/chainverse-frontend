@@ -17,16 +17,16 @@ export const overviewSummaryFacts = [
   },
 ];
 export const overviewGraphFixtures = [
-  { title: "TOTAL MEMBERS", value: "145", metric: "+5% COMPARED TO PREV 7D" },
+  { title: "TOTAL MEMBERS", value: "145", metric: "+5% COMPARED TO PREV 14D" },
   {
     title: "TOTAL NEW MEMBERS",
     value: "16",
-    metric: "+40% COMPARED TO PREV 7D",
+    metric: "+40% COMPARED TO PREV 14D",
   },
   {
     title: "ACTIVATION RATE",
     value: "40%",
-    metric: "+18% COMPARED TO PREV 7D",
+    metric: "+18% COMPARED TO PREV 14D",
   },
 ];
 
@@ -86,18 +86,15 @@ export const activityList = [
   },
 ];
 
-export const linksProperties = {
-  leftCol: [
-    {
-      group: [
-        { key: "DAOHaus", value: "Open", link: "/link" },
-        { key: "Discord", value: "Open", link: "/link" },
-      ],
-    },
-  ],
-  rightCol: [
-    {
-      group: [{ key: "Forum", value: "Open", link: "/link" }],
-    },
-  ],
-};
+export const linksProperties = [
+  {
+    properties: [
+      { key: "DAOHaus", value: "Open", link: "/link" },
+      { key: "Discord", value: "Open", link: "/link" },
+    ],
+  },
+  {
+    title: "",
+    properties: [{ key: "Forum", value: "Open", link: "/link" }],
+  },
+];

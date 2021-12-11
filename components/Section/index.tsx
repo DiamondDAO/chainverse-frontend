@@ -3,7 +3,7 @@ import React, { FC } from "react";
 
 interface ISection {
   header: string;
-  subheader: string;
+  subheader?: string;
   children: React.ReactNode;
 }
 
@@ -14,11 +14,15 @@ export const Section: FC<ISection> = ({ header, subheader, children }) => {
         <Heading variant="h3" fontSize="xl">
           {header}
         </Heading>
-        <Text color="diamond.gray.3" mt="10px" fontSize="lg">
+        <Text
+          color="diamond.gray.3"
+          mt={subheader ? "10px" : "20px"}
+          fontSize="lg"
+        >
           {subheader}
         </Text>
       </Box>
-      <Grid templateColumns="1fr 1fr 1fr" maxWidth="750px" gap="20px">
+      <Grid templateColumns="1fr 1fr 1fr" gap="20px">
         {children}
       </Grid>
     </>
