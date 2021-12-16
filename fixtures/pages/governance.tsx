@@ -4,87 +4,87 @@ import React from "react";
 export const governanceOverviewSumamryFacts = [
   {
     key: "PROPOSAL PASSED",
-    value: "5",
+    value: "-",
   },
   {
     key: "NEW PROPOSALS",
-    value: "7",
+    value: "-",
   },
   {
     key: "NEW FORUM POSTS",
-    value: "7",
+    value: "-",
   },
 ];
 
 export const governanceParticipationGraph = [
   {
     title: "VOTER PARTICIPATION RATE",
-    value: "16",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "NUMBER OF ACTIVE VOTERS",
-    value: "40%",
-    metric: "-40% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "VOTING POWER CONCENTRATION",
-    value: "VALUE",
-    metric: "-40% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];
 
 export const proposalActivitySummaryFacts = [
   {
     key: "PROPOSALS PASSED",
-    value: "5",
+    value: "-",
   },
   {
     key: "PROPOSALS FAILED",
-    value: "0",
+    value: "-",
   },
   {
     key: "PROPOSALS POSTED",
-    value: "8",
+    value: "-",
   },
   {
     key: "OPEN PROPOSALS",
-    value: "Value",
+    value: "-",
   },
   {
     key: "PROPOSALS W/O SPONSORS",
-    value: "Value",
+    value: "-",
   },
 ];
 
 export const governanceProposalActivityFixtures = [
   {
     title: "PROPOSAL PASSED",
-    value: "VALUE",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "PROPOSAL POSTED",
-    value: "16",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];
 
 export const governanceProposals = (proposalAmt: number) => {
   return Array.from(Array(proposalAmt).keys()).map((i) => {
     return {
-      name: `Proposal ${i + 1}`,
-      Y: Math.round(Math.random() * 100),
-      N: Math.round(Math.random() * 100),
-      timeRemain: Math.round(Math.random() * 36),
-      particaptionRate: Math.round(Math.random() * 100),
-      voteCastPercentage: Math.round(Math.random() * 100),
+      name: `Proposal -`,
+      Y: "",
+      N: "",
+      timeRemain: "-",
+      particaptionRate: "-",
+      voteCastPercentage: "-",
       proposalLink: `/link`,
       voters: Array.from(Array(7).keys()).map((i) => ({
-        wallet: `0x1234561234123434`,
+        wallet: `-`,
         vote: i % 3 ? "Yes" : "No",
-        votes: "55%",
-        votingPower: 1,
+        votes: "",
+        votingPower: 0,
       })),
     };
   });
@@ -92,34 +92,34 @@ export const governanceProposals = (proposalAmt: number) => {
 export const governanceVotingActivityGraph1 = [
   {
     title: "AVG % VOTER PARTICIPATION",
-    value: "8%",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "AVG % ELIGIBLE VOTES CAST",
-    value: "16",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];
 export const governanceVotingActivityGraph2 = [
   {
     title: "TOTAL NUM. OF VOTERS",
-    value: "VALUE",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "AVG NUM. VOTERS PER PROPOSAL",
-    value: "16",
-    metric: "-32% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];
 export const governanceActiveVotersRows = Array.from(Array(9).keys()).map(
   (i) => ({
-    wallet: "wallet.eth",
-    proposalsSubmitted: "4",
-    proposalsSponsored: "3",
-    proposalsPassed: "1",
-    timesVoted: "12",
+    wallet: "-",
+    proposalsSubmitted: "-",
+    proposalsSponsored: "-",
+    proposalsPassed: "-",
+    timesVoted: "-",
   })
 );
 export const governanceActiveVotersCols = [
@@ -150,12 +150,12 @@ export const governanceActiveVotersCols = [
 export const votingPowerGraph = [
   {
     title: "MINIMUM VOTING COALITION",
-    value: "6 Power Brokers",
-    metric: "61% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "VOTING POWER CONCENTRATION",
-    value: "VALUE",
-    metric: "-40% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];

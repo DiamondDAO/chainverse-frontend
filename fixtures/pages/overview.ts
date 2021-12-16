@@ -17,39 +17,39 @@ export const overviewSummaryFacts = [
   },
 ];
 export const overviewGraphFixtures = [
-  { title: "TOTAL MEMBERS", value: "145", metric: "+5% COMPARED TO PREV 14D" },
+  { title: "TOTAL MEMBERS", value: "-", metric: "N/A COMPARED TO PREV 14D" },
   {
     title: "TOTAL NEW MEMBERS",
-    value: "16",
-    metric: "+40% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
   {
     title: "ACTIVATION RATE",
-    value: "40%",
-    metric: "+18% COMPARED TO PREV 14D",
+    value: "-",
+    metric: "N/A COMPARED TO PREV 14D",
   },
 ];
 
 export const activitySummaryFacts = [
   {
     key: "PASSED",
-    value: "10",
+    value: "-",
   },
   {
     key: "FAILED",
-    value: "3",
+    value: "-",
   },
   {
     key: "OPEN",
-    value: "4",
+    value: "-",
   },
   {
     key: "UNSPONSORED",
-    value: "1",
+    value: "-",
   },
   {
     key: "POSTED",
-    value: "5",
+    value: "-",
   },
 ];
 
