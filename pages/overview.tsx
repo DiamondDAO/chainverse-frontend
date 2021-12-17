@@ -15,7 +15,6 @@ import {
   activitySummaryFacts,
   linksProperties,
   overviewGraphFixtures,
-  overviewSummaryFacts,
 } from "../fixtures/pages/overview";
 
 const Overview: NextPage = () => {
@@ -26,7 +25,7 @@ const Overview: NextPage = () => {
   ];
   const { data: overviewData, isError } = useGetOverview(792);
   const { data: discourseData } = useGetDiscoursePosts(106);
-  const dataAvailable = overviewData && discourseData;
+  const dataAvailable = Boolean(overviewData && discourseData);
   return (
     <Layout>
       {!dataAvailable && !isError && <div>Loading Dashboard...</div>}
