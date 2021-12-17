@@ -164,7 +164,7 @@ export const newMemberColumns = [
     accessor: "joinDate",
   },
 ];
-export const participationMemberGraphFixtures1 = [
+export const participationMemberGraphFixtures = [
   {
     title: "TOTAL PROPOSAL INTERACTIONS",
     value: "-",
@@ -180,8 +180,6 @@ export const participationMemberGraphFixtures1 = [
     value: "-",
     metric: "N/A COMPARED TO PREV 14D",
   },
-];
-export const participationMemberGraphFixtures2 = [
   {
     title: "MEMBERS WITH PROPOSAL INTERACTIONS",
     value: "-",
