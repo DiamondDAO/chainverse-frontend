@@ -27,9 +27,14 @@ export const GraphGrid: FC<IGraphGrid> = ({ graphItems }) => {
 
   return (
     <>
-      {nestedArray.map((graphRow) => {
+      {nestedArray.map((graphRow, idx) => {
         return (
-          <Box gridRow="span 2" gridColumn="span 3" height="max-content">
+          <Box
+            key={idx}
+            gridRow="span 2"
+            gridColumn="span 3"
+            height="max-content"
+          >
             <Grid
               templateColumns={`repeat(${graphRow.length}, 1fr)`}
               gap="20px"
