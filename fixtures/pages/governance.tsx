@@ -74,11 +74,11 @@ export const governanceProposals = (proposalAmt: number) => {
   return Array.from(Array(proposalAmt).keys()).map((i) => {
     return {
       name: `Proposal -`,
-      Y: "",
-      N: "",
-      timeRemain: "-",
-      particaptionRate: "-",
-      voteCastPercentage: "-",
+      Y: 0,
+      N: 0,
+      timeRemain: 0,
+      particaptionRate: 0,
+      voteCastPercentage: 0,
       proposalLink: `/link`,
       voters: Array.from(Array(7).keys()).map((i) => ({
         wallet: `-`,
