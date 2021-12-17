@@ -1,10 +1,13 @@
 import useSWR from "swr";
-
-export const useGetDiscoursePosts = (id: number) => {
-  const url = `${
-    process.env.NEXT_PUBLIC_API_URL ?? ""
-  }api/discourse/${id}/posts`.trim();
-  const { data, error } = useSWR(url);
+import { URLFormatter } from "../../utils";
+type DiscoursePostsData = {
+  category_id: number;
+  count: number;
+};
+export const useGetDiscoursePosts = (id: string) => {
+  const { data, error } = useSWR<DiscoursePostsData>(
+    URLFormatter(`/api/discourse/${id}/posts`)
+  );
 
   return {
     data,

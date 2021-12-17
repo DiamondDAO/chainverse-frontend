@@ -21,7 +21,7 @@ export const GraphItem: FC<IGraphItem> = ({
   onOpen,
 }) => {
   return (
-    <Box p="20px" {...borderStyles} position="relative">
+    <Box p="20px" {...borderStyles} position="relative" height="100%">
       {expandable && (
         <Box
           position="absolute"
