@@ -42,27 +42,13 @@ export const Properties: FC<IList> = ({ title, data }) => {
           <Text>{title}</Text>
         </Box>
       </Box>
-      <Box
-        px="20px"
-        py="20px"
-        maxHeight="393px"
-        sx={{
-          overflow: "scroll",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          "&::-webkit-scrollbar": {
-            width: 0,
-            height: 0,
-          },
-        }}
-      >
+      <Box px="20px" py="20px">
         <Grid templateColumns={isSmall ? "1fr" : "1fr 1fr"}>
           {data.map((item, idx) => {
             return (
-              <Box key={idx}>
+              <Box key={idx} mb="20px">
                 {item.title && (
                   <Text mb="10px" color="diamond.gray.3">
-                    {" "}
                     {item.title}
                   </Text>
                 )}

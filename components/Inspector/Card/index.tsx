@@ -1,6 +1,5 @@
 import { Box, Divider, Grid, Text } from "@chakra-ui/react";
 import React, { FC } from "react";
-import { borderStyles } from "../../../common/theme";
 
 interface IInspectorCard {
   title: string;

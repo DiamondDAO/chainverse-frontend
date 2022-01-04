@@ -3,7 +3,7 @@ import React, { FC } from "react";
 import { borderStyles } from "../../common/theme";
 import { ExpandableIcon } from "../Icons/ExpandableIcon";
 
-interface ISummaryBanner {
+export interface ISummaryBanner {
   summaryFacts: { key: string; value: string }[];
   expandable?: boolean;
   onOpen?: () => void;

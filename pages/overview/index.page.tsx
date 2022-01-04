@@ -48,7 +48,7 @@ const Overview: NextPage = () => {
                 subheader="All activity across the forum, DAOHaus, "
               >
                 <SummaryBanner summaryFacts={data.activitySummaryFacts} />
-                <List name="Activity" listItems={activityList} />
+                <List title="Activity" listItems={activityList} />
               </Section>
             </Box>
             <Box id="links" mt="90px">

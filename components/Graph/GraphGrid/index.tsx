@@ -2,7 +2,7 @@ import { Box, Grid } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { GraphItem } from "../GraphItem";
 
-interface IGraphGrid {
+export interface IGraphGrid {
   graphItems: {
     title: string;
     value: string;
@@ -34,6 +34,7 @@ export const GraphGrid: FC<IGraphGrid> = ({ graphItems }) => {
             gridRow="span 2"
             gridColumn="span 3"
             height="max-content"
+            mb="20px"
           >
             <Grid
               templateColumns={`repeat(${graphRow.length}, 1fr)`}

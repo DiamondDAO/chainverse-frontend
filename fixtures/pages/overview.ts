@@ -61,7 +61,7 @@ export const activityList = [
       { key: "Comments", value: "Value" },
       { key: "Link to post", value: "Link", link: "/link" },
     ],
-    col: 2,
+    col: 2 as 2 | 4,
   },
   {
     title: "PROPOSAL",
@@ -73,7 +73,7 @@ export const activityList = [
       { key: "Link to proposal", value: "Link", link: "/link" },
       { key: "Votes against", value: "Value" },
     ],
-    col: 4,
+    col: 4 as 2 | 4,
   },
   {
     title: "LIST ITEM TITLE",
@@ -82,7 +82,7 @@ export const activityList = [
       { key: "Comments", value: "Value" },
       { key: "Link to post", value: "Link", link: "/link" },
     ],
-    col: 2,
+    col: 2 as 2 | 4,
   },
 ];
 

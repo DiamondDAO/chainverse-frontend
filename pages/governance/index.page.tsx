@@ -124,7 +124,7 @@ const Governance: NextPage = () => {
             <Box id="all-activity" mt="90px">
               {/* All Activity */}
               <Section header="All Activity">
-                <List name="Activity" listItems={activityList} />
+                <List title="Activity" listItems={activityList} />
               </Section>
             </Box>
           </Box>
