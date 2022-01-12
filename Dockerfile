@@ -11,4 +11,4 @@ COPY . /app
 RUN  npm run build
 EXPOSE 3000
 
-CMD /bin/bash
+CMD npm start
