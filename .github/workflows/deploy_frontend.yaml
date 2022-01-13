@@ -16,7 +16,7 @@ env:
   CONTAINER_NAME:
     "frontend" # set this to the name of the container in the
     # containerDefinitions section of you
-  SERVICE: "frontend"
+  SERVICE: "frontend-2"
 
 jobs:
   # Run code tests before building the image, to ensure it is good to go
