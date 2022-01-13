@@ -2,7 +2,6 @@ PROJECT_NAME=frontend
 IMAGE_PATH = /chainverse/frontend
 TAG = latest
 
-
 build:
 	docker build -t $(PROJECT_NAME):$(TAG)  . 
 
