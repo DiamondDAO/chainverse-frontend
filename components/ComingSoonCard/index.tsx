@@ -7,12 +7,12 @@ import {
   InputRightElement,
   Button,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { FC } from "react";
 import { borderStyles } from "../../common/theme";
 
 interface Props {}
 
-export const ComingSoonCard = () => {
+export const ComingSoonCard: FC<Props> = () => {
   return (
     <Box
       display="flex"
