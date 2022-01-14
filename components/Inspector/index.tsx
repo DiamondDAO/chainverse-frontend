@@ -146,7 +146,7 @@ export const Inspector: FC<IInspector> = ({
         <Box sx={{ ...scrollStyles, overflow: "unset", overflowY: "scroll" }}>
           <Box p="20px">
             <Text mb="20px">{selectedData.name}</Text>
-            <Properties title="Properties" data={propertiesData} singleCol />
+            <Properties title="Properties" data={propertiesData} />
             <Box mt="20px">
               <Table<{
                 wallet: string;
