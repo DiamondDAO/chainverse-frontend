@@ -1,6 +1,8 @@
 import { Box, Text, Image, useTheme, HStack } from "@chakra-ui/react";
+import Router from "next/router";
 import React, { FC } from "react";
 import { borderStyles } from "../../common/theme";
+import { AccountMenu } from "./AccountMenu";
 import { DateFilter } from "./DateFilter";
 import { NavPages } from "./NavPages";
 
@@ -8,6 +10,12 @@ export interface INavbar {}
 
 export const NavBar: FC<INavbar> = ({}) => {
   const { space } = useTheme();
+  const navigationPages = [
+    { text: "Overview", link: "/overview" },
+    { text: "Participation", link: "/participation" },
+    { text: "Governance", link: "/governance" },
+    { text: "Discover", link: "/discover" },
+  ];
   return (
     <Box
       sx={{
@@ -23,40 +31,28 @@ export const NavBar: FC<INavbar> = ({}) => {
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Image
+          cursor="pointer"
+          onClick={() => Router.push("/")}
           alt="nav-logo"
           mr="7px"
           width="18px"
           height="15px"
           src="./img/nav_diamond.png"
         />
-        <NavPages
-          pages={[
-            { text: "Overview", link: "/overview" },
-            { text: "Participation", link: "/participation" },
-            { text: "Governance", link: "/governance" },
-          ]}
-        />
+        <NavPages pages={navigationPages} />
       </Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Box
-          borderLeft={"0.5px solid"}
-          borderColor="diamond.gray.2"
-          sx={{ py: "7px", px: space.medium }}
-        >
-          <Text>+Add Filter</Text>
-        </Box>
-        <DateFilter />
         <Box
           borderLeft={"0.5px solid"}
           borderColor="diamond.gray.2"
           sx={{
             py: "7px",
             height: "100%",
-            pr: "11px",
+            pr: "10px",
             pl: space.medium,
           }}
         >
-          <Text>Account</Text>
+          <AccountMenu />
         </Box>
       </Box>
     </Box>

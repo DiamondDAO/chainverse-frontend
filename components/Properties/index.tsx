@@ -8,18 +8,19 @@ type ColData = {
   group: { key: string; value: string; link?: string }[];
 }[];
 interface IList {
-  title: string;
+  title?: string;
   data: {
     title?: string;
     properties: {
       key: string;
-      value: string;
+      value: string | React.ReactElement;
       link?: string;
     }[];
   }[];
+  height?: string;
 }
 
-export const Properties: FC<IList> = ({ title, data }) => {
+export const Properties: FC<IList> = ({ title, data, height = "100px" }) => {
   const {
     mediaBreakpoints: { sm: isSmall },
     ref,
@@ -30,20 +31,22 @@ export const Properties: FC<IList> = ({ title, data }) => {
   });
   return (
     <Box ref={ref} gridRow="span 4" gridColumn="span 3" {...borderStyles}>
-      <Box bg="diamond.blue.0">
-        <Box
-          fontSize="sm"
-          display="flex"
-          width="100%"
-          px="17px"
-          pt="12px"
-          pb="14px"
-        >
-          <Text>{title}</Text>
+      {title && (
+        <Box bg="diamond.blue.0">
+          <Box
+            fontSize="sm"
+            display="flex"
+            width="100%"
+            px="17px"
+            pt="12px"
+            pb="14px"
+          >
+            <Text>{title}</Text>
+          </Box>
         </Box>
-      </Box>
-      <Box px="20px" py="20px">
-        <Grid templateColumns={isSmall ? "1fr" : "1fr 1fr"}>
+      )}
+      <Box px="20px" pt="20px">
+        <Box height={height} display="flex" flexFlow="column wrap">
           {data.map((item, idx) => {
             return (
               <Box key={idx} mb="20px">
@@ -54,7 +57,11 @@ export const Properties: FC<IList> = ({ title, data }) => {
                 )}
                 {item.properties.map((property) => {
                   return (
-                    <Grid templateColumns="1fr 1fr" key={property.key}>
+                    <Grid
+                      templateColumns="1fr 1fr"
+                      key={property.key}
+                      color="diamond.gray.5"
+                    >
                       <Text color="diamond.gray.4" minWidth="170px">
                         {property.key}
                       </Text>
@@ -63,16 +70,14 @@ export const Properties: FC<IList> = ({ title, data }) => {
                           <Text color="diamond.link">{property.value}</Text>
                         </Link>
                       )}
-                      {!property.link && (
-                        <Text color="diamond.gray.5">{property.value}</Text>
-                      )}
+                      {!property.link && property.value}
                     </Grid>
                   );
                 })}
               </Box>
             );
           })}
-        </Grid>
+        </Box>
       </Box>
     </Box>
   );

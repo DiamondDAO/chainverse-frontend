@@ -58,7 +58,11 @@ const Overview: NextPage = () => {
                 header="Links"
                 subheader="External links for Diamond DAO"
               >
-                <Properties title="Links" data={linksProperties} />
+                <Properties
+                  title="Links"
+                  data={linksProperties}
+                  height="70px"
+                />
               </Section>
             </Box>
           </Box>

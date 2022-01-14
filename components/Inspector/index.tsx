@@ -23,9 +23,14 @@ interface IInspector {
       votingPower: number;
     }[];
   }[];
+  height?: string;
 }
 
-export const Inspector: FC<IInspector> = ({ title, data }) => {
+export const Inspector: FC<IInspector> = ({
+  title,
+  data,
+  height = "417px",
+}) => {
   // index for now, we can use id once data API is finalized
   const [selected, setSelected] = useState(0);
 
@@ -110,7 +115,7 @@ export const Inspector: FC<IInspector> = ({ title, data }) => {
           </Text>
         </Box>
       </Box>
-      <Grid templateColumns="1fr 2fr" height="417px">
+      <Grid templateColumns="1fr 2fr" height={height}>
         <Box
           borderTop="1px solid"
           borderRight="1px solid"
@@ -141,7 +146,7 @@ export const Inspector: FC<IInspector> = ({ title, data }) => {
         <Box sx={{ ...scrollStyles, overflow: "unset", overflowY: "scroll" }}>
           <Box p="20px">
             <Text mb="20px">{selectedData.name}</Text>
-            <Properties title="Properties" data={propertiesData} />
+            <Properties title="Properties" data={propertiesData} singleCol />
             <Box mt="20px">
               <Table<{
                 wallet: string;
