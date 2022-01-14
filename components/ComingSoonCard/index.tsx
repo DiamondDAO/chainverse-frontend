@@ -36,7 +36,12 @@ export const ComingSoonCard = () => {
       <InputGroup mt="10px" maxWidth="400px" {...borderStyles}>
         <Input type={"email"} placeholder="YOUR EMAIL" />
         <InputRightElement width="5rem">
-          <Button bg="diamond.link" color="diamond.white" onClick={() => {}}>
+          <Button
+            bg="diamond.link"
+            _hover={{ bg: "diamond.blue.3" }}
+            color="diamond.white"
+            onClick={() => {}}
+          >
             SUBMIT
           </Button>
         </InputRightElement>

@@ -3,15 +3,15 @@ import React, { FC } from "react";
 import { borderStyles } from "../../common/theme";
 
 interface IList {
-  name: string;
+  title: string;
   listItems: {
     title: string;
     items: { key: string; value: string; link?: string }[];
-    col: number;
+    col: 2 | 4;
   }[];
 }
 
-export const List: FC<IList> = ({ name, listItems }) => {
+export const List: FC<IList> = ({ title, listItems }) => {
   return (
     <Box gridRow="span 4" gridColumn="span 3" {...borderStyles}>
       <Box bg="diamond.blue.0">
@@ -23,7 +23,7 @@ export const List: FC<IList> = ({ name, listItems }) => {
           pt="12px"
           pb="14px"
         >
-          <Text flexGrow="1">{name}</Text>
+          <Text flexGrow="1">{title}</Text>
           <Text mr="15px">Show: All</Text>
           <Text>Sort By: Recent</Text>
         </Box>

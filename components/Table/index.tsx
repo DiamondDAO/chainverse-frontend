@@ -3,7 +3,8 @@ import React, { PropsWithChildren, ReactElement } from "react";
 import { TableOptions, useGridLayout, useTable } from "react-table";
 import { borderStyles, scrollStyles } from "../../common/theme";
 
-interface ITable<T extends Record<string, unknown>> extends TableOptions<T> {
+export interface ITable<T extends Record<string, unknown>>
+  extends TableOptions<T> {
   title: string;
   minColWidth?: string;
 }

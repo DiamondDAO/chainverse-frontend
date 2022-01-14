@@ -9,24 +9,31 @@
     "lint": "next lint",
     "install-build-start": "npm i && npm run build && npm start",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "chromatic": "npx chromatic --project-token=0edcf7bf162e"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^1.1.1",
     "@chakra-ui/react": "^1.7.2",
     "@emotion/react": "^11.7.0",
     "@emotion/styled": "^11.6.0",
     "@fontsource/rubik": "^4.5.0",
     "axios": "^0.24.0",
+    "ethers": "^5.5.3",
     "framer-motion": "^4.1.17",
+    "fuse.js": "^6.5.3",
     "lodash": "^4.17.21",
     "next": "12.0.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-icons": "^4.3.1",
+    "react-spring": "^9.4.1",
     "react-table": "^7.7.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6",
     "storybook-addon-next-router": "^3.1.0",
-    "swr": "^1.1.1"
+    "swr": "^1.1.1",
+    "wagmi": "^0.1.3"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
@@ -40,6 +47,7 @@
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@types/react-window": "^1.8.5",
     "babel-loader": "^8.2.3",
+    "chromatic": "^6.3.3",
     "eslint": "8.4.0",
     "eslint-config-next": "12.0.7",
     "eslint-plugin-storybook": "^0.5.3",
