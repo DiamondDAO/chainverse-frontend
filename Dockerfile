@@ -11,4 +11,4 @@ COPY . /app
 RUN  npm run build
 EXPOSE 3000
 
-CMD npm start
+CMD API_URL=api.chainverse next start
