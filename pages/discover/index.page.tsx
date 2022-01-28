@@ -13,6 +13,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { Layout } from "../../components/Layout";
 import { Assets, DAOData, Socials } from "../../common/types";
 import Fuse from "fuse.js";
+import { useConnect } from "wagmi";
 
 const data = [
   {
@@ -165,6 +166,14 @@ const Discover: NextPage = () => {
   const [searchText, setSearchText] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState(searchText);
   const [filteredData, setFilteredData] = useState<DAOData[]>(data);
+
+  const [
+    {
+      data: { connected },
+      loading,
+    },
+  ] = useConnect();
+
   const searchData = useMemo(
     () =>
       data &&
@@ -173,7 +182,7 @@ const Discover: NextPage = () => {
         includeScore: false,
         keys: ["name", "network", "type"],
       }),
-    [data]
+    []
   );
 
   useEffect(() => {
@@ -182,7 +191,7 @@ const Discover: NextPage = () => {
     } else {
       setFilteredData(data);
     }
-  }, [searchText, data]);
+  }, [searchText, searchData]);
   useEffect(() => {
     const timer = setTimeout(() => setSearchText(debouncedTerm), 200);
     return () => clearTimeout(timer);
@@ -192,25 +201,39 @@ const Discover: NextPage = () => {
 
   return (
     <Layout>
-      <Box display="flex" justifyContent="center">
-        <Heading>Explore Chainverse</Heading>
-      </Box>
-      <Box mx="100px" my="30px">
-        <InputGroup>
-          <InputLeftElement pointerEvents="none">
-            <SearchIcon color="gray.300" />
-          </InputLeftElement>
-          <Input
-            fontWeight="400"
-            value={debouncedTerm}
-            onChange={(e) => setDebouncedTerm(e.target.value)}
-            placeholder="Search for DAO"
-          />
-        </InputGroup>
-      </Box>
-      <Box>
-        <DAOExplorer title={"Results"} data={filteredData} height="700px" />
-      </Box>
+      {loading && (
+        <Box display="flex" justifyContent="center">
+          Loading...
+        </Box>
+      )}
+      {!loading && !connected && (
+        <Box display="flex" justifyContent="center">
+          Please connect your wallet to continue.
+        </Box>
+      )}
+      {!loading && connected && (
+        <>
+          <Box display="flex" justifyContent="center">
+            <Heading>Explore Chainverse</Heading>
+          </Box>
+          <Box mx="100px" my="30px">
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                fontWeight="400"
+                value={debouncedTerm}
+                onChange={(e) => setDebouncedTerm(e.target.value)}
+                placeholder="Search for DAO"
+              />
+            </InputGroup>
+          </Box>
+          <Box>
+            <DAOExplorer title={"Results"} data={filteredData} height="700px" />
+          </Box>
+        </>
+      )}
     </Layout>
   );
 };

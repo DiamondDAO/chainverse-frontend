@@ -1,6 +1,9 @@
-export const truncateAddress = (address: string) => {
-  return address.slice(0, 4) + "..." + address.slice(address.length - 4);
-};
+export function truncateAddress(address = "", width = 10): string {
+  if (!address) {
+    return "";
+  }
+  return `${address.slice(0, width)}...${address.slice(-width)}`;
+}
 
 export const URLFormatter = (url: string) => {
   return `${process.env.NEXT_PUBLIC_API_URL ?? ""}${url}`.trim();

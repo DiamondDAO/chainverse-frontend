@@ -15,6 +15,13 @@ export enum Assets {
 export type InvestableAssets = { type: Assets; address: string }[];
 
 export type SocialType = { type: Socials; link: string }[];
+
+export type PreferenceData = {
+  activeSince: string;
+  purpose: string[];
+  interests: string[];
+};
+
 export type DAOData = {
   name: string;
   members: number;
