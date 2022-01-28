@@ -10,7 +10,8 @@ import {
   MenuList,
   Box,
 } from "@chakra-ui/react";
-import React from "react";
+import Router from "next/router";
+import React, { useEffect } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useAccount, useConnect } from "wagmi";
 import { truncateAddress } from "../../common/utils";
@@ -24,6 +25,15 @@ export const AccountMenu = (props: Props) => {
     connect,
   ] = useConnect();
   const [{ data }, disconnect] = useAccount();
+
+  useEffect(() => {
+    if (connected) {
+      if (localStorage.getItem(`diamond-storage-${data?.address}`) === null) {
+        Router.push("/onboard");
+      }
+    }
+  }, [connected, data]);
+
   return (
     <>
       {!connected && (
@@ -84,10 +94,12 @@ export const AccountMenu = (props: Props) => {
             <MenuGroup ml="12.8" title="Profile">
               <Box px="12.8" py="6.4">
                 Logged in as: 0x
-                {data?.address && truncateAddress(data?.address.slice(2))}
+                {data?.address && truncateAddress(data?.address.slice(2), 5)}
               </Box>
 
-              <MenuItem>My Account</MenuItem>
+              <MenuItem onClick={() => Router.push("/preferences")}>
+                Preferences
+              </MenuItem>
             </MenuGroup>
             <MenuDivider />
             <MenuItem onClick={disconnect}>

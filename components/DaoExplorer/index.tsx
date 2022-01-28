@@ -10,6 +10,21 @@ import {
   IconButton,
   Textarea,
   Link,
+  Icon,
+  MenuButton,
+  Menu,
+  MenuList,
+  MenuItem,
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverArrow,
+  PopoverHeader,
+  PopoverBody,
+  PopoverCloseButton,
+  Input,
+  Portal,
 } from "@chakra-ui/react";
 import React, { FC, useEffect, useState } from "react";
 import { borderStyles, scrollStyles } from "../../common/theme";
@@ -24,7 +39,7 @@ import {
 } from "react-icons/ri";
 import { DAOData, InvestableAssets, Socials } from "../../common/types";
 import { capitalize } from "lodash";
-import { CheckIcon, EditIcon } from "@chakra-ui/icons";
+import { CheckIcon, EditIcon, CloseIcon, AddIcon } from "@chakra-ui/icons";
 
 interface IInspector {
   title: string;
@@ -48,6 +63,7 @@ export const DAOExplorer: FC<IInspector> = ({ title, data, height }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEditingData = (data: Partial<DAOData>) => {
+    console.log(data);
     setEditedSelectedData({ ...editedSelectedData, ...data });
   };
 
@@ -100,6 +116,83 @@ export const DAOExplorer: FC<IInspector> = ({ title, data, height }) => {
         );
       });
     }
+  };
+  const [text, setText] = useState("");
+
+  const EditableBadgeGenerator = (
+    badgeItems: string[],
+    editFn: (data: string[]) => void
+  ) => {
+    return (
+      <>
+        {badgeItems?.map((badgeItem, idx) => (
+          <Badge p="0" pl="3px" display="flex" key={idx} color="diamond.gray.4">
+            {badgeItem}
+            <Box
+              cursor="pointer"
+              display="flex"
+              alignItems="center"
+              ml="2px"
+              pl="5px"
+              pr="5px"
+              _hover={{ bg: "diamond.gray.2" }}
+              onClick={() =>
+                editFn(badgeItems.filter((item) => item != badgeItem))
+              }
+              as="span"
+            >
+              <Icon w={"8px"} height={"8px"} as={CloseIcon} />
+            </Box>
+          </Badge>
+        ))}
+        {/* <Badge cursor="pointer" colorScheme="green" color="diamond.gray.4">
+          <Text fontWeight="700" fontSize="12px">
+            +
+          </Text>
+        </Badge> */}
+        <Popover placement="bottom" flip={false}>
+          <PopoverTrigger>
+            <Badge bg="diamond.blue.2" cursor="pointer">
+              +
+            </Badge>
+          </PopoverTrigger>
+          <Portal>
+            <PopoverContent
+              color="white"
+              bg="diamond.blue.3"
+              borderColor="diamond.blue.4"
+            >
+              <PopoverArrow />
+              <PopoverCloseButton />
+              <PopoverHeader pt={4} fontWeight="bold" border="0">
+                Add New Tag
+              </PopoverHeader>
+              <PopoverBody>Enter tags below to add:</PopoverBody>
+              <Box m="5px">
+                <Input
+                  bg="white"
+                  color="diamond.gray.4"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+              </Box>
+              <Box my="15px" ml="5px">
+                <Button
+                  onClick={() => {
+                    editFn([...badgeItems, text]);
+                    setText("");
+                  }}
+                  bg="diamond.blue.5"
+                  maxW="100px"
+                >
+                  Add
+                </Button>
+              </Box>
+            </PopoverContent>
+          </Portal>
+        </Popover>
+      </>
+    );
   };
 
   const assetsGenerator = (assets: InvestableAssets) => {
@@ -195,6 +288,7 @@ export const DAOExplorer: FC<IInspector> = ({ title, data, height }) => {
                   </HStack>
                 </Box>
                 <Image
+                  alt="logo-image"
                   width="66px"
                   height="66px"
                   sx={{ objectFit: "cover" }}
@@ -249,7 +343,12 @@ export const DAOExplorer: FC<IInspector> = ({ title, data, height }) => {
                         alignItems={"flex-start"}
                         sx={{ mt: "5px", gap: "10px" }}
                       >
-                        {badgeGenerator(selectedData.impactAreas)}
+                        {!isEditing && badgeGenerator(selectedData.impactAreas)}
+                        {isEditing &&
+                          EditableBadgeGenerator(
+                            editedSelectedData.impactAreas,
+                            (data) => handleEditingData({ impactAreas: data })
+                          )}
                       </Box>
                     </>
                     <>
@@ -260,7 +359,12 @@ export const DAOExplorer: FC<IInspector> = ({ title, data, height }) => {
                         alignItems={"flex-start"}
                         sx={{ mt: "5px", gap: "10px" }}
                       >
-                        {badgeGenerator(selectedData.type)}
+                        {!isEditing && badgeGenerator(selectedData.type)}
+                        {isEditing &&
+                          EditableBadgeGenerator(
+                            editedSelectedData.type,
+                            (data) => handleEditingData({ type: data })
+                          )}
                       </Box>
                     </>
                   </Grid>

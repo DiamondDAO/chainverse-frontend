@@ -10,12 +10,7 @@ export interface INavbar {}
 
 export const NavBar: FC<INavbar> = ({}) => {
   const { space } = useTheme();
-  const navigationPages = [
-    { text: "Overview", link: "/overview" },
-    { text: "Participation", link: "/participation" },
-    { text: "Governance", link: "/governance" },
-    { text: "Discover", link: "/discover" },
-  ];
+  const navigationPages = [{ text: "Discover", link: "/discover" }];
   return (
     <Box
       sx={{
