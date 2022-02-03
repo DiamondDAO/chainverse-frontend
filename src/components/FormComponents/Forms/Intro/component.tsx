@@ -8,9 +8,9 @@ export const IntroContent: FC = () => {
         Welcome to Diamond DAO!
       </Heading>
       <Text>
-        Before you begin on this journey, we have some pathfinding questions to
-        figure out what DAO will best serve you. You can always change these
-        preferences later in the preference page.
+        {`Thank you for helping build Chainverse. Let's start with some
+        path-finding questions to understand what you are looking for in
+        community and the types of communities you're passionate about.`}
       </Text>
       <Box display="flex" justifyContent="center">
         <Image

@@ -5,11 +5,10 @@ export const CompletedFormContent: FC = () => {
   return (
     <Box>
       <Heading size="md" mb="20px">
-        Thanks for completing the form!
+        Thank you!
       </Heading>
       <Text>
-        Your submission has been noted and we will surface content relevant to
-        your form submission! Remember, your preferences can be changed anytime
+        Come build Chainverse! Remember, your preferences can be changed anytime
         in the preference page.
       </Text>
     </Box>

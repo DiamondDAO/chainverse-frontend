@@ -22,7 +22,7 @@ const Home: NextPage = () => {
         Chainverse
       </Text>
       <Text mt="10px" fontSize="sm">
-        Welcome to your DAO Dashboard.
+        Understand the communities building the future
       </Text>
 
       <Button

@@ -6,7 +6,7 @@ const model = {
   fields: {
     purpose: {
       name: "purpose",
-      label: "What are you interested in accomplishing in the DAO space?",
+      label: "What motivates you?",
     },
   },
   validation: Yup.object().shape({

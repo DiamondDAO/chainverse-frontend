@@ -2,7 +2,7 @@ import * as Yup from "yup";
 
 const model = {
   formId: "interests",
-  formTitle: "DAO Interests",
+  formTitle: "Community Attributes",
   fields: {
     interests: {
       name: "interests",

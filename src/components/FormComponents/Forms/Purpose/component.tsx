@@ -5,13 +5,13 @@ import { CheckboxContainer, CheckboxControl } from "formik-chakra-ui";
 
 export const Purpose: FC = () => {
   const PurposeOptions = [
-    "I want to learn more about DAOs",
-    "Invest in DAOs",
-    "Earn a living by contributing (i.e. working) for DAOs",
-    "I'm looking for interesting DAO bounties",
+    "I want to learn more about Web3 communities",
+    "Invest in Web3 communities",
+    "Earn a living by contributing (i.e. working) for Web3 communities",
+    "I'm looking for interesting Web3 community bounties",
     "I'm looking to find community",
-    "I'm thinking about starting a DAO",
-    "I want to research DAOs",
+    "I'm thinking about starting a Web3 community",
+    "I want to research Web3 communities",
     "Other",
   ];
   return (
