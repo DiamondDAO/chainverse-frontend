@@ -13,6 +13,10 @@ import {
   Provider,
 } from "wagmi";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { ApolloProvider } from "@apollo/client";
+import client from "@/services/Apollo/apolloClient";
+import { CheckIfOnboarded } from "@/components/UtilityComponents/CheckIfOnboarded";
+
 function MyApp({ Component, pageProps }: AppProps) {
   const chains = [...defaultChains, ...defaultL2Chains, ...developmentChains];
   const connectors = [
@@ -25,6 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       },
     }),
   ];
+
   return (
     <ChakraProvider theme={theme}>
       <SWRConfig
@@ -36,9 +41,13 @@ function MyApp({ Component, pageProps }: AppProps) {
             }).then((res) => res.json()),
         }}
       >
-        <Provider autoConnect connectors={connectors}>
-          <Component {...pageProps} />
-        </Provider>
+        <ApolloProvider client={client}>
+          <Provider autoConnect connectors={connectors}>
+            <CheckIfOnboarded>
+              <Component {...pageProps} />
+            </CheckIfOnboarded>
+          </Provider>
+        </ApolloProvider>
       </SWRConfig>
     </ChakraProvider>
   );

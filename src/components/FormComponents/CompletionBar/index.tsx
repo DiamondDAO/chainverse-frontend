@@ -4,9 +4,10 @@ import React, { FC } from "react";
 type Props = {};
 
 const Diamond = ({ complete }: { complete: boolean }) => (
-  <svg
-    width="30"
-    height="30"
+  <Box
+    as="svg"
+    width={["20px", null, null, "30px"]}
+    height={["20px", null, null, "30px"]}
     viewBox="0 0 57 46"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +44,7 @@ const Diamond = ({ complete }: { complete: boolean }) => (
       height="0.402168"
       fill="#1C4265"
     />
-  </svg>
+  </Box>
 );
 interface ICompletionBar {
   stepArray: string[];
@@ -71,7 +72,7 @@ export const CompletionBar: FC<ICompletionBar> = ({
 
           <Box
             color={idx <= currentStep ? "diamond.blue.3" : "diamond.gray.3"}
-            fontSize="sm"
+            fontSize={["xs", null, null, "sm"]}
             fontWeight={idx <= currentStep ? "bold" : "normal"}
             ml="5px"
           >

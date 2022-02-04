@@ -1,4 +1,5 @@
-import Purpose from "./Purpose";
-import Interest from "./Interest";
 import IntroContent from "./Intro";
-export { Purpose, IntroContent, Interest };
+import Skills from "./Skills";
+import Topics from "./Topics";
+
+export { IntroContent, Skills, Topics };
