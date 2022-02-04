@@ -41,7 +41,7 @@ const Preferences: NextPage = () => {
                         connect: {
                           where: {
                             node: {
-                              address: data?.address,
+                              address: walletData?.address,
                             },
                           },
                         },
