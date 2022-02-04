@@ -26,14 +26,6 @@ export const AccountMenu = (props: Props) => {
   ] = useConnect();
   const [{ data }, disconnect] = useAccount();
 
-  useEffect(() => {
-    if (connected) {
-      if (localStorage.getItem(`diamond-storage-${data?.address}`) === null) {
-        Router.push("/onboard");
-      }
-    }
-  }, [connected, data]);
-
   return (
     <>
       {!connected && (

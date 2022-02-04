@@ -16,6 +16,8 @@ import { useAccount } from "wagmi";
 import { truncateAddress } from "@/common/utils";
 import Router from "next/router";
 import { PreferenceData } from "@/common/types";
+import { useLazyQuery } from "@apollo/client";
+import { GET_PROMPT_INFO } from "@/services/Apollo/Queries";
 
 const AccountInfoProperties = ({
   property,
@@ -39,40 +41,81 @@ const AccountInfoProperties = ({
 
 const Preferences: NextPage = () => {
   const [{ data, loading }] = useAccount({ fetchEns: true });
-
+  const [activeSince, setActiveSince] = useState("");
+  const [skills, setSkills] = useState([]);
+  const [interests, setInterests] = useState([]);
   const ens = data?.ens?.name;
+  const [getPromptInfo, { data: promptData, loading: promptLoading }] =
+    useLazyQuery(GET_PROMPT_INFO);
+
+  useEffect(() => {
+    if (data.address) {
+      getPromptInfo({
+        variables: {
+          promptWhere: {
+            uuid_IN: [
+              "51c96370-99fd-4883-9901-b452170755ec", //skills
+              "f5039f3d-94ad-43ba-b86b-2d74a46cda94", //interets
+            ],
+          },
+          blockWhere: {
+            Response: {
+              wallet: {
+                address: data?.address,
+              },
+            },
+          },
+        },
+      });
+    }
+  }, [data?.address]);
+
+  const parseBlocks = (prompts, setter) => {
+    setter(prompts.blocks.map((i) => i.text));
+  };
+
+  useEffect(() => {
+    if (promptData) {
+      console.log(promptData);
+      parseBlocks(
+        promptData.prompts.find(
+          (i) => i.uuid === "51c96370-99fd-4883-9901-b452170755ec"
+        ),
+        setSkills
+      );
+      parseBlocks(
+        promptData.prompts.find(
+          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
+        ),
+        setInterests
+      );
+      setActiveSince(
+        promptData.prompts.find(
+          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
+        ).blocks[0].wallet.dateAdded
+      );
+    }
+  }, [promptData]);
 
   useEffect(() => {
     const checkIfAddressPresent = setTimeout(() => {
       if (!loading && !data) {
-        Router.push("/");
+        Router.push("/discover");
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(checkIfAddressPresent);
     };
   }, [data, loading]);
 
-  const [preferences, setPreferences] = useState({} as PreferenceData);
-
   const accountName =
     (ens && ens.length > 11 ? truncateAddress(ens, 4) : ens) ||
     "0x" + truncateAddress(data?.address.slice(2), 5);
-
-  useEffect(() => {
-    if (!loading && data?.address) {
-      const preferenceInfo = localStorage.getItem(
-        `diamond-storage-${data?.address}`
-      );
-      setPreferences(JSON.parse(preferenceInfo!));
-    }
-  }, [loading, data?.address]);
-
   return (
     <Layout>
-      {(loading || !data?.address) && <Box>Loading...</Box>}
-      {!loading && data?.address && (
+      {(promptLoading || !data?.address) && <Box>Loading...</Box>}
+      {!promptLoading && data?.address && (
         <Container maxW="container.lg">
           <Box display="flex" justifyContent="center">
             <Heading mb="20px">Preferences</Heading>
@@ -92,23 +135,23 @@ const Preferences: NextPage = () => {
               <AccountInfoProperties property={"Wallet:"} value={accountName} />
               <AccountInfoProperties
                 property={"Active Since:"}
-                value={preferences?.activeSince}
+                value={activeSince.split("T")[0]}
               />
             </Box>
             <Box p="20px" {...borderStyles}>
               <Heading mb="10px" size="md">
-                Reasons for joining DAOs
+                Skills
               </Heading>
               <UnorderedList pl="10px">
-                {preferences?.purpose?.map((reason, idx) => (
+                {skills?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}
               </UnorderedList>
               <Heading my="10px" size="md">
-                DAO Category Interests
+                Interests
               </Heading>
               <UnorderedList pl="10px">
-                {preferences?.interests?.map((reason, idx) => (
+                {interests?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}
               </UnorderedList>

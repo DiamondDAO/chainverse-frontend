@@ -5,8 +5,8 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: `http://${process.env.API_URL}/:path*`,
+        source: "/api/graphql",
+        destination: `http://${process.env.API_URL}`,
       },
     ];
   },
