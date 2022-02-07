@@ -5,7 +5,7 @@
     "dev": "API_URL=localhost:4000 next dev",
     "build": "next build",
     "start": "API_URL=localhost:4000 next start",
-    "prod": "API_URL=graphql-api-2.chainverse:4000 next start",
+    "prod": "API_URL=graphql-api-2.local:4000 next start",
     "lint": "next lint",
     "install-build-start": "npm i && npm run build && npm start",
     "storybook": "start-storybook -p 6006",

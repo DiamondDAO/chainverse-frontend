@@ -164,7 +164,6 @@ const Onboard: NextPage = () => {
                           color="diamond.white"
                           _hover={{ bg: "diamond.blue.3" }}
                           variant="solid"
-                          href=""
                         >
                           Go to home page
                         </Button>
