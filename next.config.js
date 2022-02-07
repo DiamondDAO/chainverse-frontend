@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+const dns = require("dns");
+console.log(process.env.API_URL);
+console.log(dns.lookup(process.env.API_URL));
 module.exports = {
   pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"],
   reactStrictMode: true,
@@ -6,7 +9,7 @@ module.exports = {
     return [
       {
         source: "/api/graphql",
-        destination: `http://${process.env.API_URL}`,
+        destination: `${process.env.API_URL}`,
       },
     ];
   },
