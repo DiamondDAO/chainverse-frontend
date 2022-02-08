@@ -2,9 +2,9 @@
   "name": "chainverse-frontend",
   "private": true,
   "scripts": {
-    "dev": "API_URL=http://localhost:4000 next dev",
+    "dev": "API_URL=http://localhost next dev",
     "build": "API_URL=graphql-api-a.local next build",
-    "start": "API_URL=http://localhost:4000 next start",
+    "start": "API_URL=http://localhost next start",
     "prod": "API_URL=graphql-api-a.local next start",
     "buildProd": "API_URL=http://graphql-api-a.local next build",
     "lint": "next lint",

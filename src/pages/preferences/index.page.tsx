@@ -45,7 +45,7 @@ const Preferences: NextPage = () => {
   const [skills, setSkills] = useState([]);
   const [interests, setInterests] = useState([]);
   const ens = data?.ens?.name;
-  const [getPromptInfo, { data: promptData, loading: promptLoading }] =
+  const [getPromptInfo, { data: promptData, loading: promptLoading, error }] =
     useLazyQuery(GET_PROMPT_INFO);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const Preferences: NextPage = () => {
   useEffect(() => {
     const checkIfAddressPresent = setTimeout(() => {
       if (!loading && !data) {
-        Router.push("/discover");
+        Router.push("/graph");
       }
     }, 500);
 
@@ -114,6 +114,9 @@ const Preferences: NextPage = () => {
     "0x" + truncateAddress(data?.address.slice(2), 5);
   return (
     <Layout>
+      {!promptLoading && error && (
+        <Box>There was an error loading this page.</Box>
+      )}
       {(promptLoading || !data?.address) && <Box>Loading...</Box>}
       {!promptLoading && data?.address && (
         <Container maxW="container.lg">
