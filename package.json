@@ -3,9 +3,10 @@
   "private": true,
   "scripts": {
     "dev": "API_URL=http://localhost:4000 next dev",
-    "build": "next build",
+    "build": "API_URL=graphql-api-a.local next build",
     "start": "API_URL=http://localhost:4000 next start",
     "prod": "API_URL=graphql-api-a.local next start",
+    "buildProd": "API_URL=http://graphql-api-a.local next build",
     "lint": "next lint",
     "install-build-start": "npm i && npm run build && npm start",
     "storybook": "start-storybook -p 6006",
