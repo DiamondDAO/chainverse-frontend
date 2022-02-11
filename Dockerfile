@@ -4,7 +4,7 @@ WORKDIR app
 RUN apt-get update && apt-get -y install git
 
 COPY ./package.json /app/package.json
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY . /app
 
 
