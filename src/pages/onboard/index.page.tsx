@@ -24,7 +24,7 @@ const Onboard: NextPage = () => {
     },
   ] = useConnect();
   const [{ data }] = useAccount({ fetchEns: true });
-  const [showPage, setShowPage] = useState(false);
+  const [showPage, setShowPage] = useState(true);
   const toast = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -38,21 +38,6 @@ const Onboard: NextPage = () => {
     };
   }, {});
   const isLastStep = currentStep === steps.length - 1;
-
-  useEffect(() => {
-    if (!loading && !connected) {
-      Router.push("/");
-      setShowPage(false);
-    } else if (
-      currentStep === 0 &&
-      localStorage.getItem(`diamond-storage-${data?.address}`) !== null
-    ) {
-      setShowPage(false);
-      Router.push("/");
-    } else {
-      setShowPage(true);
-    }
-  }, [data, connected, loading, currentStep]);
 
   const [addResponses] = useMutation(CREATE_RESPONSES);
   const submitForm = async (values: any, actions: any) => {
