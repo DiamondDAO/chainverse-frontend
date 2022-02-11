@@ -157,7 +157,7 @@ const Onboard: NextPage = () => {
                   <>
                     <CompletedFormContent />
                     <Box mt="20px" display="flex" justifyContent="flex-end">
-                      <Link href="/discover" passHref>
+                      <Link href="/graph" passHref>
                         <Button
                           bg="diamond.blue.3"
                           textDecoration={"none"}

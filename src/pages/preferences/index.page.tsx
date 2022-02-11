@@ -49,7 +49,7 @@ const Preferences: NextPage = () => {
     useLazyQuery(GET_PROMPT_INFO);
 
   useEffect(() => {
-    if (data.address) {
+    if (data?.address) {
       getPromptInfo({
         variables: {
           promptWhere: {
@@ -92,7 +92,7 @@ const Preferences: NextPage = () => {
       setActiveSince(
         promptData.prompts.find(
           (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
-        ).blocks[0].wallet.dateAdded
+        )?.blocks[0]?.wallet.dateAdded
       );
     }
   }, [promptData]);
@@ -138,7 +138,7 @@ const Preferences: NextPage = () => {
               <AccountInfoProperties property={"Wallet:"} value={accountName} />
               <AccountInfoProperties
                 property={"Active Since:"}
-                value={activeSince.split("T")[0]}
+                value={activeSince?.split("T")[0]}
               />
             </Box>
             <Box p="20px" {...borderStyles}>
