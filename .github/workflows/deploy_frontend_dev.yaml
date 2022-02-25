@@ -1,18 +1,17 @@
-name: Deploy Api
+name: Deploy app
 
 on:
   push:
     branches:
-      - "main"
-      - "add-pipelines"
+      - "develop"
 
 env:
   AWS_REGION: "us-east-2" # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: "chainverse" # set this to your Amazon ECR repository name
   ECS_CLUSTER: "chainverse" # set this to your Amazon ECS cluster name
-  ECS_SERVICE: "frontend-2"
+  ECS_SERVICE: "frontend-develop"
   ECS_TASK_DEFINITION:
-    ".aws/frontend_task_definition.json" # set this to the path to your Amazon ECS task definition
+    ".aws/frontend_task_definition_develop.json" # set this to the path to your Amazon ECS task definition
     # file, e.g. .aws/task-definition.json
   CONTAINER_NAME:
     "frontend" # set this to the name of the container in the
@@ -47,11 +46,11 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/frontend:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY/frontend:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY/frontend:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/frontend:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/frontend:latest
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/frontend:$IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/frontend/develop:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY/frontend/develop:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY/frontend:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/frontend/develop:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/frontend/develop:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/frontend/develop:$IMAGE_TAG"
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
