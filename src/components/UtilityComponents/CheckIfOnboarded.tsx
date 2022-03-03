@@ -7,6 +7,7 @@ export const CheckIfOnboarded = ({ children }) => {
   const [
     {
       data: { connected },
+      loading,
     },
   ] = useConnect();
   const [{ data: walletData }] = useAccount();

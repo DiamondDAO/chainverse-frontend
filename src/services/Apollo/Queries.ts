@@ -7,12 +7,25 @@ export const GET_NOTES = gql`
         ... on Note {
           text
           uuid
+          tags {
+            text
+          }
         }
       }
     }
   }
 `;
 
+export const GET_TAGS_AND_ENTITIES = gql`
+  query Tags {
+    tags {
+      text
+    }
+    entities {
+      name
+    }
+  }
+`;
 export const GET_WALLET_COUNT = gql`
   query Query($where: WalletWhere) {
     walletsCount(where: $where)

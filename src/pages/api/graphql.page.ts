@@ -1,5 +1,8 @@
-import { gql, ApolloServer } from "apollo-server-micro";
-import { typeDefs } from "./typdefs";
+import { ApolloServer } from "apollo-server-micro";
+import Cors from "micro-cors";
+const cors = Cors();
+
+import { typeDefs } from "../../services/Apollo/typedefs";
 import neo4j from "neo4j-driver";
 import { Neo4jGraphQL } from "@neo4j/graphql";
 
@@ -19,16 +22,21 @@ const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 
 const server = new ApolloServer({
   schema: neoSchema.schema,
+  // plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 });
 
 const startServer = server.start();
 
-export default async function handler(req, res) {
+export default cors(async (req, res) => {
+  if (req.method === "OPTIONS") {
+    res.end();
+    return false;
+  }
   await startServer;
-  await server.createHandler({
+  return server.createHandler({
     path: "/api/graphql",
   })(req, res);
-}
+});
 
 export const config = {
   api: {

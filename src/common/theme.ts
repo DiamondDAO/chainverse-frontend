@@ -23,8 +23,6 @@ const colors = {
       5: "#1C4265",
     },
     link: "#005FCF",
-  },
-  chart: {
     red: "#CF6363",
     orange: "#DBA24C",
     yellow: "#DBCF62",
@@ -34,7 +32,6 @@ const colors = {
     purple: "#845FA3",
     magenta: "#95438D",
     pink: "#DAA7C9",
-    blue: "#4762A7",
   },
   text: {
     primary: "#323232",

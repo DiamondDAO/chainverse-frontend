@@ -1,5 +1,4 @@
 import "../styles/globals.css";
-import "@fontsource/rubik";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "../common/theme";
 import { RouterContext } from "next/dist/shared/lib/router-context";
@@ -14,7 +13,7 @@ export const parameters = {
   nextRouter: {
     Provider: RouterContext.Provider,
   },
-}
+};
 
 export const decorators = [
   (Story) => (

@@ -1,6 +1,5 @@
 import {
   Text,
-  Button,
   Image,
   Menu,
   MenuButton,
@@ -9,12 +8,14 @@ import {
   MenuItem,
   MenuList,
   Box,
+  Spinner,
 } from "@chakra-ui/react";
 import Router from "next/router";
-import React, { useEffect } from "react";
+import React from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useAccount, useConnect } from "wagmi";
-import { truncateAddress } from "@/common/utils";
+import { useGetAccountName } from "@/common/hooks/use-get-account-name";
+import AccountIcon from "../Icons/AccountIcon";
 interface Props {}
 
 export const AccountMenu = (props: Props) => {
@@ -24,8 +25,10 @@ export const AccountMenu = (props: Props) => {
     },
     connect,
   ] = useConnect();
-  const [{ data }, disconnect] = useAccount();
-
+  const [_, disconnect] = useAccount();
+  const { accountName, loading: accountNameLoading } = useGetAccountName({
+    loadingComponent: <Spinner size="xs" color="diamond.gray.2" />,
+  });
   return (
     <>
       {!connected && (
@@ -80,13 +83,15 @@ export const AccountMenu = (props: Props) => {
       {connected && (
         <Menu gutter={15} offset={[15, 12]}>
           <MenuButton cursor="pointer" width="100%" as={Box}>
-            Account
+            <Box display="flex" alignItems="center">
+              <AccountIcon />
+              <Text ml="4px">{accountName}</Text>
+            </Box>
           </MenuButton>
           <MenuList>
             <MenuGroup ml="12.8" title="Profile">
               <Box px="12.8" py="6.4">
-                Logged in as: 0x
-                {data?.address && truncateAddress(data?.address.slice(2), 5)}
+                Logged in as: {accountName}
               </Box>
 
               <MenuItem onClick={() => Router.push("/preferences")}>

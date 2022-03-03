@@ -13,7 +13,7 @@ export const typeDefs = gql`
     """
     TODO: Should this be restricted
     """
-    name: String
+    name: String @unique
     dataAdded: DateTime! @timestamp
   }
 
@@ -30,7 +30,7 @@ export const typeDefs = gql`
     text: String
     type: PromptType!
     dateAdded: DateTime! @timestamp
-    blocks: [Block] @relationship(type: "RESPONDS_TO", direction: IN)
+    blocks: [Block!]! @relationship(type: "RESPONDS_TO", direction: IN)
   }
 
   type Wallet {
@@ -39,19 +39,19 @@ export const typeDefs = gql`
     """
     address: String! @unique
     dateAdded: DateTime! @timestamp
-    blocks: [Block] @relationship(type: "CREATED", direction: OUT)
+    blocks: [Block!]! @relationship(type: "CREATED", direction: OUT)
   }
 
   type Tag {
     uuid: ID! @id(autogenerate: true)
-    text: String!
+    text: String! @unique
     date_added: DateTime! @timestamp
   }
 
   type Narrative {
     uuid: ID! @id(autogenerate: true)
     dateAdded: DateTime! @timestamp
-    blocks: [Block] @relationship(type: "CONTAINS", direction: IN)
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
   }
 
   union Block = Note | Response
@@ -59,7 +59,9 @@ export const typeDefs = gql`
   type Note {
     uuid: ID! @id(autogenerate: true)
     text: String!
-    entity: Entity! @relationship(type: "REFERENCES", direction: OUT)
+    entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
+    tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
+    sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
@@ -68,5 +70,11 @@ export const typeDefs = gql`
     text: String!
     prompt: Prompt! @relationship(type: "RESPONDS_TO", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
+  }
+
+  type Source {
+    uuid: ID! @id(autogenerate: true)
+    dateAdded: DateTime! @timestamp
+    url: String! @unique
   }
 `;

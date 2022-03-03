@@ -1,7 +1,7 @@
-import { Box, Container, Button, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Container, Button, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import type { NextPage } from "next";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { borderStyles } from "@/common/theme";
 import {
   IntroContent,
@@ -10,21 +10,13 @@ import {
 } from "@/components/FormComponents/Forms";
 import * as Yup from "yup";
 import { CompletionBar } from "@/components/FormComponents/CompletionBar";
-import { useAccount, useConnect } from "wagmi";
-import Router from "next/router";
+import { useAccount } from "wagmi";
 import { CompletedFormContent } from "@/components/FormComponents/CompletedFormContent";
 import Link from "next/link";
 import { useMutation } from "@apollo/client";
 import { CREATE_RESPONSES } from "@/services/Apollo/Mutations";
 const Onboard: NextPage = () => {
-  const [
-    {
-      data: { connected },
-      loading,
-    },
-  ] = useConnect();
   const [{ data }] = useAccount({ fetchEns: true });
-  const [showPage, setShowPage] = useState(true);
   const toast = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -99,123 +91,117 @@ const Onboard: NextPage = () => {
   };
   return (
     <>
-      {!showPage && <Box>loading...</Box>}
-      {showPage && (
-        <Box height="100vh" display="flex" justifyContent="center">
-          <Container
-            width="100%"
-            position="absolute"
-            maxW={"container.md"}
-            mt="40px"
-            display={["none", null, "unset"]}
-          >
-            <CompletionBar
-              stepArray={steps.map((i) => i.navTitle ?? i.formTitle)}
-              currentStep={currentStep}
-            />
-          </Container>
-          <Container
-            position="absolute"
-            width="100%"
-            maxW={"container.md"}
-            height="100vh"
+      <Box height="100vh" display="flex" justifyContent="center">
+        <Container
+          width="100%"
+          position="absolute"
+          maxW={"container.md"}
+          mt="40px"
+          display={["none", null, "unset"]}
+        >
+          <CompletionBar
+            stepArray={steps.map((i) => i.navTitle ?? i.formTitle)}
+            currentStep={currentStep}
+          />
+        </Container>
+        <Container
+          position="absolute"
+          width="100%"
+          maxW={"container.md"}
+          height="100vh"
+        >
+          <Box
+            display="flex"
+            flexDir="column"
+            alignItems="center"
+            pt="100px"
+            minH="100%"
           >
             <Box
+              p="40px"
+              minH="400px"
+              height="100%"
+              width="100%"
+              mb="10px"
               display="flex"
               flexDir="column"
-              alignItems="center"
-              pt="100px"
-              minH="100%"
+              justifyContent="space-between"
+              {...borderStyles}
             >
-              <Box
-                p="40px"
-                minH="400px"
-                height="100%"
-                width="100%"
-                mb="10px"
-                display="flex"
-                flexDir="column"
-                justifyContent="space-between"
-                {...borderStyles}
-              >
-                {currentStep === steps.length ? (
-                  <>
-                    <CompletedFormContent />
-                    <Box mt="20px" display="flex" justifyContent="flex-end">
-                      <Link href="/graph" passHref>
-                        <Button
-                          bg="diamond.blue.3"
-                          textDecoration={"none"}
-                          color="diamond.white"
-                          _hover={{ bg: "diamond.blue.3" }}
-                          variant="solid"
+              {currentStep === steps.length ? (
+                <>
+                  <CompletedFormContent />
+                  <Box mt="20px" display="flex" justifyContent="flex-end">
+                    <Link href="/home" passHref>
+                      <Button
+                        bg="diamond.blue.3"
+                        textDecoration={"none"}
+                        color="diamond.white"
+                        _hover={{ bg: "diamond.blue.3" }}
+                        variant="solid"
+                      >
+                        Go to home page
+                      </Button>
+                    </Link>
+                  </Box>
+                </>
+              ) : (
+                <Formik
+                  initialValues={initialValues}
+                  onSubmit={submitHandler}
+                  validationSchema={
+                    currentValidationSchema || Yup.object().shape({})
+                  }
+                >
+                  {({ isSubmitting }) => {
+                    return (
+                      <Form style={{ height: "100%" }} id={currentForm.formId}>
+                        <Box
+                          display="flex"
+                          flexDir="column"
+                          height="100%"
+                          justifyContent="space-between"
                         >
-                          Go to home page
-                        </Button>
-                      </Link>
-                    </Box>
-                  </>
-                ) : (
-                  <Formik
-                    initialValues={initialValues}
-                    onSubmit={submitHandler}
-                    validationSchema={
-                      currentValidationSchema || Yup.object().shape({})
-                    }
-                  >
-                    {({ isSubmitting }) => {
-                      return (
-                        <Form
-                          style={{ height: "100%" }}
-                          id={currentForm.formId}
-                        >
+                          <Box>{currentForm.component}</Box>
+
                           <Box
                             display="flex"
-                            flexDir="column"
-                            height="100%"
-                            justifyContent="space-between"
+                            justifyContent="flex-end"
+                            mt="10px"
                           >
-                            <Box>{currentForm.component}</Box>
-
-                            <Box
-                              display="flex"
-                              justifyContent="flex-end"
-                              mt="10px"
-                            >
-                              {currentStep !== 0 && (
-                                <Button
-                                  onClick={backHandler}
-                                  bg="diamond.blue.2"
-                                  _hover={{ bg: "diamond.blue.2" }}
-                                  color="diamond.white"
-                                  variant="solid"
-                                  mr="10px"
-                                >
-                                  Back
-                                </Button>
-                              )}
+                            {currentStep !== 0 && (
                               <Button
-                                type="submit"
-                                disabled={isSubmitting}
-                                bg="diamond.blue.3"
+                                onClick={backHandler}
+                                bg="diamond.blue.2"
+                                _hover={{ bg: "diamond.blue.2" }}
                                 color="diamond.white"
-                                _hover={{ bg: "diamond.blue.3" }}
                                 variant="solid"
+                                mr="10px"
                               >
-                                {isLastStep ? "Submit" : "Continue"}
+                                Back
                               </Button>
-                            </Box>
+                            )}
+                            <Button
+                              type="submit"
+                              disabled={isSubmitting}
+                              bg="diamond.blue.3"
+                              color="diamond.white"
+                              _hover={{ bg: "diamond.blue.3" }}
+                              variant="solid"
+                            >
+                              {isLastStep ? "Submit" : "Continue"}
+                            </Button>
                           </Box>
-                        </Form>
-                      );
-                    }}
-                  </Formik>
-                )}
-              </Box>
+                        </Box>
+                      </Form>
+                    );
+                  }}
+                </Formik>
+              )}
             </Box>
-          </Container>
-        </Box>
-      )}
+          </Box>
+        </Container>
+      </Box>
     </>
   );
 };

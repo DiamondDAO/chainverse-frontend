@@ -100,7 +100,7 @@ const Preferences: NextPage = () => {
   useEffect(() => {
     const checkIfAddressPresent = setTimeout(() => {
       if (!loading && !data) {
-        Router.push("/graph");
+        Router.push("/home");
       }
     }, 500);
 

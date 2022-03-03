@@ -29,7 +29,7 @@ const Home: NextPage = () => {
         mt="20px"
         bg="diamond.blue.3"
         color="diamond.white"
-        onClick={() => Router.push("/graph")}
+        onClick={() => Router.push("/home")}
       >
         ENTER
       </Button>

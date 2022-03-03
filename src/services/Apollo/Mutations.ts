@@ -7,7 +7,15 @@ export const CREATE_NOTES = gql`
         wallet {
           address
         }
-        text
+        entities {
+          name
+        }
+        tags {
+          text
+        }
+        sources {
+          url
+        }
       }
     }
   }
