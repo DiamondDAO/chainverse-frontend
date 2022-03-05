@@ -27,7 +27,7 @@ export const typeDefs = gql`
 
   type Prompt {
     uuid: ID! @id(autogenerate: true)
-    text: String
+    text: String @unique
     type: PromptType!
     dateAdded: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "RESPONDS_TO", direction: IN)

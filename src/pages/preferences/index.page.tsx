@@ -39,6 +39,7 @@ const AccountInfoProperties = ({
   </Box>
 );
 
+// TODO: fix hard coding of questions
 const Preferences: NextPage = () => {
   const [{ data, loading }] = useAccount({ fetchEns: true });
   const [activeSince, setActiveSince] = useState("");
@@ -53,9 +54,9 @@ const Preferences: NextPage = () => {
       getPromptInfo({
         variables: {
           promptWhere: {
-            uuid_IN: [
-              "51c96370-99fd-4883-9901-b452170755ec", //skills
-              "f5039f3d-94ad-43ba-b86b-2d74a46cda94", //interets
+            text_IN: [
+              "What skills do you bring to the Web3 community space?", //skills
+              "What topics are you interested in?", //interets
             ],
           },
           blockWhere: {
@@ -78,20 +79,22 @@ const Preferences: NextPage = () => {
     if (promptData) {
       console.log(promptData);
       parseBlocks(
-        promptData.prompts.find(
-          (i) => i.uuid === "51c96370-99fd-4883-9901-b452170755ec"
+        promptData.prompts?.find(
+          (i) =>
+            i.text === "What skills do you bring to the Web3 community space?"
         ),
         setSkills
       );
       parseBlocks(
-        promptData.prompts.find(
-          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
+        promptData.prompts?.find(
+          (i) => i.text === "What topics are you interested in?"
         ),
         setInterests
       );
       setActiveSince(
-        promptData.prompts.find(
-          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
+        promptData.prompts?.find(
+          (i) =>
+            i.text === "What skills do you bring to the Web3 community space?"
         )?.blocks[0]?.wallet.dateAdded
       );
     }

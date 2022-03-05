@@ -35,7 +35,7 @@ export const GET_WALLET_COUNT = gql`
 export const GET_PROMPT_INFO = gql`
   query Prompts($promptWhere: PromptWhere, $blockWhere: BlockWhere) {
     prompts(where: $promptWhere) {
-      uuid
+      text
       blocks(where: $blockWhere) {
         ... on Response {
           text

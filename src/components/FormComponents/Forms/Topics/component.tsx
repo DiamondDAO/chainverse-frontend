@@ -31,15 +31,11 @@ export const Topics: FC = () => {
       </Heading>
       <CheckboxContainer
         sx={{ "& > label": { fontWeight: "bold", mb: "20px" } }}
-        name={Model.fields.topics.name}
-        label={Model.fields.topics.label}
+        name={Model.fields[0].name}
+        label={Model.fields[0].label}
       >
         {TopicOptions.map((option, idx) => (
-          <CheckboxControl
-            key={idx}
-            name={Model.fields.topics.name}
-            value={option}
-          >
+          <CheckboxControl key={idx} name={Model.fields[0].name} value={option}>
             <Text fontSize={["sm", null, "md"]} ml="5px">
               {option}
             </Text>

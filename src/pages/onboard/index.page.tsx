@@ -45,7 +45,10 @@ const Onboard: NextPage = () => {
               ...answers[formKey].map((response) => ({
                 text: response,
                 prompt: {
-                  connect: { where: { node: { uuid: formKey } } },
+                  connectOrCreate: {
+                    where: { node: { text: formKey } },
+                    onCreate: { node: { text: formKey, type: "SURVEY" } },
+                  },
                 },
                 wallet: {
                   connectOrCreate: {
@@ -155,7 +158,11 @@ const Onboard: NextPage = () => {
                 >
                   {({ isSubmitting }) => {
                     return (
-                      <Form style={{ height: "100%" }} id={currentForm.formId}>
+                      <Form
+                        style={{ height: "100%" }}
+                        //TODO: Refactor to use a better ID
+                        id={currentForm?.formId}
+                      >
                         <Box
                           display="flex"
                           flexDir="column"

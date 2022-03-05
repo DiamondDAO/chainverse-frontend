@@ -30,7 +30,7 @@ export const CREATE_RESPONSES = gql`
           address
         }
         prompt {
-          uuid
+          text
         }
       }
     }

@@ -27,15 +27,11 @@ export const Skills: FC = () => {
       </Heading>
       <CheckboxContainer
         sx={{ "& > label": { fontWeight: "bold", mb: "20px" } }}
-        name={Model.fields.skills.name}
-        label={Model.fields.skills.label}
+        name={Model.fields[0].name}
+        label={Model.fields[0].label}
       >
         {SkillsOptions.map((option, idx) => (
-          <CheckboxControl
-            key={idx}
-            name={Model.fields.skills.name}
-            value={option}
-          >
+          <CheckboxControl key={idx} name={Model.fields[0].name} value={option}>
             <Text fontSize={["sm", null, "md"]} ml="5px">
               {option}
             </Text>

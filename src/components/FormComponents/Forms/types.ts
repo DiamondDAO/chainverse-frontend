@@ -3,7 +3,7 @@ export type FormType = {
   formId: string;
   formTitle: string;
   navTitle?: string;
-  fields?: { [key: string]: { name: string; label: string } };
+  fields?: { name: string; label: string }[];
   validation?: any;
   initialValue?: { [key: string]: any };
 };
