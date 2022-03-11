@@ -1,4 +1,4 @@
-name: Deploy app
+name: Deploy Chainverse Frontend - Dev
 
 on:
   push:
