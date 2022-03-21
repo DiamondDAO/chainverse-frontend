@@ -14,9 +14,9 @@ import {
   PopoverHeader,
   PopoverBody,
   useToast,
+  Button,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { SaveBlockButton } from "../Buttons/SaveBlockButton";
+import React, { useEffect, useRef, useState } from "react";
 import Fuse from "fuse.js";
 
 import { TipDrawer } from "./TipDrawer";
@@ -28,6 +28,7 @@ import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
 import { CREATE_NOTES } from "@/services/Apollo/Mutations";
 import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import { AddBlockIcon } from "../Icons/AddBlockIcon";
 
 // node_walk: walk the element tree, stop when func(node) returns false
 function node_walk(node, func) {
@@ -105,7 +106,20 @@ const getCaretCoordinates = () => {
     return { x, y };
   }
 };
-export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
+
+export const AddBlockModal = ({
+  tags,
+  entities,
+  isOpen,
+  onClose,
+  blockData,
+}: {
+  tags: string[];
+  entities: string[];
+  isOpen: boolean;
+  onClose: () => void;
+  blockData?: any;
+}) => {
   // States
   const [clickedTip, setClickedTip] = useState(false);
   useEffect(() => {
@@ -117,7 +131,6 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
   }, [isOpen]);
 
   // Animations
-
   const position = useRef({ x: 0, y: 0 });
   const [visible, setVisible] = useState(false);
   const [dialogStartPosition, setDialogStartPosition] = useState(0);
@@ -174,6 +187,12 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
   const [addingBlock, setAddingBlock] = useState(false);
   const toast = useToast();
 
+  const closeHandler = () => {
+    inputRef.current.innerText = "";
+    setSource("");
+    onClose();
+  };
+
   const submitBlockHandler = async () => {
     const tags =
       inputRef.current.innerText
@@ -225,9 +244,7 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
           ],
         },
       });
-      inputRef.current.innerText = "";
-      setSource("");
-      onClose();
+      closeHandler();
       toast({
         title: "Block created!",
         status: "success",
@@ -260,9 +277,11 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
   };
   const tagFuse = new Fuse(tags, {
     includeScore: false,
+    threshold: 0.3,
   });
   const entityFuse = new Fuse(entities, {
     includeScore: false,
+    threshold: 0.3,
   });
 
   return (
@@ -398,6 +417,7 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
                     onKeyUp={keyUpListener}
                     onInput={inputHandler}
                     contentEditable
+                    data-placeholder="Insert here"
                     p="0"
                     pb="4px"
                     resize="none"
@@ -407,6 +427,16 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
                     maxH="250px"
                     overflow="scroll"
                     _focus={{ border: "none", outline: "none" }}
+                    sx={{
+                      "&:empty:before": {
+                        color: "diamond.gray.3",
+                        content: "attr(data-placeholder)",
+                      },
+                      "&::-webkit-scrollbar": {
+                        display: "none",
+                      },
+                      scrollbarWidth: "none",
+                    }}
                     placeholder="Type # to insert"
                     fontSize=".875rem"
                   />
@@ -419,16 +449,22 @@ export const AddBlockModal = ({ tags, entities, isOpen, onClose }) => {
                 </Grid>
               </Box>
             </ModalBody>
-            <ModalFooter px="0" display={clickedTip ? "none" : "flex"}>
-              <SaveBlockButton
+            <ModalFooter
+              px="0"
+              display={clickedTip ? "none" : "flex"}
+              justifyContent="space-between"
+            >
+              <Button onClick={closeHandler} variant="neutral">
+                Cancel
+              </Button>
+              <Button
+                isDisabled={!Boolean(inputRef.current?.innerText)}
                 isLoading={addingBlock}
                 onClick={submitBlockHandler}
-                bg={
-                  inputRef.current?.innerText
-                    ? "diamond.blue.5"
-                    : "diamond.gray.2"
-                }
-              />
+                variant="primary"
+              >
+                Save Block
+              </Button>
             </ModalFooter>
           </Box>
         </ModalContent>

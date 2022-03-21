@@ -16,7 +16,7 @@ const Home: NextPage = () => {
         alt="diamond-logo"
         mb="10px"
         width="65px"
-        src="./img/diamond_logo.png"
+        src="/img/diamond_logo.png"
       />
       <Text fontSize="4xl" fontWeight="600">
         Chainverse
@@ -29,7 +29,7 @@ const Home: NextPage = () => {
         mt="20px"
         bg="diamond.blue.3"
         color="diamond.white"
-        onClick={() => Router.push("/home")}
+        onClick={() => Router.push("/workspace")}
       >
         ENTER
       </Button>

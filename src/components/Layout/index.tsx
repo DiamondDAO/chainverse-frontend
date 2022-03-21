@@ -18,6 +18,7 @@ export const Layout: FC<ILayout> = ({ children, graphBg }) => {
 
   return (
     <Box
+      position="relative"
       sx={{
         ...(graphBg && {
           bgSize: "15px 15px",

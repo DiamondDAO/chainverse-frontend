@@ -10,6 +10,13 @@ export const GET_NOTES = gql`
           tags {
             text
           }
+          dateAdded
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
         }
       }
     }

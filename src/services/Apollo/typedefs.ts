@@ -45,7 +45,7 @@ export const typeDefs = gql`
   type Tag {
     uuid: ID! @id(autogenerate: true)
     text: String! @unique
-    date_added: DateTime! @timestamp
+    dateAdded: DateTime! @timestamp
   }
 
   type Narrative {
@@ -59,6 +59,7 @@ export const typeDefs = gql`
   type Note {
     uuid: ID! @id(autogenerate: true)
     text: String!
+    dateAdded: DateTime! @timestamp
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
     tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)

@@ -2,7 +2,7 @@ import { Box, Container, Button, useToast } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
 import type { NextPage } from "next";
 import React, { useState } from "react";
-import { borderStyles } from "@/common/theme";
+import { borderStyles } from "@/theme";
 import {
   IntroContent,
   Skills,

@@ -1,5 +1,6 @@
 // 1. Import the extendTheme function
 import { extendTheme } from "@chakra-ui/react";
+import { Button } from "./components/button";
 
 // 2. Extend the theme to include custom colors, fonts, etc
 const colors = {
@@ -49,7 +50,12 @@ const space = {
   large: "20px",
 };
 
-export const theme = extendTheme({ colors, fonts, space });
+export const theme = extendTheme({
+  colors,
+  fonts,
+  space,
+  components: { Button },
+});
 
 export const borderStyles = {
   border: "0.5px solid",

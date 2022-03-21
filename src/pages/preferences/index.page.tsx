@@ -11,7 +11,7 @@ import {
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { borderStyles } from "@/common/theme";
+import { borderStyles } from "@/theme";
 import { useAccount } from "wagmi";
 import { truncateAddress } from "@/common/utils";
 import Router from "next/router";

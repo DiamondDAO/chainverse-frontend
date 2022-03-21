@@ -49,7 +49,7 @@ export const AccountMenu = (props: Props) => {
                           width="25px"
                           alt="wallet-connect-image"
                           mr="10px"
-                          src="./img/metamask.svg"
+                          src="/img/metamask.svg"
                         />
                       );
                     case "WalletConnect":
@@ -58,7 +58,7 @@ export const AccountMenu = (props: Props) => {
                           width="25px"
                           alt="metamask-image"
                           mr="10px"
-                          src="./img/walletconnect.svg"
+                          src="/img/walletconnect.svg"
                         />
                       );
                     default:

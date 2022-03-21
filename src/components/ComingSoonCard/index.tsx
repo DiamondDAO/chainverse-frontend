@@ -8,7 +8,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import React, { FC } from "react";
-import { borderStyles } from "@/common/theme";
+import { borderStyles } from "@/theme";
 
 interface Props {}
 
@@ -25,7 +25,7 @@ export const ComingSoonCard: FC<Props> = () => {
         alt="diamond-logo"
         mb="40px"
         width="65px"
-        src="./img/diamond_logo.png"
+        src="/img/diamond_logo.png"
       />
       <Text fontSize="xl" fontWeight="600">
         This Dashboard is coming soon.

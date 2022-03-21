@@ -1,39 +1,40 @@
-import { Box, CSSObject } from "@chakra-ui/react";
-import React from "react";
+import { As, Box, ChakraProps, OmitCommonProps } from "@chakra-ui/react";
+import React, { DetailedHTMLProps, HTMLAttributes } from "react";
 
-export const Pill = ({
-  children,
-  icon,
-  asButton,
-  sx,
-  onClick,
-}: {
-  children: React.ReactNode;
+interface IPill {
   icon?: JSX.Element;
   asButton?: boolean;
-  sx?: CSSObject;
-  onClick?: React.MouseEventHandler<HTMLDivElement> &
-    (
-      | React.MouseEventHandler<HTMLButtonElement>
-      | React.MouseEventHandler<HTMLSpanElement>
-    );
-}) => {
+}
+
+export const Pill = (
+  props: JSX.IntrinsicAttributes &
+    OmitCommonProps<
+      DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+      keyof ChakraProps
+    > &
+    ChakraProps &
+    OmitCommonProps<any, keyof ChakraProps> & { as?: As<any> } & IPill
+) => {
+  const { icon, children, asButton, ...rest } = props;
   return (
     <Box
       as={asButton ? "button" : "span"}
-      border="0.5px solid #D1E5F8"
+      border="0.5px solid rgba(209, 229, 248, 1)"
       borderRadius="3px"
-      p="2px"
-      width="max-content"
-      lineHeight="17.5px"
-      bg="diamond.blue.1"
+      p="2px 4px"
+      height="17px"
+      justifyContent="center"
+      bg="diamond.blue.0"
       display="inline-flex"
       alignItems="center"
-      mr="4px"
-      onClick={onClick}
-      sx={sx}
+      mr="2px"
+      {...rest}
     >
-      {icon && <Box mr="2px">{icon}</Box>}
+      {icon && (
+        <Box as="span" mr="2px">
+          {icon}
+        </Box>
+      )}
       {children}
     </Box>
   );

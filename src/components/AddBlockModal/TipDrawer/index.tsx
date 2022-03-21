@@ -32,7 +32,8 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
       p="24px"
       style={style}
       sx={{
-        overflow: clickedTip ? "scroll" : "hidden",
+        overflowY: clickedTip ? "scroll" : "hidden",
+        overflowX: "none",
       }}
     >
       <Text

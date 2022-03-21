@@ -16,7 +16,7 @@ export const IntroContent: FC = () => {
         <Image
           alt="rotating-diamond"
           maxHeight="15rem"
-          src="./img/animation_diamond.gif"
+          src="/img/animation_diamond.gif"
         />
       </Box>
     </>
