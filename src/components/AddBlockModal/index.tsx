@@ -26,9 +26,8 @@ import { EntitiesIcon } from "../Icons/EntitiesIcon";
 import { LinkSourceModal } from "./LinkSourceModal";
 import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
-import { CREATE_NOTES } from "@/services/Apollo/Mutations";
+import { CREATE_NOTES, UPDATE_NOTES } from "@/services/Apollo/Mutations";
 import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
-import { AddBlockIcon } from "../Icons/AddBlockIcon";
 
 // node_walk: walk the element tree, stop when func(node) returns false
 function node_walk(node, func) {
@@ -107,6 +106,11 @@ const getCaretCoordinates = () => {
   }
 };
 
+enum submitBlockAction {
+  Add = "add",
+  Update = "update",
+}
+
 export const AddBlockModal = ({
   tags,
   entities,
@@ -178,12 +182,17 @@ export const AddBlockModal = ({
     setDialogStartPosition(0);
   };
   const [pillText, setPillText] = useState("");
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLDivElement>(null);
 
   const [{ data: walletData }] = useAccount();
-  const [addBlock, { error }] = useMutation(CREATE_NOTES, {
+  const [addBlock, { error: addBlockError }] = useMutation(CREATE_NOTES, {
     refetchQueries: [GET_NOTES, GET_TAGS_AND_ENTITIES],
   });
+
+  const [updateBlock, { error: updateBlockError }] = useMutation(UPDATE_NOTES, {
+    refetchQueries: [GET_NOTES, GET_TAGS_AND_ENTITIES],
+  });
+
   const [addingBlock, setAddingBlock] = useState(false);
   const toast = useToast();
 
@@ -192,14 +201,22 @@ export const AddBlockModal = ({
     setSource("");
     onClose();
   };
-
-  const submitBlockHandler = async () => {
+  useEffect(() => {
+    if (blockData?.sources) {
+      setSource(blockData.sources?.[0]?.url);
+    }
+  }, [blockData?.sources]);
+  const submitBlockHandler = async ({
+    action,
+  }: {
+    action: submitBlockAction;
+  }) => {
     const tags =
       inputRef.current.innerText
         .match(/#(?=\S*[-]*)([a-zA-Z'-]+)/g)
         ?.map((i) => ({
-          where: { node: { text: i.slice(1) } },
-          onCreate: { node: { text: i.slice(1) } },
+          where: { node: { tag: i.slice(1) } },
+          onCreate: { node: { tag: i.slice(1) } },
         })) || [];
 
     const entity =
@@ -211,10 +228,74 @@ export const AddBlockModal = ({
         })) || [];
     try {
       setAddingBlock(true);
-      await addBlock({
-        variables: {
-          input: [
-            {
+
+      if (action === submitBlockAction.Add) {
+        await addBlock({
+          variables: {
+            input: [
+              {
+                text: inputRef.current?.innerText,
+                wallet: {
+                  connect: {
+                    where: {
+                      node: {
+                        address: walletData?.address,
+                      },
+                    },
+                  },
+                },
+                entities: {
+                  connectOrCreate: entity,
+                },
+
+                tags: {
+                  connectOrCreate: tags,
+                },
+                ...(source && {
+                  sources: {
+                    connectOrCreate: {
+                      where: { node: { url: source } },
+                      onCreate: { node: { url: source } },
+                    },
+                  },
+                }),
+              },
+            ],
+          },
+        });
+      } else if (action === submitBlockAction.Update) {
+        await updateBlock({
+          variables: {
+            update: {},
+            where: { uuid: blockData.uuid },
+            disconnect: {
+              tags: [
+                {
+                  where: {
+                    node_NOT: { uuid: "0" },
+                  },
+                },
+              ],
+              entities: [
+                {
+                  where: {
+                    node_NOT: { name: "" },
+                  },
+                },
+              ],
+              sources: [
+                {
+                  where: {
+                    node_NOT: { uuid: "0" },
+                  },
+                },
+              ],
+            },
+          },
+        });
+        await updateBlock({
+          variables: {
+            update: {
               text: inputRef.current?.innerText,
               wallet: {
                 connect: {
@@ -241,12 +322,13 @@ export const AddBlockModal = ({
                 },
               }),
             },
-          ],
-        },
-      });
+            where: { uuid: blockData.uuid },
+          },
+        });
+      }
       closeHandler();
       toast({
-        title: "Block created!",
+        title: `Block ${blockData ? "Saved" : "Created"}!`,
         status: "success",
         duration: 2000,
         isClosable: true,
@@ -299,7 +381,7 @@ export const AddBlockModal = ({
           <Box>
             <ModalHeader px="0">
               <Text fontWeight="500" fontSize="1.25rem" color="diamond.white">
-                Create a knowledge block
+                {blockData ? "Edit" : "Create"} a knowledge block
               </Text>
             </ModalHeader>
             <ModalBody padding={0}>
@@ -364,6 +446,7 @@ export const AddBlockModal = ({
                               </Text>
                               {entityFuse
                                 ?.search(pillText ?? "")
+                                .slice(0, 5)
                                 .map((i) => i.item)
                                 .map((tag: string) => (
                                   <Pill
@@ -389,6 +472,7 @@ export const AddBlockModal = ({
                               </Text>
                               {tagFuse
                                 ?.search(pillText ?? "")
+                                .slice(0, 5)
                                 .map((i) => i.item)
                                 .map((tag: string) => (
                                   <Pill
@@ -416,6 +500,7 @@ export const AddBlockModal = ({
                     onKeyPress={hashTagListener}
                     onKeyUp={keyUpListener}
                     onInput={inputHandler}
+                    suppressContentEditableWarning={true}
                     contentEditable
                     data-placeholder="Insert here"
                     p="0"
@@ -439,7 +524,9 @@ export const AddBlockModal = ({
                     }}
                     placeholder="Type # to insert"
                     fontSize=".875rem"
-                  />
+                  >
+                    {blockData?.text}
+                  </Box>
 
                   <LinkSourceModal
                     source={source}
@@ -460,7 +547,13 @@ export const AddBlockModal = ({
               <Button
                 isDisabled={!Boolean(inputRef.current?.innerText)}
                 isLoading={addingBlock}
-                onClick={submitBlockHandler}
+                onClick={() =>
+                  submitBlockHandler({
+                    action: blockData
+                      ? submitBlockAction.Update
+                      : submitBlockAction.Add,
+                  })
+                }
                 variant="primary"
               >
                 Save Block

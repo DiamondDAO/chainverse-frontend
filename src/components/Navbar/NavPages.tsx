@@ -11,7 +11,7 @@ export const NavPages: FC<INavPages> = ({ pages }) => {
   return (
     <>
       {pages.map((item) => {
-        const isActive = router.pathname === item.link;
+        const isActive = router.pathname.includes(item.link);
         return (
           <Box
             key={item.text}

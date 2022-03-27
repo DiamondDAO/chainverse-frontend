@@ -1,6 +1,6 @@
-import { Box, Button, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { AddBlockModal } from "@/components/AddBlockModal";
 import { useAccount } from "wagmi";
@@ -16,26 +16,23 @@ const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [date, setDate] = useState("");
+  const [getNotes, { data }] = useLazyQuery(GET_NOTES);
+  const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+  const [{ data: walletData }] = useAccount();
+  const [rfInstance, setRfInstance] = useState(null);
+
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-  const [getNotes, { data }] = useLazyQuery(GET_NOTES);
-  const {
-    loading,
-    error,
-    data: tagAndEntitiesData,
-  } = useQuery(GET_TAGS_AND_ENTITIES);
-  const [{ data: walletData }] = useAccount();
   useEffect(() => {
     if (walletData?.address) {
       getNotes({ variables: { where: { address: walletData.address } } });
     }
   }, [getNotes, walletData?.address]);
 
-  const nodeData = data?.wallets[0].blocks.filter(
+  const nodeData = data?.wallets[0]?.blocks.filter(
     (i) => i.__typename === "Note"
   );
-  const [rfInstance, setRfInstance] = useState(null);
 
   return (
     <>
@@ -88,54 +85,6 @@ const Workspace: NextPage = () => {
                 </Button>
               </Box>
             </Box>
-
-            {/* {data?.wallets[0].blocks
-              .filter((i) => i.__typename === "Note")
-              .map((i, idx) => {
-                return (
-                  <Box
-                    cursor={"pointer"}
-                    p="8px"
-                    fontSize="12px"
-                    width="202px"
-                    borderRadius="2px"
-                    minH="76px"
-                    border="1px solid #000000"
-                    key={idx}
-                    bg="rgba(0, 0, 0, 0.05)"
-                    display="grid"
-                    gridTemplateColumns="1fr 5fr"
-                    m="10px"
-                  >
-                    <Box>
-                      <BlockIcon />
-                    </Box>
-                    <Box>
-                      {reactStringReplace(
-                        reactStringReplace(
-                          i.text,
-                          /#(?=\S*[-]*)([a-zA-Z-]+)/g,
-                          (match, i) => (
-                            <Pill
-                              sx={{ p: 0 }}
-                              icon={<TagIcon />}
-                              key={i + match}
-                            >
-                              {match}
-                            </Pill>
-                          )
-                        ),
-                        /@(?=\S*[-]*)([a-zA-Z-]+)/g,
-                        (match, i) => (
-                          <Pill icon={<EntitiesIcon />} key={i + match}>
-                            {match}
-                          </Pill>
-                        )
-                      )}
-                    </Box>
-                  </Box>
-                );
-              })} */}
           </Box>
 
           <AddBlockModal

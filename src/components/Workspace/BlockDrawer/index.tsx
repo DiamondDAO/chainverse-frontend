@@ -1,3 +1,4 @@
+import { IconVariants } from "@/common/types";
 import { truncateAddress } from "@/common/utils";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
@@ -5,6 +6,9 @@ import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
+import { DELETE_NOTES } from "@/services/Apollo/Mutations";
+import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import { useMutation } from "@apollo/client";
 import {
   Box,
   Button,
@@ -16,13 +20,17 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  toast,
+  useToast,
 } from "@chakra-ui/react";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { useEnsLookup } from "wagmi";
 
 interface IBlockDrawer {
   isOpen: boolean;
   onClose: () => void;
+  editBlockHandler: () => void;
+  deleteBlockhandler: () => void;
   blockData: any;
 }
 
@@ -36,13 +44,46 @@ const generateDateString = (date: Date) => {
 export const BlockDrawer: FC<IBlockDrawer> = ({
   isOpen,
   onClose,
+  editBlockHandler,
   blockData,
 }) => {
   const [{ data: ENS }] = useEnsLookup({
     address: blockData?.wallet.address,
   });
-  const dateObj = generateDateString(new Date(blockData?.dateAdded));
+  const dateObj = generateDateString(new Date(blockData?.createdAt));
+  const [deletingBlock, setDeletingBlock] = useState(false);
+  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+    refetchQueries: [GET_NOTES, GET_TAGS_AND_ENTITIES],
+  });
 
+  const toast = useToast();
+  const deleteBlockHandler = async () => {
+    try {
+      setDeletingBlock(true);
+      await deleteBlock({
+        variables: {
+          where: { uuid: blockData.uuid },
+        },
+      });
+      toast({
+        title: "Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when creating your block. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+    setDeletingBlock(false);
+  };
   if (!blockData) {
     return null;
   }
@@ -50,12 +91,15 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
       <DrawerContent
+        _focus={{ boxShadow: "-2px 0px 15px #C3C3C3 !important" }}
         boxShadow={"-2px 0px 15px #C3C3C3"}
         sx={{ top: "50px !important" }}
       >
         <DrawerCloseButton />
         <DrawerHeader display="flex" alignItems="center">
-          <BlockIcon />
+          <Box bg="diamond.magenta" borderRadius="100%" padding="5px">
+            <BlockIcon variant={IconVariants.White} />
+          </Box>
           <Box ml="8px" as="span" fontWeight="500">
             Block
           </Box>
@@ -67,10 +111,20 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               ACTIONS
             </Text>
             <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Button leftIcon={<CreateSnapshotIcon />} variant="primary">
+              <Button
+                onClick={editBlockHandler}
+                leftIcon={<CreateSnapshotIcon />}
+                variant="primary"
+              >
                 Edit Block
               </Button>
-              <Button leftIcon={<CreateSnapshotIcon />} variant="primary">
+              <Button
+                isDisabled={deletingBlock}
+                isLoading={deletingBlock}
+                onClick={deleteBlockHandler}
+                leftIcon={<CreateSnapshotIcon />}
+                variant="primary"
+              >
                 Delete Block
               </Button>
             </Box>
@@ -108,11 +162,15 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               <Box mt="16px" color="diamond.blue.3" fontWeight={500}>
                 LINKED TO
               </Box>
-              <Box display="flex" flexWrap="wrap" sx={{ columnGap: "4px" }}>
-                {blockData.tags.map((tag: { text: string }) => (
-                  <Pill key={tag.text} asButton icon={<TagIcon />}>
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                sx={{ columnGap: "4px", rowGap: "4px" }}
+              >
+                {blockData.tags.map((tag: { tag: string }) => (
+                  <Pill key={tag.tag} asButton icon={<TagIcon />}>
                     <Text color="diamond.blue.5" fontSize="14px">
-                      {tag.text}
+                      {tag.tag}
                     </Text>
                   </Pill>
                 ))}

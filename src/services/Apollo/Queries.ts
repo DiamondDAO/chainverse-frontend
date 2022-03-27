@@ -7,10 +7,13 @@ export const GET_NOTES = gql`
         ... on Note {
           text
           uuid
-          tags {
-            text
+          sources {
+            url
           }
-          dateAdded
+          tags {
+            tag
+          }
+          createdAt
           wallet {
             address
           }
@@ -22,17 +25,54 @@ export const GET_NOTES = gql`
     }
   }
 `;
-
+export const GET_ALL_NOTES = gql`
+  query Notes {
+    notes {
+      text
+      createdAt
+      sources {
+        url
+      }
+      tags {
+        tag
+      }
+      createdAt
+      wallet {
+        address
+      }
+      entities {
+        name
+      }
+    }
+  }
+`;
 export const GET_TAGS_AND_ENTITIES = gql`
   query Tags {
     tags {
-      text
+      tag
     }
     entities {
       name
     }
   }
 `;
+
+export const GET_ENTITIES_DATA = gql`
+  query Entities($where: EntityWhere) {
+    entities(where: $where) {
+      id
+      minScore
+      name
+      network
+      onlyMembers
+      symbol
+      proposalsAggregate {
+        count
+      }
+    }
+  }
+`;
+
 export const GET_WALLET_COUNT = gql`
   query Query($where: WalletWhere) {
     walletsCount(where: $where)
@@ -47,7 +87,7 @@ export const GET_PROMPT_INFO = gql`
         ... on Response {
           text
           wallet {
-            dateAdded
+            createdAt
           }
         }
       }

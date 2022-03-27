@@ -9,29 +9,18 @@ import ReactFlow, {
   FitViewOptions,
   NodeChange,
   EdgeChange,
-  MiniMap,
   Controls,
   Background,
   MarkerType,
   ConnectionLineType,
 } from "react-flow-renderer";
-import reactStringReplace from "react-string-replace";
-import { EntitiesIcon } from "../../Icons/EntitiesIcon";
-import { TagIcon } from "../../Icons/TagIcon";
-import { Pill } from "../../Pill";
 import { BlockNode } from "../BlockNode";
-import { FloatingEdge, FloatingConnectionLine } from "../CustomEdge";
-// const initialNodes: Node[] = [
-//   { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
-//   { id: "2", data: { label: "Node 2" }, position: { x: 5, y: 100 } },
-// ];
-const edgeTypes = {
-  floating: FloatingEdge,
-};
+import { FloatingEdge } from "../CustomEdge";
+
 const initialEdges: Edge[] = [];
 
 const fitViewOptions: FitViewOptions = {
-  padding: 1,
+  padding: 3,
 };
 
 interface IFlow {
@@ -72,7 +61,6 @@ export const Flow: FC<IFlow> = ({ nodeData, onInit }) => {
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) =>
       setEdges((eds) => {
-        console.log(eds, changes);
         return applyEdgeChanges(changes, eds);
       }),
     [setEdges]

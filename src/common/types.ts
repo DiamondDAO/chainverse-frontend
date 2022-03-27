@@ -37,3 +37,8 @@ export type DAOData = {
   investDirections: string;
   social: SocialType;
 };
+export enum IconVariants {
+  Default = "default",
+  White = "white",
+  Black = "black",
+}

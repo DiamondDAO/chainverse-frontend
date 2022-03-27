@@ -11,7 +11,7 @@ export const CREATE_NOTES = gql`
           name
         }
         tags {
-          text
+          tag
         }
         sources {
           url
@@ -20,7 +20,38 @@ export const CREATE_NOTES = gql`
     }
   }
 `;
-
+export const UPDATE_NOTES = gql`
+  mutation UpdateNotes(
+    $update: NoteUpdateInput
+    $where: NoteWhere
+    $disconnect: NoteDisconnectInput
+  ) {
+    updateNotes(update: $update, where: $where, disconnect: $disconnect) {
+      notes {
+        wallet {
+          address
+        }
+        entities {
+          name
+        }
+        tags {
+          tag
+        }
+        sources {
+          url
+        }
+      }
+    }
+  }
+`;
+export const DELETE_NOTES = gql`
+  mutation DeleteNotes($where: NoteWhere) {
+    deleteNotes(where: $where) {
+      nodesDeleted
+      relationshipsDeleted
+    }
+  }
+`;
 export const CREATE_RESPONSES = gql`
   mutation CreateResponses($input: [ResponseCreateInput!]!) {
     createResponses(input: $input) {

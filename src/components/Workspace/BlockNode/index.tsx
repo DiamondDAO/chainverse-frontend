@@ -7,6 +7,7 @@ import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
+import { IconVariants } from "@/common/types";
 
 type Props = {};
 
@@ -25,7 +26,7 @@ export const BlockNode = ({ data }) => {
       gridTemplateColumns="1fr 5fr"
     >
       <Box>
-        <BlockIcon />
+        <BlockIcon variant={IconVariants.White} />
       </Box>
       <Text>
         <AddPillsToText text={data.label} />

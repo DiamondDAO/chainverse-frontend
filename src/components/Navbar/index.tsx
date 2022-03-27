@@ -11,7 +11,7 @@ export const NavBar: FC<INavbar> = ({}) => {
   const { space } = useTheme();
   const navigationPages = [
     { text: "Workspace", link: "/workspace" },
-    { text: "Explorer", link: "/" },
+    { text: "Explorer", link: "/explorer" },
   ];
   return (
     <Box position="relative" p="10px" width="100%" zIndex={3}>

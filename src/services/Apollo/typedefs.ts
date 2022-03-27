@@ -13,8 +13,14 @@ export const typeDefs = gql`
     """
     TODO: Should this be restricted
     """
+    uuid: ID! @id(autogenerate: true)
     name: String @unique
-    dataAdded: DateTime! @timestamp
+    id: String
+    minScore: Float
+    network: Float
+    onlyMembers: String
+    symbol: String
+    proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
   }
 
   type Account {
@@ -29,7 +35,7 @@ export const typeDefs = gql`
     uuid: ID! @id(autogenerate: true)
     text: String @unique
     type: PromptType!
-    dateAdded: DateTime! @timestamp
+    createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "RESPONDS_TO", direction: IN)
   }
 
@@ -38,20 +44,28 @@ export const typeDefs = gql`
     A blockchain wallet address.
     """
     address: String! @unique
-    dateAdded: DateTime! @timestamp
+    createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "CREATED", direction: OUT)
   }
 
   type Tag {
     uuid: ID! @id(autogenerate: true)
-    text: String! @unique
-    dateAdded: DateTime! @timestamp
+    tag: String @unique #todo: should be non-nullable but db currently has null fields ingested
+    createdAt: DateTime! @timestamp
   }
 
   type Narrative {
     uuid: ID! @id(autogenerate: true)
-    dateAdded: DateTime! @timestamp
+    createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+  }
+
+  type Workspace {
+    uuid: ID! @id(autogenerate: true)
+    createdAt: DateTime! @timestamp
+    name: String!
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+    wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
   union Block = Note | Response
@@ -59,7 +73,7 @@ export const typeDefs = gql`
   type Note {
     uuid: ID! @id(autogenerate: true)
     text: String!
-    dateAdded: DateTime! @timestamp
+    createdAt: DateTime @timestamp #todo: should be non-nullable but db currently has null fields ingested
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
     tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
@@ -75,7 +89,22 @@ export const typeDefs = gql`
 
   type Source {
     uuid: ID! @id(autogenerate: true)
-    dateAdded: DateTime! @timestamp
+    createdAt: DateTime! @timestamp
     url: String! @unique
+  }
+
+  type Proposal {
+    body: String
+    choices: [String]
+    createdAt: DateTime! @timestamp
+    id: String
+    ipfs: String
+    link: String
+    network: Int
+    start: DateTime! @timestamp
+    state: String
+    title: String
+    type: String
+    entity: Entity @relationship(type: "HAS_PROPOSAL", direction: IN)
   }
 `;

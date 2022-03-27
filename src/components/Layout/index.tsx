@@ -1,7 +1,7 @@
 import { Box, Container, Text } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { NavBar } from "@/components/Navbar";
-import { useAccount, useConnect } from "wagmi";
+import { useConnect } from "wagmi";
 
 interface ILayout {
   children: React.ReactNode;

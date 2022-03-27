@@ -77,7 +77,6 @@ const Preferences: NextPage = () => {
 
   useEffect(() => {
     if (promptData) {
-      console.log(promptData);
       parseBlocks(
         promptData.prompts?.find(
           (i) =>
@@ -95,7 +94,7 @@ const Preferences: NextPage = () => {
         promptData.prompts?.find(
           (i) =>
             i.text === "What skills do you bring to the Web3 community space?"
-        )?.blocks[0]?.wallet.dateAdded
+        )?.blocks[0]?.wallet.createdAt
       );
     }
   }, [promptData]);

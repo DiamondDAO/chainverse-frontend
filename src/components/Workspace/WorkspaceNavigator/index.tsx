@@ -12,7 +12,6 @@ const enum WorkspacePaths {
 
 export const WorkspaceNavigator = (props: Props) => {
   const router = useRouter();
-  console.log(router.asPath);
   const [selected, setSelected] = useState("/workspace");
   return (
     <Box

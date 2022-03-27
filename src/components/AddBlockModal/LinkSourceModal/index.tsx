@@ -41,6 +41,12 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   const [isOpen, setIsOpen] = React.useState(false);
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
+
+  useEffect(() => {
+    if (inputRef !== null) {
+      inputRef.current.value = source;
+    }
+  }, [inputRef, source]);
   return (
     <AnimatedBox
       display={textAreaValue ? "flex" : "none"}
@@ -116,7 +122,10 @@ export const LinkSourceModal: FC<ILinkSource> = ({
             variant="link"
             fontWeight="400"
             onClick={() => {
-              if (validURL(inputRef.current.value)) {
+              if (
+                inputRef.current.value == "" ||
+                validURL(inputRef.current.value)
+              ) {
                 setSource(inputRef.current.value);
                 setError(false);
                 close();

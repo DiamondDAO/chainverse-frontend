@@ -13,7 +13,7 @@ import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import Fuse from "fuse.js";
+import { IconVariants } from "@/common/types";
 
 const AddBlockCard = ({ onClick }) => (
   <Box
@@ -30,7 +30,7 @@ const AddBlockCard = ({ onClick }) => (
     borderRadius="2px"
     bg="diamond.gray.1"
   >
-    <PlusIcon />
+    <PlusIcon width="22" height="22" />
     <Text fontSize="12px" fontWeight="500" color="diamond.gray.3">
       ADD NEW BLOCK
     </Text>
@@ -43,17 +43,9 @@ const AllBlocks: NextPage = () => {
   const [getNotes, { data }] = useLazyQuery(GET_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
-  useEffect(() => {
-    if (walletData?.address) {
-      getNotes({ variables: { where: { address: walletData.address } } });
-    }
-  }, [getNotes, walletData?.address]);
-
-  const blockCount = useMemo(
-    () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note").length,
-    [data]
-  );
   const [currentBlock, setCurrentBlock] = useState(null);
+  const filteredTagsState = useState<string[]>([]);
+  const filteredEntitiesState = useState<string[]>([]);
 
   const {
     isOpen: drawerIsOpen,
@@ -61,14 +53,23 @@ const AllBlocks: NextPage = () => {
     onClose: drawerOnClose,
   } = useDisclosure();
 
+  const blockCount = useMemo(
+    () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note").length,
+    [data]
+  );
+
+  useEffect(() => {
+    if (walletData?.address) {
+      getNotes({ variables: { where: { address: walletData.address } } });
+    }
+  }, [getNotes, walletData?.address]);
+
   const tags = useMemo(
     () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "text")?.map(
-        (i) => i.text
-      ) || [],
+      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      [],
     [tagAndEntitiesData?.tags]
   );
-  const filteredTagsState = useState<string[]>([]);
 
   const entities = useMemo(
     () =>
@@ -77,8 +78,6 @@ const AllBlocks: NextPage = () => {
       ) || [],
     [tagAndEntitiesData?.entities]
   );
-  const filteredEntitiesState = useState<string[]>([]);
-  console.log(currentBlock);
   return (
     <>
       <Layout graphBg>
@@ -141,7 +140,7 @@ const AllBlocks: NextPage = () => {
                             return (
                               flag &&
                               noteData.tags
-                                .map((i) => i.text)
+                                .map((i) => i.tag)
                                 .includes(currentTag)
                             );
                           },
@@ -181,7 +180,7 @@ const AllBlocks: NextPage = () => {
                           display="flex"
                         >
                           <Box mr="4px">
-                            <BlockIcon />
+                            <BlockIcon variant={IconVariants.White} />
                           </Box>
                           <Box>
                             <AddPillsToText text={block.text} />
@@ -197,6 +196,8 @@ const AllBlocks: NextPage = () => {
             blockData={currentBlock}
             isOpen={drawerIsOpen}
             onClose={drawerOnClose}
+            editBlockHandler={onOpen}
+            deleteBlockhandler={() => {}}
           />
           <AddBlockModal
             tags={tags}

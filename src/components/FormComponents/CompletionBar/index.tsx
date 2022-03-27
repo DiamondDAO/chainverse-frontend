@@ -60,6 +60,7 @@ export const CompletionBar: FC<ICompletionBar> = ({
         <>
           {idx !== 0 && (
             <Box
+              key={idx}
               mx={"8px"}
               flex="1 1 auto"
               as="span"
