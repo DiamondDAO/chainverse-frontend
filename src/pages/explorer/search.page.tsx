@@ -11,6 +11,7 @@ import { Layout } from "@/components/Layout";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
+  GET_BLOCK_DATA,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
@@ -24,7 +25,8 @@ import Router, { useRouter } from "next/router";
 import { Loader } from "@/components/Loader";
 import { IconVariants } from "@/common/types";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
-import { Table } from "@/components/Explorer/ExplorerTable";
+import { EntityTable } from "@/components/Explorer/EntityTable";
+import { BlockTable } from "@/components/Explorer/BlockTable";
 
 enum SearchTypes {
   Blocks = "blocks",
@@ -40,6 +42,7 @@ const Search: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
+  const [getBlockData] = useLazyQuery(GET_BLOCK_DATA);
 
   // search state
   const [searchValue, setSearchValue] = useState("");
@@ -151,6 +154,35 @@ const Search: NextPage = () => {
     () => entityTableData,
     [entityTableData, term]
   );
+
+  const [blockTableData, setBlockTableData] = useState([]);
+
+  useEffect(() => {
+    getBlockDataHandler({ reset: true });
+  }, [term, entityFuseSearchResult]);
+
+  const getBlockDataHandler = async ({ reset = false }: { reset: boolean }) => {
+    if (blocksFuseSearchResult.length > 0) {
+      const length = reset ? 0 : blockTableData.length;
+      const lengthAdd = reset ? 15 : blockTableData.length + 15;
+      const t = blocksFuseSearchResult
+        .slice(length, lengthAdd)
+        .map((i) => i.item);
+      console.log(t, "check");
+      const data = await getBlockData({
+        variables: {
+          where: {
+            text_IN: t,
+          },
+        },
+      });
+      const notes = (data as any).data.notes;
+      console.log(data.data.notes, "yo");
+      setBlockTableData(reset ? notes : blockTableData.concat(notes));
+    }
+  };
+
+  const blockData = React.useMemo(() => blockTableData, [blockTableData, term]);
   if (loading) return <Loader />;
   return (
     <>
@@ -204,7 +236,6 @@ const Search: NextPage = () => {
                     width="100%"
                     height="100%"
                     border="1px solid black"
-                    type="tel"
                     placeholder="Start with a search for any keyword, community name, or user"
                   />
                 </InputGroup>
@@ -216,7 +247,11 @@ const Search: NextPage = () => {
                 sx={{ columnGap: "12px" }}
               >
                 <Box
-                  onClick={() => setSearchType(SearchTypes.Entities)}
+                  onClick={() =>
+                    Router.push(
+                      `/explorer/search?term=${searchValue}&type=entities`
+                    )
+                  }
                   cursor="pointer"
                   color="black"
                   alignItems={"center"}
@@ -246,7 +281,11 @@ const Search: NextPage = () => {
                   </Box>
                 </Box>
                 <Box
-                  onClick={() => setSearchType(SearchTypes.Blocks)}
+                  onClick={() =>
+                    Router.push(
+                      `/explorer/search?term=${searchValue}&type=blocks`
+                    )
+                  }
                   cursor="pointer"
                   color="black"
                   display="flex"
@@ -276,7 +315,11 @@ const Search: NextPage = () => {
                   </Box>
                 </Box>
                 <Box
-                  onClick={() => setSearchType(SearchTypes.Tags)}
+                  onClick={() =>
+                    Router.push(
+                      `/explorer/search?term=${searchValue}&type=tags`
+                    )
+                  }
                   cursor="pointer"
                   color="black"
                   display="flex"
@@ -308,11 +351,20 @@ const Search: NextPage = () => {
                 </Box>
               </Box>
             </Box>
-            <Table
-              data={entityData}
-              update={() => getEntityDataHandler({ reset: false })}
-              hasMore={entityTableData.length < entityFuseSearchResult.length}
-            />
+            {searchType === SearchTypes.Entities && (
+              <EntityTable
+                data={entityData}
+                update={() => getEntityDataHandler({ reset: false })}
+                hasMore={entityTableData.length < entityFuseSearchResult.length}
+              />
+            )}
+            {searchType === SearchTypes.Blocks && (
+              <BlockTable
+                data={blockData}
+                update={() => getBlockDataHandler({ reset: false })}
+                hasMore={blockTableData.length < blocksFuseSearchResult.length}
+              />
+            )}
           </Box>
         </Box>
       </Layout>

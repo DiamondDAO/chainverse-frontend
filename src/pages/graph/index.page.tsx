@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import React, { useEffect, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { GET_NOTES } from "@/services/Apollo/Queries";
+import { GET_ALL_NOTES, GET_NOTES } from "@/services/Apollo/Queries";
 import { ClientOnly } from "@/components/UtilityComponents/ClientOnly";
 import { CREATE_NOTES } from "@/services/Apollo/Mutations";
 import { useAccount, useConnect } from "wagmi";
@@ -18,7 +18,7 @@ const Preferences: NextPage = () => {
 
   const [{ data: walletData }] = useAccount();
   const [addBlock] = useMutation(CREATE_NOTES, {
-    refetchQueries: [GET_NOTES],
+    refetchQueries: [GET_NOTES, { query: GET_ALL_NOTES }],
   });
 
   useEffect(() => {

@@ -111,185 +111,198 @@ const Explorer: NextPage = () => {
             Explorer
           </Text>
         </Box>
-        <Box mt="40px" display="grid" gridTemplateColumns={"1fr 2fr"}>
-          <Box display="flex" sx={{ columnGap: "50px" }}>
+        <Box
+          mt="40px"
+          display="grid"
+          gridTemplateColumns={["1fr", null, null, "1fr 2fr"]}
+        >
+          <Box
+            display={["none", null, null, "flex"]}
+            sx={{ columnGap: "50px" }}
+          >
             <Box w="100%" maxWidth="210px" zIndex={3}>
               <ExplorerNavigator />
             </Box>
           </Box>
-          <Box ref={searchBoxRef} position={"relative"} maxW="716px">
-            <InputGroup
-              bg="white"
-              alignItems={"center"}
-              border="none"
-              borderRadius="5px"
-              height="66px"
-              boxShadow="0px 2px 15px #C3C3C3"
+          <Box display="flex" justifyContent="center">
+            <Box
+              ref={searchBoxRef}
+              position={"relative"}
+              maxW="716px"
+              width="100%"
             >
-              <InputLeftElement pl="25px" height="100%" pointerEvents="none">
-                <SearchIcon w="12px" />
-              </InputLeftElement>
-              <Input
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter")
-                    Router.push(`/explorer/search?term=${searchValue}`);
-                }}
-                onFocus={() => setDisplaySearchBox(true)}
-                pl="45px"
+              <InputGroup
                 bg="white"
-                width="100%"
-                height="100%"
-                border="1px solid black"
-                type="tel"
-                placeholder="Start with a search for any keyword, community name, or user"
-              />
-            </InputGroup>
-
-            {displaySearchBox && (
-              <AnimatedBox
-                style={searchBoxStyle}
-                p="0px"
-                fontSize="14px"
-                mt="10px"
-                bg="white"
-                boxShadow="0px 2px 15px #C3C3C3"
-                width="100%"
-                minH="70px"
-                position="absolute"
+                alignItems={"center"}
+                border="none"
                 borderRadius="5px"
-                border="1px solid black"
+                height="66px"
+                boxShadow="0px 2px 15px #C3C3C3"
               >
-                <Box
-                  p="25px"
-                  borderRadius={"5px"}
-                  cursor="pointer"
-                  onClick={() =>
-                    Router.push(`/explorer/search?term=${searchValue}`)
-                  }
-                  _hover={{ bg: "diamond.blue.1" }}
+                <InputLeftElement pl="25px" height="100%" pointerEvents="none">
+                  <SearchIcon w="12px" />
+                </InputLeftElement>
+                <Input
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter")
+                      Router.push(`/explorer/search?term=${searchValue}`);
+                  }}
+                  onFocus={() => setDisplaySearchBox(true)}
+                  pl="45px"
+                  bg="white"
+                  width="100%"
+                  height="100%"
+                  border="1px solid black"
+                  placeholder="Start with a search for any keyword, community name, or user"
+                />
+              </InputGroup>
+
+              {displaySearchBox && (
+                <AnimatedBox
+                  style={searchBoxStyle}
+                  p="0px"
+                  fontSize="14px"
+                  mt="10px"
+                  bg="white"
+                  boxShadow="0px 2px 15px #C3C3C3"
+                  width="100%"
+                  minH="70px"
+                  position="absolute"
+                  borderRadius="5px"
+                  border="1px solid black"
                 >
-                  <Text>
-                    Search: {`"`} {searchValue} {`"`}
-                  </Text>
-                </Box>
-                <Tabs px="25px" variant="unstyled">
-                  <TabList sx={{ "& > button": { padding: "12px" } }}>
-                    <Tab
-                      marginLeft="-12px"
-                      fontSize={"12px"}
-                      fontWeight="500"
-                      color="diamond.gray.3"
-                      height={"fit-content"}
-                      _selected={{
-                        color: "diamond.blue.5",
-                        textDecoration: "underline",
-                        textUnderlineOffset: "2px",
-                      }}
-                    >
-                      ENTITIES
-                    </Tab>
-                    <Tab
-                      fontSize={"12px"}
-                      fontWeight="500"
-                      color="diamond.gray.3"
-                      height={"fit-content"}
-                      _selected={{
-                        color: "diamond.blue.5",
-                        textDecoration: "underline",
-                        textUnderlineOffset: "2px",
-                      }}
-                    >
-                      TAGS
-                    </Tab>
-                    <Tab
-                      fontSize={"12px"}
-                      fontWeight="500"
-                      color="diamond.gray.3"
-                      height={"fit-content"}
-                      _selected={{
-                        color: "diamond.blue.5",
-                        textDecoration: "underline",
-                        textUnderlineOffset: "2px",
-                      }}
-                    >
-                      BLOCKS
-                    </Tab>
-                  </TabList>
-                  <TabPanels
-                    sx={{
-                      "& > *": { padding: "0 !important" },
-                      paddingBottom: "25px",
-                    }}
+                  <Box
+                    p="25px"
+                    borderRadius={"5px"}
+                    cursor="pointer"
+                    onClick={() =>
+                      Router.push(`/explorer/search?term=${searchValue}`)
+                    }
+                    _hover={{ bg: "diamond.blue.1" }}
                   >
-                    <TabPanel>
-                      {entityFuse
-                        ?.search(searchValue)
-                        .slice(0, 5)
-                        .map((i) => i.item)
-                        .map((entity: string) => (
-                          <Box
-                            key={entity}
-                            display="flex"
-                            justifyContent={"space-between"}
-                            p="2px"
-                          >
-                            <Pill asButton icon={<EntitiesIcon />}>
-                              <Text color="diamond.blue.5" fontSize="14px">
-                                {entity}
+                    <Text>
+                      Search: {`"`} {searchValue} {`"`}
+                    </Text>
+                  </Box>
+                  <Tabs px="25px" variant="unstyled">
+                    <TabList sx={{ "& > button": { padding: "12px" } }}>
+                      <Tab
+                        marginLeft="-12px"
+                        fontSize={"12px"}
+                        fontWeight="500"
+                        color="diamond.gray.3"
+                        height={"fit-content"}
+                        _selected={{
+                          color: "diamond.blue.5",
+                          textDecoration: "underline",
+                          textUnderlineOffset: "2px",
+                        }}
+                      >
+                        ENTITIES
+                      </Tab>
+                      <Tab
+                        fontSize={"12px"}
+                        fontWeight="500"
+                        color="diamond.gray.3"
+                        height={"fit-content"}
+                        _selected={{
+                          color: "diamond.blue.5",
+                          textDecoration: "underline",
+                          textUnderlineOffset: "2px",
+                        }}
+                      >
+                        TAGS
+                      </Tab>
+                      <Tab
+                        fontSize={"12px"}
+                        fontWeight="500"
+                        color="diamond.gray.3"
+                        height={"fit-content"}
+                        _selected={{
+                          color: "diamond.blue.5",
+                          textDecoration: "underline",
+                          textUnderlineOffset: "2px",
+                        }}
+                      >
+                        BLOCKS
+                      </Tab>
+                    </TabList>
+                    <TabPanels
+                      sx={{
+                        "& > *": { padding: "0 !important" },
+                        paddingBottom: "25px",
+                      }}
+                    >
+                      <TabPanel>
+                        {entityFuse
+                          ?.search(searchValue)
+                          .slice(0, 5)
+                          .map((i) => i.item)
+                          .map((entity: string) => (
+                            <Box
+                              key={entity}
+                              display="flex"
+                              justifyContent={"space-between"}
+                              p="2px"
+                            >
+                              <Pill asButton icon={<EntitiesIcon />}>
+                                <Text color="diamond.blue.5" fontSize="14px">
+                                  {entity}
+                                </Text>
+                              </Pill>
+                              <Text color="diamond.gray.3">
+                                Some metadata. 125 views
                               </Text>
-                            </Pill>
-                            <Text color="diamond.gray.3">
-                              Some metadata. 125 views
-                            </Text>
-                          </Box>
-                        ))}
-                    </TabPanel>
-                    <TabPanel>
-                      {tagFuse
-                        ?.search(searchValue)
-                        .slice(0, 5)
-                        .map((i) => i.item)
-                        .map((tag: string) => (
-                          <Box
-                            key={tag}
-                            display="flex"
-                            justifyContent={"space-between"}
-                            p="2px"
-                          >
-                            <Pill asButton icon={<TagIcon />}>
-                              <Text color="diamond.blue.5" fontSize="14px">
-                                {tag}
-                              </Text>
-                            </Pill>
-                          </Box>
-                        ))}
-                    </TabPanel>
-                    <TabPanel>
-                      {blockFuse
-                        ?.search(searchValue)
-                        .slice(0, 5)
-                        .map((i) => i.item)
-                        .map((text: string, idx) => (
-                          <Box
-                            key={idx}
-                            display="flex"
-                            justifyContent={"space-between"}
-                            p="2px"
-                          >
-                            <Pill asButton>
-                              <Text color="diamond.blue.5" fontSize="14px">
-                                {text.slice(0, 15) + "..."}
-                              </Text>
-                            </Pill>
-                          </Box>
-                        ))}
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              </AnimatedBox>
-            )}
+                            </Box>
+                          ))}
+                      </TabPanel>
+                      <TabPanel>
+                        {tagFuse
+                          ?.search(searchValue)
+                          .slice(0, 5)
+                          .map((i) => i.item)
+                          .map((tag: string) => (
+                            <Box
+                              key={tag}
+                              display="flex"
+                              justifyContent={"space-between"}
+                              p="2px"
+                            >
+                              <Pill asButton icon={<TagIcon />}>
+                                <Text color="diamond.blue.5" fontSize="14px">
+                                  {tag}
+                                </Text>
+                              </Pill>
+                            </Box>
+                          ))}
+                      </TabPanel>
+                      <TabPanel>
+                        {blockFuse
+                          ?.search(searchValue)
+                          .slice(0, 5)
+                          .map((i) => i.item)
+                          .map((text: string, idx) => (
+                            <Box
+                              key={idx}
+                              display="flex"
+                              justifyContent={"space-between"}
+                              p="2px"
+                            >
+                              <Pill asButton>
+                                <Text color="diamond.blue.5" fontSize="14px">
+                                  {text.slice(0, 15) + "..."}
+                                </Text>
+                              </Pill>
+                            </Box>
+                          ))}
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </AnimatedBox>
+              )}
+            </Box>
           </Box>
         </Box>
       </Layout>

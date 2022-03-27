@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTable } from "react-table";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
@@ -18,13 +18,19 @@ import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
 import { DetailDrawer } from "../DetailsDrawer";
 
-export const Table = ({ data, update, hasMore }) => {
+export const EntityTable = ({ data, update, hasMore }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,
     onClose: drawerOnClose,
   } = useDisclosure();
   const [selectedRow, setSelectedRow] = useState({});
+
+  useEffect(() => {
+    if (!drawerIsOpen) {
+      setSelectedRow({});
+    }
+  }, [drawerIsOpen]);
   const columns = useMemo(
     () => [
       {
@@ -151,7 +157,6 @@ export const Table = ({ data, update, hasMore }) => {
           <Tbody
             borderLeft="thin solid #616161"
             borderRight="0.5px solid #616161"
-            bg="white"
             {...getTableBodyProps()}
           >
             {rows.map((row, i) => {
@@ -159,6 +164,12 @@ export const Table = ({ data, update, hasMore }) => {
               return (
                 <Tr
                   key={i}
+                  sx={{
+                    ...(i === (selectedRow as any).index && {
+                      bg: "rgba(149, 67, 141, 0.1)",
+                    }),
+                  }}
+                  bg="white"
                   {...row.getRowProps()}
                   _hover={{ bg: "diamond.gray.1" }}
                   cursor="pointer"

@@ -3,6 +3,7 @@ import { generateDateString, truncateAddress } from "@/common/utils";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
+import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
@@ -24,67 +25,30 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  toast,
   useToast,
 } from "@chakra-ui/react";
 import React, { FC, useState } from "react";
+import { RiNodeTree } from "react-icons/ri";
 import { useEnsLookup } from "wagmi";
 
 interface IBlockDrawer {
   isOpen: boolean;
   onClose: () => void;
-  editBlockHandler: () => void;
-  deleteBlockhandler: () => void;
   blockData: any;
 }
 
-export const BlockDrawer: FC<IBlockDrawer> = ({
+export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
   isOpen,
   onClose,
-  editBlockHandler,
   blockData,
 }) => {
   const [{ data: ENS }] = useEnsLookup({
     address: blockData?.wallet.address,
   });
   const dateObj = generateDateString(new Date(blockData?.createdAt));
-  const [deletingBlock, setDeletingBlock] = useState(false);
-  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
-    refetchQueries: [
-      GET_NOTES,
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_NOTES },
-    ],
-  });
 
   const toast = useToast();
-  const deleteBlockHandler = async () => {
-    try {
-      setDeletingBlock(true);
-      await deleteBlock({
-        variables: {
-          where: { uuid: blockData.uuid },
-        },
-      });
-      toast({
-        title: "Block Deleted!",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: "Error",
-        description:
-          "There was an error when creating your block. Please try again.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-    setDeletingBlock(false);
-  };
+
   if (!blockData) {
     return null;
   }
@@ -113,20 +77,17 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
             </Text>
             <Box display="flex" sx={{ columnGap: "4px" }}>
               <Button
-                onClick={editBlockHandler}
-                leftIcon={<CreateSnapshotIcon />}
+                leftIcon={<PlusIcon width="11px" height="11px" fill="white" />}
                 variant="primary"
               >
-                Edit Block
+                Add to workspace
               </Button>
               <Button
-                isDisabled={deletingBlock}
-                isLoading={deletingBlock}
-                onClick={deleteBlockHandler}
-                leftIcon={<CreateSnapshotIcon />}
+                onClick={() => {}}
+                leftIcon={<RiNodeTree size="12px" />}
                 variant="primary"
               >
-                Delete Block
+                View graph
               </Button>
             </Box>
           </Box>

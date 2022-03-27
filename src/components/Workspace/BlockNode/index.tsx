@@ -1,10 +1,6 @@
 import React from "react";
 import { Box, Text } from "@chakra-ui/react";
 import { Handle, Position } from "react-flow-renderer";
-import reactStringReplace from "react-string-replace";
-import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import { TagIcon } from "@/components/Icons/TagIcon";
-import { Pill } from "@/components/Pill";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { IconVariants } from "@/common/types";
@@ -26,7 +22,7 @@ export const BlockNode = ({ data }) => {
       gridTemplateColumns="1fr 5fr"
     >
       <Box>
-        <BlockIcon variant={IconVariants.White} />
+        <BlockIcon variant={IconVariants.Black} />
       </Box>
       <Text>
         <AddPillsToText text={data.label} />

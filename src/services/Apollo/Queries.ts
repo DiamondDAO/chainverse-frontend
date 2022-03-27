@@ -73,6 +73,28 @@ export const GET_ENTITIES_DATA = gql`
   }
 `;
 
+export const GET_BLOCK_DATA = gql`
+  query Entities($where: NoteWhere) {
+    notes(where: $where) {
+      text
+      createdAt
+      sources {
+        url
+      }
+      tags {
+        tag
+      }
+      createdAt
+      wallet {
+        address
+      }
+      entities {
+        name
+      }
+    }
+  }
+`;
+
 export const GET_WALLET_COUNT = gql`
   query Query($where: WalletWhere) {
     walletsCount(where: $where)

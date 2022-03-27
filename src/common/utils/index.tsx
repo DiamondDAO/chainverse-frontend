@@ -27,3 +27,11 @@ export const filterUniqueObjects = (objectArray: any[], key: string) => {
     }
   });
 };
+
+export const generateDateString = (date: Date) => {
+  const month = date?.getUTCMonth() + 1; //months from 1-12
+  const day = date?.getUTCDate();
+  const year = date?.getUTCFullYear();
+
+  return { month, day, year };
+};

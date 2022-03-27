@@ -27,7 +27,11 @@ import { LinkSourceModal } from "./LinkSourceModal";
 import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
 import { CREATE_NOTES, UPDATE_NOTES } from "@/services/Apollo/Mutations";
-import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import {
+  GET_ALL_NOTES,
+  GET_NOTES,
+  GET_TAGS_AND_ENTITIES,
+} from "@/services/Apollo/Queries";
 
 // node_walk: walk the element tree, stop when func(node) returns false
 function node_walk(node, func) {
@@ -186,11 +190,19 @@ export const AddBlockModal = ({
 
   const [{ data: walletData }] = useAccount();
   const [addBlock, { error: addBlockError }] = useMutation(CREATE_NOTES, {
-    refetchQueries: [GET_NOTES, GET_TAGS_AND_ENTITIES],
+    refetchQueries: [
+      GET_NOTES,
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_NOTES },
+    ],
   });
 
   const [updateBlock, { error: updateBlockError }] = useMutation(UPDATE_NOTES, {
-    refetchQueries: [GET_NOTES, GET_TAGS_AND_ENTITIES],
+    refetchQueries: [
+      GET_NOTES,
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_NOTES },
+    ],
   });
 
   const [addingBlock, setAddingBlock] = useState(false);
@@ -218,7 +230,7 @@ export const AddBlockModal = ({
           where: { node: { tag: i.slice(1) } },
           onCreate: { node: { tag: i.slice(1) } },
         })) || [];
-
+    console.log(tags, "TAG");
     const entity =
       inputRef.current.innerText
         .match(/@(?=\S*[-]*)([a-zA-Z'-]+)/g)
@@ -448,9 +460,9 @@ export const AddBlockModal = ({
                                 ?.search(pillText ?? "")
                                 .slice(0, 5)
                                 .map((i) => i.item)
-                                .map((tag: string) => (
+                                .map((tag: string, idx) => (
                                   <Pill
-                                    key={tag}
+                                    key={idx}
                                     onClick={onClickPillHandler}
                                     asButton
                                     icon={<EntitiesIcon />}
@@ -474,9 +486,9 @@ export const AddBlockModal = ({
                                 ?.search(pillText ?? "")
                                 .slice(0, 5)
                                 .map((i) => i.item)
-                                .map((tag: string) => (
+                                .map((tag: string, idx) => (
                                   <Pill
-                                    key={tag}
+                                    key={idx}
                                     onClick={onClickPillHandler}
                                     asButton
                                     icon={<TagIcon />}
