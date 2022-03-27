@@ -24,7 +24,7 @@ export const LinkTreeIcon = () => (
       height="3"
       rx="0.5"
       stroke="#616161"
-      stroke-width="2"
+      strokeWidth="2"
       mask="url(#path-3-inside-1_1105_25355)"
     />
     <mask id="path-4-inside-2_1105_25355" fill="white">
@@ -37,7 +37,7 @@ export const LinkTreeIcon = () => (
       height="3"
       rx="0.5"
       stroke="#616161"
-      stroke-width="2"
+      strokeWidth="2"
       mask="url(#path-4-inside-2_1105_25355)"
     />
     <mask id="path-5-inside-3_1105_25355" fill="white">
@@ -50,7 +50,7 @@ export const LinkTreeIcon = () => (
       height="3"
       rx="0.5"
       stroke="#616161"
-      stroke-width="2"
+      strokeWidth="2"
       mask="url(#path-5-inside-3_1105_25355)"
     />
   </svg>

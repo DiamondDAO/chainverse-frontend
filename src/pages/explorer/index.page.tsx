@@ -16,7 +16,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import {
+  GET_ALL_NOTES,
+  GET_NOTES,
+  GET_TAGS_AND_ENTITIES,
+} from "@/services/Apollo/Queries";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { ExplorerNavigator } from "@/components/Explorer/ExplorerNavigator";
 import { SearchIcon } from "@chakra-ui/icons";
@@ -30,25 +34,19 @@ import Router from "next/router";
 
 const Explorer: NextPage = () => {
   const [date, setDate] = useState("");
-  const [getNotes, { data }] = useLazyQuery(GET_NOTES);
+  const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
-  const [{ data: walletData }] = useAccount();
-  const [rfInstance, setRfInstance] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [displaySearchBox, setDisplaySearchBox] = useState(false);
 
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-  useEffect(() => {
-    if (walletData?.address) {
-      getNotes({ variables: { where: { address: walletData.address } } });
-    }
-  }, [getNotes, walletData?.address]);
 
   const [searchBoxStyle, api] = useSpring(() => {
     opacity: 0;
   });
+
   const AnimatedBox = a(Box);
   useEffect(() => {
     if (displaySearchBox) {
@@ -93,6 +91,11 @@ const Explorer: NextPage = () => {
       ) || [],
     [tagAndEntitiesData?.entities]
   );
+  const blocks = useMemo(
+    () =>
+      filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
+    [notesData]
+  );
 
   const tagFuse = new Fuse(tags, {
     includeScore: false,
@@ -100,6 +103,11 @@ const Explorer: NextPage = () => {
   });
 
   const entityFuse = new Fuse(entities, {
+    includeScore: false,
+    threshold: 0.3,
+  });
+
+  const blockFuse = new Fuse(blocks, {
     includeScore: false,
     threshold: 0.3,
   });
@@ -234,12 +242,9 @@ const Explorer: NextPage = () => {
                             key={entity}
                             display="flex"
                             justifyContent={"space-between"}
+                            p="2px"
                           >
-                            <Pill
-                              // onClick={onClickPillHandler}
-                              asButton
-                              icon={<EntitiesIcon />}
-                            >
+                            <Pill asButton icon={<EntitiesIcon />}>
                               <Text color="diamond.blue.5" fontSize="14px">
                                 {entity}
                               </Text>
@@ -260,12 +265,9 @@ const Explorer: NextPage = () => {
                             key={tag}
                             display="flex"
                             justifyContent={"space-between"}
+                            p="2px"
                           >
-                            <Pill
-                              // onClick={onClickPillHandler}
-                              asButton
-                              icon={<TagIcon />}
-                            >
+                            <Pill asButton icon={<TagIcon />}>
                               <Text color="diamond.blue.5" fontSize="14px">
                                 {tag}
                               </Text>
@@ -274,7 +276,24 @@ const Explorer: NextPage = () => {
                         ))}
                     </TabPanel>
                     <TabPanel>
-                      <p>two!</p>
+                      {blockFuse
+                        ?.search(searchValue)
+                        .slice(0, 5)
+                        .map((i) => i.item)
+                        .map((text: string, idx) => (
+                          <Box
+                            key={idx}
+                            display="flex"
+                            justifyContent={"space-between"}
+                            p="2px"
+                          >
+                            <Pill asButton>
+                              <Text color="diamond.blue.5" fontSize="14px">
+                                {text.slice(0, 15) + "..."}
+                              </Text>
+                            </Pill>
+                          </Box>
+                        ))}
                     </TabPanel>
                   </TabPanels>
                 </Tabs>
