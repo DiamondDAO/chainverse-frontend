@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Input,
   InputGroup,
   InputLeftElement,
@@ -14,14 +13,11 @@ import {
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { useAccount } from "wagmi";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
-  GET_NOTES,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
-import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { ExplorerNavigator } from "@/components/Explorer/ExplorerNavigator";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useSpring, a } from "react-spring";
@@ -33,15 +29,10 @@ import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import Router from "next/router";
 
 const Explorer: NextPage = () => {
-  const [date, setDate] = useState("");
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [searchValue, setSearchValue] = useState("");
   const [displaySearchBox, setDisplaySearchBox] = useState(false);
-
-  useEffect(() => {
-    setDate(new Date().toLocaleString());
-  }, []);
 
   const [searchBoxStyle, api] = useSpring(() => {
     opacity: 0;
