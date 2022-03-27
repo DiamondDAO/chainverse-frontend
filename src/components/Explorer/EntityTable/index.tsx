@@ -127,7 +127,7 @@ export const EntityTable = ({ data, update, hasMore }) => {
       dataLength={rows.length}
       next={update}
       hasMore={hasMore}
-      loader={hasMore ? <h4>Loading 15 more items...</h4> : <></>}
+      loader={hasMore ? <h4>Loading more items...</h4> : <></>}
     >
       <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
         {/* set to 99% so we can see left & right borders */}

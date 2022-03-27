@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTable } from "react-table";
-import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
   Box,
   Table as ChakraTable,
@@ -14,18 +13,16 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { BiDetail } from "react-icons/bi";
-import { RiNodeTree } from "react-icons/ri";
-import { DetailDrawer } from "../DetailsDrawer";
-import { useEnsLookup } from "wagmi";
-import { generateDateString, truncateAddress } from "@/common/utils";
+
+import { generateDateString } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
-import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import { BlockExplorerDrawer } from "../BlockExplorerDrawer";
+import { RiNodeTree } from "react-icons/ri";
+import { PlusIcon } from "@/components/Icons/PlusIcon";
+import { BiDetail } from "react-icons/bi";
+import { TagDrawer } from "../TagDrawer";
 
-export const BlockTable = ({ data, update, hasMore }) => {
+export const TagTable = ({ data, update, hasMore }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,
@@ -40,16 +37,17 @@ export const BlockTable = ({ data, update, hasMore }) => {
   const columns = useMemo(
     () => [
       {
-        Header: "Text",
-        accessor: "text",
+        Header: "Tags",
+        accessor: "tag",
         Cell: ({ value }) => {
           return (
-            <Tooltip label={value} placement="top">
-              <Box fontSize="12px">
-                {value.slice(0, 30)}
-                {value.length > 30 && "..."}
-              </Box>
-            </Tooltip>
+            <>
+              <Pill asButton icon={<TagIcon />}>
+                <Text color="diamond.blue.5" fontSize="14px">
+                  {value}
+                </Text>
+              </Pill>
+            </>
           );
         },
       },
@@ -64,78 +62,14 @@ export const BlockTable = ({ data, update, hasMore }) => {
         },
       },
       {
-        Header: "Entities",
-        accessor: "entities",
+        Header: "Blocks Connected",
+        accessor: "blocksConnection",
         Cell: ({ value }) => {
           return (
             <>
-              {value.map((entity: { name: string }, idx) => (
-                <Pill key={idx} asButton icon={<EntitiesIcon />}>
-                  <Text color="diamond.blue.5" fontSize="14px">
-                    {entity.name}
-                  </Text>
-                </Pill>
-              ))}
+              <Box>{value.totalCount}</Box>
             </>
           );
-        },
-      },
-      {
-        Header: "Tags",
-        accessor: "tags",
-        Cell: ({ value }) => {
-          if (value.length <= 2) {
-            return (
-              <>
-                {value.map((tag: { tag: string }, idx) => (
-                  <Pill key={idx} asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
-                      {tag.tag}
-                    </Text>
-                  </Pill>
-                ))}
-              </>
-            );
-          } else {
-            const [tag1, tag2, ...rest] = value;
-            return (
-              <Box display="flex" alignItems="center" position="relative">
-                <Box>
-                  <Pill asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
-                      {tag1.tag}
-                    </Text>
-                  </Pill>
-                </Box>
-                <Box>
-                  <Pill asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
-                      {tag2.tag}
-                    </Text>
-                  </Pill>
-                </Box>
-                <Tooltip
-                  label={rest.map((i) => i.tag).join(", ")}
-                  placement="top"
-                >
-                  <Box marginTop="-4.5px">
-                    <Pill asButton>
-                      <Text color="diamond.blue.5" fontSize="14px">
-                        +{rest.length}
-                      </Text>
-                    </Pill>
-                  </Box>
-                </Tooltip>
-              </Box>
-            );
-          }
-        },
-      },
-      {
-        Header: "Wallet",
-        accessor: "wallet",
-        Cell: ({ value }) => {
-          return <Box>{"0x" + truncateAddress(value.address.slice(2), 4)}</Box>;
         },
       },
       {
@@ -281,8 +215,8 @@ export const BlockTable = ({ data, update, hasMore }) => {
           </Tbody>
         </ChakraTable>
       </Box>
-      <BlockExplorerDrawer
-        blockData={(selectedRow as any).values}
+      <TagDrawer
+        rowData={(selectedRow as any).values}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}
       />

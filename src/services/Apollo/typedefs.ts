@@ -52,6 +52,7 @@ export const typeDefs = gql`
     uuid: ID! @id(autogenerate: true)
     tag: String @unique #todo: should be non-nullable but db currently has null fields ingested
     createdAt: DateTime! @timestamp
+    blocks: [Block!]! @relationship(type: "IS_TAGGED", direction: IN)
   }
 
   type Narrative {

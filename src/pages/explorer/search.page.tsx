@@ -14,6 +14,7 @@ import {
   GET_BLOCK_DATA,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
+  GET_TAG_DATA,
 } from "@/services/Apollo/Queries";
 import { ExplorerNavigator } from "@/components/Explorer/ExplorerNavigator";
 import { SearchIcon } from "@chakra-ui/icons";
@@ -27,6 +28,12 @@ import { IconVariants } from "@/common/types";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { EntityTable } from "@/components/Explorer/EntityTable";
 import { BlockTable } from "@/components/Explorer/BlockTable";
+import {
+  useGetBlockTableData,
+  useGetEntityTableData,
+  useGetTagsTableData,
+} from "./searchHooks";
+import { TagTable } from "@/components/Explorer/TagTable";
 
 enum SearchTypes {
   Blocks = "blocks",
@@ -43,6 +50,7 @@ const Search: NextPage = () => {
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
   const [getBlockData] = useLazyQuery(GET_BLOCK_DATA);
+  const [getTagsData] = useLazyQuery(GET_TAG_DATA);
 
   // search state
   const [searchValue, setSearchValue] = useState("");
@@ -70,27 +78,13 @@ const Search: NextPage = () => {
     setSearchType(typeHandler());
   }, [type]);
 
+  // Tags
   const tags = useMemo(
     () =>
       filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
       [],
     [tagAndEntitiesData?.tags]
   );
-
-  const entities = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
-        (i) => i.name
-      ) || [],
-    [tagAndEntitiesData?.entities]
-  );
-
-  const blocks = useMemo(
-    () =>
-      filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
-    [notesData]
-  );
-
   const tagFusSearchResult = useMemo(
     () =>
       tags.length > 0
@@ -100,6 +94,20 @@ const Search: NextPage = () => {
           })?.search((term as string) || "")
         : [],
     [tags, term]
+  );
+
+  const { getTagDataHandler, hasMoreTagData, tagData } = useGetTagsTableData({
+    term,
+    tagFusSearchResult,
+    getTagsData,
+  });
+  // Entities
+  const entities = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+        (i) => i.name
+      ) || [],
+    [tagAndEntitiesData?.entities]
   );
   const entityFuseSearchResult = useMemo(
     () =>
@@ -111,6 +119,21 @@ const Search: NextPage = () => {
         : [],
     [entities, term]
   );
+
+  const { getEntityDataHandler, entityData, hasMoreEntityData } =
+    useGetEntityTableData({
+      term,
+      entityFuseSearchResult,
+      getEntitiesData,
+    });
+
+  // Blocks
+  const blocks = useMemo(
+    () =>
+      filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
+    [notesData]
+  );
+
   const blocksFuseSearchResult = useMemo(
     () =>
       blocks.length > 0
@@ -121,69 +144,16 @@ const Search: NextPage = () => {
         : [],
     [blocks, term]
   );
-  const [entityTableData, setEntityTableData] = useState([]);
 
-  useEffect(() => {
-    getEntityDataHandler({ reset: true });
-  }, [term, entityFuseSearchResult]);
+  const { getBlockDataHandler, blockData, hasMoreBlockData } =
+    useGetBlockTableData({
+      term,
+      blocksFuseSearchResult,
+      getBlockData,
+    });
 
-  const getEntityDataHandler = async ({
-    reset = false,
-  }: {
-    reset: boolean;
-  }) => {
-    if (entityFuseSearchResult.length > 0) {
-      const length = reset ? 0 : entityTableData.length;
-      const lengthAdd = reset ? 15 : entityTableData.length + 15;
-      const t = entityFuseSearchResult
-        .slice(length, lengthAdd)
-        .map((i) => i.item);
-      const data = await getEntitiesData({
-        variables: {
-          where: {
-            name_IN: t,
-          },
-        },
-      });
-      const entities = (data as any).data.entities;
-      setEntityTableData(reset ? entities : entityTableData.concat(entities));
-    }
-  };
-
-  const entityData = React.useMemo(
-    () => entityTableData,
-    [entityTableData, term]
-  );
-
-  const [blockTableData, setBlockTableData] = useState([]);
-
-  useEffect(() => {
-    getBlockDataHandler({ reset: true });
-  }, [term, entityFuseSearchResult]);
-
-  const getBlockDataHandler = async ({ reset = false }: { reset: boolean }) => {
-    if (blocksFuseSearchResult.length > 0) {
-      const length = reset ? 0 : blockTableData.length;
-      const lengthAdd = reset ? 15 : blockTableData.length + 15;
-      const t = blocksFuseSearchResult
-        .slice(length, lengthAdd)
-        .map((i) => i.item);
-      console.log(t, "check");
-      const data = await getBlockData({
-        variables: {
-          where: {
-            text_IN: t,
-          },
-        },
-      });
-      const notes = (data as any).data.notes;
-      console.log(data.data.notes, "yo");
-      setBlockTableData(reset ? notes : blockTableData.concat(notes));
-    }
-  };
-
-  const blockData = React.useMemo(() => blockTableData, [blockTableData, term]);
   if (loading) return <Loader />;
+
   return (
     <>
       <Layout graphBg>
@@ -227,7 +197,9 @@ const Search: NextPage = () => {
                   <Input
                     onKeyDown={(e) => {
                       if (e.key === "Enter")
-                        Router.push(`/explorer/search?term=${searchValue}`);
+                        Router.push(
+                          `/explorer/search?term=${searchValue}&type=${searchType}`
+                        );
                     }}
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
@@ -355,14 +327,21 @@ const Search: NextPage = () => {
               <EntityTable
                 data={entityData}
                 update={() => getEntityDataHandler({ reset: false })}
-                hasMore={entityTableData.length < entityFuseSearchResult.length}
+                hasMore={hasMoreEntityData}
               />
             )}
             {searchType === SearchTypes.Blocks && (
               <BlockTable
                 data={blockData}
                 update={() => getBlockDataHandler({ reset: false })}
-                hasMore={blockTableData.length < blocksFuseSearchResult.length}
+                hasMore={hasMoreBlockData}
+              />
+            )}
+            {searchType === SearchTypes.Tags && (
+              <TagTable
+                data={tagData}
+                update={() => getTagDataHandler({ reset: false })}
+                hasMore={hasMoreTagData}
               />
             )}
           </Box>

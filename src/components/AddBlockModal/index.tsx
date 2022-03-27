@@ -230,7 +230,6 @@ export const AddBlockModal = ({
           where: { node: { tag: i.slice(1) } },
           onCreate: { node: { tag: i.slice(1) } },
         })) || [];
-    console.log(tags, "TAG");
     const entity =
       inputRef.current.innerText
         .match(/@(?=\S*[-]*)([a-zA-Z'-]+)/g)

@@ -74,7 +74,7 @@ export const GET_ENTITIES_DATA = gql`
 `;
 
 export const GET_BLOCK_DATA = gql`
-  query Entities($where: NoteWhere) {
+  query Notes($where: NoteWhere) {
     notes(where: $where) {
       text
       createdAt
@@ -90,6 +90,19 @@ export const GET_BLOCK_DATA = gql`
       }
       entities {
         name
+      }
+    }
+  }
+`;
+
+export const GET_TAG_DATA = gql`
+  query Tags($where: TagWhere) {
+    tags(where: $where) {
+      uuid
+      tag
+      createdAt
+      blocksConnection {
+        totalCount
       }
     }
   }

@@ -47,8 +47,6 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
   });
   const dateObj = generateDateString(new Date(blockData?.createdAt));
 
-  const toast = useToast();
-
   if (!blockData) {
     return null;
   }
