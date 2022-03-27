@@ -77,11 +77,11 @@ export const Flow: FC<IFlow> = ({ nodeData, onInit }) => {
             labelStyle: {
               fill: "#9C9C9C",
               fontFamily: "Rubik",
-              fontWeight: "500",
+              fontWeight: 500,
             },
             labelBgStyle: {
               fill: "#E8F4FF",
-              fontWeight: "500",
+              fontWeight: 500,
             },
             markerEnd: { type: MarkerType.ArrowClosed },
           },
