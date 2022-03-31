@@ -7,13 +7,6 @@ import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
-import { DELETE_NOTES } from "@/services/Apollo/Mutations";
-import {
-  GET_ALL_NOTES,
-  GET_NOTES,
-  GET_TAGS_AND_ENTITIES,
-} from "@/services/Apollo/Queries";
-import { useMutation } from "@apollo/client";
 import {
   Box,
   Button,
@@ -26,18 +19,24 @@ import {
   DrawerHeader,
   DrawerOverlay,
   useToast,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Portal,
 } from "@chakra-ui/react";
 import React, { FC, useState } from "react";
 import { RiNodeTree } from "react-icons/ri";
 import { useEnsLookup } from "wagmi";
 
 interface IBlockDrawer {
+  addBlockHandler: (row: any) => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
   blockData: any;
 }
 
 export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
+  addBlockHandler,
   isOpen,
   onClose,
   blockData,
@@ -46,6 +45,11 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
     address: blockData?.wallet.address,
   });
   const dateObj = generateDateString(new Date(blockData?.createdAt));
+
+  //
+  const [workspaceIsOpen, setWorkspaceIsOpen] = useState(false);
+  const open = () => setWorkspaceIsOpen(!isOpen);
+  const close = () => setWorkspaceIsOpen(false);
 
   if (!blockData) {
     return null;
@@ -74,12 +78,62 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
               ACTIONS
             </Text>
             <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Button
-                leftIcon={<PlusIcon width="11px" height="11px" fill="white" />}
-                variant="primary"
-              >
-                Add to workspace
-              </Button>
+              <Popover isOpen={workspaceIsOpen} onClose={close}>
+                <PopoverTrigger>
+                  <Button
+                    onClick={open}
+                    leftIcon={
+                      <PlusIcon width="11px" height="11px" fill="white" />
+                    }
+                    variant="primary"
+                  >
+                    Add to workspace
+                  </Button>
+                </PopoverTrigger>
+                <Portal>
+                  <PopoverContent>
+                    <Box p="12px">
+                      <Text
+                        fontSize="12px"
+                        fontWeight="500"
+                        color="diamond.blue.3"
+                        mb="8px"
+                      >
+                        SELECT A WORKSPACE
+                      </Text>
+                      <Box
+                        borderTop="0.5px solid black"
+                        borderColor="diamond.gray.1"
+                      />
+                      <Box mt="4px" sx={{ "& > *": { py: "4px" } }}>
+                        <Box
+                          _hover={{
+                            bg: "diamond.gray.1",
+                          }}
+                          display="flex"
+                          justifyContent="space-between"
+                          onClick={() => {
+                            addBlockHandler(blockData);
+                            close();
+                          }}
+                        >
+                          <Box>Sandbox</Box>
+                        </Box>
+                        {/* <Box
+                        _hover={{
+                          bg: "diamond.gray.1",
+                        }}
+                        display="flex"
+                        justifyContent="space-between"
+                      >
+                        <Box>Sandbox</Box>
+                      </Box> */}
+                      </Box>
+                    </Box>
+                  </PopoverContent>
+                </Portal>
+              </Popover>
+
               <Button
                 onClick={() => {}}
                 leftIcon={<RiNodeTree size="12px" />}

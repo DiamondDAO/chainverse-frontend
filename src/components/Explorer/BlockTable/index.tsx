@@ -3,6 +3,16 @@ import { useTable } from "react-table";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
   Box,
+  Button,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
+  Portal,
   Table as ChakraTable,
   Tbody,
   Td,
@@ -12,6 +22,7 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
@@ -24,14 +35,106 @@ import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
 import { BlockExplorerDrawer } from "../BlockExplorerDrawer";
+import { GET_SANDBOX } from "@/services/Apollo/Queries";
+import { UPDATE_SANDBOX } from "@/services/Apollo/Mutations";
+import { useMutation } from "@apollo/client";
+import Router from "next/router";
 
-export const BlockTable = ({ data, update, hasMore }) => {
+export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,
     onClose: drawerOnClose,
   } = useDisclosure();
+  const toast = useToast();
+
   const [selectedRow, setSelectedRow] = useState({});
+
+  const [addBlockToSandbox, { error: addBlockError }] = useMutation(
+    UPDATE_SANDBOX,
+    {
+      refetchQueries: [GET_SANDBOX],
+    }
+  );
+  const addBlockHandler = async (row) => {
+    try {
+      await addBlockToSandbox({
+        variables: {
+          where: {
+            wallet: {
+              address: walletAddress,
+            },
+          },
+          connect: {
+            blocks: {
+              Note: [
+                {
+                  where: {
+                    node: {
+                      uuid: row.original.uuid,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.green"
+          >
+            <Text fontWeight="500">Added to workspace</Text>
+            <Text mt="4px">Block added to Sandbox</Text>
+            <Text
+              mt="12px"
+              borderRadius="2px"
+              p="2px"
+              ml="-2px"
+              width="fit-content"
+              _hover={{ bg: "diamond.gray.1" }}
+              color="black"
+              cursor="pointer"
+              onClick={() => Router.push("/workspace")}
+            >
+              View workspace
+            </Text>
+          </Box>
+        ),
+      });
+    } catch (e) {
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.red"
+          >
+            <Text fontWeight="500">There was an error adding to workspace</Text>
+          </Box>
+        ),
+      });
+      throw Error(`${addBlockError}, ${e}`);
+    }
+  };
+
   useEffect(() => {
     if (!drawerIsOpen) {
       setSelectedRow({});
@@ -142,6 +245,10 @@ export const BlockTable = ({ data, update, hasMore }) => {
         Header: "Actions",
         accessor: "actions",
         Cell: (props) => {
+          const [isOpen, setIsOpen] = useState(false);
+          const open = () => setIsOpen(!isOpen);
+          const close = () => setIsOpen(false);
+
           return (
             <Box display="flex">
               <Tooltip label="View details" placement="top">
@@ -162,20 +269,65 @@ export const BlockTable = ({ data, update, hasMore }) => {
                   <BiDetail size="14px" />
                 </Box>
               </Tooltip>
-              <Tooltip label="Add to workspace" placement="top">
-                <Box
-                  sx={{ "& *": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
-                >
-                  <PlusIcon width="14px" />
-                </Box>
-              </Tooltip>
+              <Popover isOpen={isOpen} onClose={close}>
+                <PopoverTrigger>
+                  <Tooltip label="Add to workspace" placement="top">
+                    <Box
+                      onClick={open}
+                      sx={{ "& *": { fill: "diamond.gray.4" } }}
+                      _hover={{
+                        bg: "diamond.gray.0",
+                        "& path": { fill: "diamond.link" },
+                      }}
+                      display="flex"
+                      justifyContent="center"
+                      padding="4px"
+                    >
+                      <PlusIcon width="14px" />
+                    </Box>
+                  </Tooltip>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Box p="12px">
+                    <Text
+                      fontSize="12px"
+                      fontWeight="500"
+                      color="diamond.blue.3"
+                      mb="8px"
+                    >
+                      SELECT A WORKSPACE
+                    </Text>
+                    <Box
+                      borderTop="0.5px solid black"
+                      borderColor="diamond.gray.1"
+                    />
+                    <Box mt="4px" sx={{ "& > *": { py: "4px" } }}>
+                      <Box
+                        _hover={{
+                          bg: "diamond.gray.1",
+                        }}
+                        display="flex"
+                        justifyContent="space-between"
+                        onClick={() => {
+                          addBlockHandler(props.row);
+                          close();
+                        }}
+                      >
+                        <Box>Sandbox</Box>
+                      </Box>
+                      {/* <Box
+                        _hover={{
+                          bg: "diamond.gray.1",
+                        }}
+                        display="flex"
+                        justifyContent="space-between"
+                      >
+                        <Box>Sandbox</Box>
+                      </Box> */}
+                    </Box>
+                  </Box>
+                </PopoverContent>
+              </Popover>
               <Tooltip label="Go to graph" placement="top">
                 <Box
                   sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
@@ -282,6 +434,7 @@ export const BlockTable = ({ data, update, hasMore }) => {
         </ChakraTable>
       </Box>
       <BlockExplorerDrawer
+        addBlockHandler={addBlockHandler}
         blockData={(selectedRow as any).values}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}

@@ -18,7 +18,7 @@ import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
 import { DetailDrawer } from "../DetailsDrawer";
 
-export const EntityTable = ({ data, update, hasMore }) => {
+export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,

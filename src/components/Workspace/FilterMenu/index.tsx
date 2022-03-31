@@ -47,7 +47,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
 }) => {
   const fuseSearch = new Fuse(data, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
   const [searchInput, setSearchInput] = useState("");
   const typeObjectInstance = typeObject(type);

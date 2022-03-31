@@ -77,6 +77,7 @@ export const GET_BLOCK_DATA = gql`
   query Notes($where: NoteWhere) {
     notes(where: $where) {
       text
+      uuid
       createdAt
       sources {
         url
@@ -123,6 +124,26 @@ export const GET_PROMPT_INFO = gql`
           text
           wallet {
             createdAt
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_SANDBOX = gql`
+  query Sandboxes($where: SandboxWhere) {
+    sandboxes(where: $where) {
+      name
+      blocks {
+        ... on Note {
+          text
+          uuid
+          tags {
+            tag
+          }
+          entities {
+            name
           }
         }
       }

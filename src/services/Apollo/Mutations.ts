@@ -20,6 +20,45 @@ export const CREATE_NOTES = gql`
     }
   }
 `;
+
+export const ADD_SANDBOX_TO_WALLET = gql`
+  mutation UpdateWallets(
+    $where: WalletWhere
+    $connectOrCreate: WalletConnectOrCreateInput
+  ) {
+    updateWallets(where: $where, connectOrCreate: $connectOrCreate) {
+      wallets {
+        sandbox {
+          blocks {
+            ... on Note {
+              tags {
+                tag
+              }
+              text
+              entities {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const UPDATE_SANDBOX = gql`
+  mutation UpdateSandboxes(
+    $where: SandboxWhere
+    $connect: SandboxConnectInput
+  ) {
+    updateSandboxes(where: $where, connect: $connect) {
+      info {
+        relationshipsCreated
+      }
+    }
+  }
+`;
+
 export const UPDATE_NOTES = gql`
   mutation UpdateNotes(
     $update: NoteUpdateInput

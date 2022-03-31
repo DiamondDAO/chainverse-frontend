@@ -34,6 +34,7 @@ import {
   useGetTagsTableData,
 } from "./searchHooks";
 import { TagTable } from "@/components/Explorer/TagTable";
+import { useAccount } from "wagmi";
 
 enum SearchTypes {
   Blocks = "blocks",
@@ -51,7 +52,7 @@ const Search: NextPage = () => {
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
   const [getBlockData] = useLazyQuery(GET_BLOCK_DATA);
   const [getTagsData] = useLazyQuery(GET_TAG_DATA);
-
+  const [{ data: walletData }] = useAccount();
   // search state
   const [searchValue, setSearchValue] = useState("");
   const [searchType, setSearchType] = useState(SearchTypes.Blocks);
@@ -90,7 +91,7 @@ const Search: NextPage = () => {
       tags.length > 0
         ? new Fuse(tags, {
             includeScore: false,
-            threshold: 0.3,
+            threshold: 0.2,
           })?.search((term as string) || "")
         : [],
     [tags, term]
@@ -114,7 +115,7 @@ const Search: NextPage = () => {
       entities.length > 0
         ? new Fuse(entities, {
             includeScore: false,
-            threshold: 0.3,
+            threshold: 0.2,
           })?.search((term as string) || "")
         : [],
     [entities, term]
@@ -139,7 +140,7 @@ const Search: NextPage = () => {
       blocks.length > 0
         ? new Fuse(blocks, {
             includeScore: false,
-            threshold: 0.3,
+            threshold: 0.2,
           })?.search((term as string) || "")
         : [],
     [blocks, term]
@@ -165,14 +166,14 @@ const Search: NextPage = () => {
         <Box
           mt="40px"
           display="grid"
-          gridTemplateColumns={["1fr", null, null, "1fr 4fr"]}
+          gridTemplateColumns={["1fr", null, null, "210px 1fr"]}
         >
           <Box sx={{ columnGap: "50px" }}>
             <Box w="100%" zIndex={3} display={["none", null, null, "flex"]}>
               <ExplorerNavigator />
             </Box>
           </Box>
-          <Box>
+          <Box ml={["unset", null, null, "50px"]}>
             <Box
               display="flex"
               flexDir={["column", null, "row"]}
@@ -326,6 +327,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Entities && (
               <EntityTable
                 data={entityData}
+                walletAddress={walletData?.address}
                 update={() => getEntityDataHandler({ reset: false })}
                 hasMore={hasMoreEntityData}
               />
@@ -333,6 +335,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Blocks && (
               <BlockTable
                 data={blockData}
+                walletAddress={walletData?.address}
                 update={() => getBlockDataHandler({ reset: false })}
                 hasMore={hasMoreBlockData}
               />
@@ -340,6 +343,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Tags && (
               <TagTable
                 data={tagData}
+                walletAddress={walletData?.address}
                 update={() => getTagDataHandler({ reset: false })}
                 hasMore={hasMoreTagData}
               />

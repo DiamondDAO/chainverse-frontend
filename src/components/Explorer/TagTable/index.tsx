@@ -22,7 +22,7 @@ import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { BiDetail } from "react-icons/bi";
 import { TagDrawer } from "../TagDrawer";
 
-export const TagTable = ({ data, update, hasMore }) => {
+export const TagTable = ({ data, update, hasMore, walletAddress }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,

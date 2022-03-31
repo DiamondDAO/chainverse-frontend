@@ -14,7 +14,7 @@ export const typeDefs = gql`
     TODO: Should this be restricted
     """
     uuid: ID! @id(autogenerate: true)
-    name: String @unique
+    name: String @unique #under assumption name for entities are unique
     id: String
     minScore: Float
     network: Float
@@ -46,6 +46,7 @@ export const typeDefs = gql`
     address: String! @unique
     createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "CREATED", direction: OUT)
+    sandbox: Sandbox! @relationship(type: "CREATED", direction: OUT)
   }
 
   type Tag {
@@ -66,6 +67,16 @@ export const typeDefs = gql`
     createdAt: DateTime! @timestamp
     name: String!
     blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+    wallet: Wallet! @relationship(type: "CREATED", direction: IN)
+  }
+
+  # Sandbox is a special type of workspace where every user only has one
+  type Sandbox {
+    uuid: ID! @id(autogenerate: true)
+    createdAt: DateTime! @timestamp
+    name: String! @unique
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+    Entities: [Entity!]! @relationship(type: "CONTAINS", direction: IN)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 

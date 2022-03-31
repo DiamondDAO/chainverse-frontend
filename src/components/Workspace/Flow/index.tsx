@@ -15,12 +15,11 @@ import ReactFlow, {
   ConnectionLineType,
 } from "react-flow-renderer";
 import { BlockNode } from "../BlockNode";
-import { FloatingEdge } from "../CustomEdge";
 
 const initialEdges: Edge[] = [];
 
 const fitViewOptions: FitViewOptions = {
-  padding: 3,
+  padding: 1,
 };
 
 interface IFlow {
@@ -40,7 +39,7 @@ export const Flow: FC<IFlow> = ({ nodeData, onInit }) => {
             label: i.text,
           },
           type: "block",
-          position: { x: 5, y: idx * 100 + 5 },
+          position: { x: 100, y: idx * 150 + 100 },
         };
       }),
     [nodeData]
@@ -48,7 +47,7 @@ export const Flow: FC<IFlow> = ({ nodeData, onInit }) => {
 
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
-
+  console.log(initialNodes);
   useEffect(() => {
     setNodes(initialNodes);
   }, [initialNodes]);

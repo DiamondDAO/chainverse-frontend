@@ -370,11 +370,11 @@ export const AddBlockModal = ({
   };
   const tagFuse = new Fuse(tags, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
   const entityFuse = new Fuse(entities, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
 
   return (

@@ -90,17 +90,17 @@ const Explorer: NextPage = () => {
 
   const tagFuse = new Fuse(tags, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
 
   const entityFuse = new Fuse(entities, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
 
   const blockFuse = new Fuse(blocks, {
     includeScore: false,
-    threshold: 0.3,
+    threshold: 0.2,
   });
 
   return (
@@ -114,7 +114,7 @@ const Explorer: NextPage = () => {
         <Box
           mt="40px"
           display="grid"
-          gridTemplateColumns={["1fr", null, null, "1fr 2fr"]}
+          gridTemplateColumns={["1fr", null, null, "210px 1fr"]}
         >
           <Box
             display={["none", null, null, "flex"]}

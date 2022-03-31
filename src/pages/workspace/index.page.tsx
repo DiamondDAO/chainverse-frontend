@@ -4,13 +4,18 @@ import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { AddBlockModal } from "@/components/AddBlockModal";
 import { useAccount } from "wagmi";
-import { useLazyQuery, useQuery } from "@apollo/client";
-import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import {
+  GET_NOTES,
+  GET_SANDBOX,
+  GET_TAGS_AND_ENTITIES,
+} from "@/services/Apollo/Queries";
 import { filterUniqueObjects } from "@/common/utils";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { Flow } from "@/components/Workspace/Flow";
+import { ADD_SANDBOX_TO_WALLET } from "@/services/Apollo/Mutations";
 
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -18,6 +23,14 @@ const Workspace: NextPage = () => {
   const [date, setDate] = useState("");
   const [getNotes, { data }] = useLazyQuery(GET_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+
+  const [addSandboxToWallet, { error: addBlockError }] = useMutation(
+    ADD_SANDBOX_TO_WALLET,
+    {
+      refetchQueries: [],
+    }
+  );
+  const [getSandbox, { data: sandboxData }] = useLazyQuery(GET_SANDBOX);
   const [{ data: walletData }] = useAccount();
   const [rfInstance, setRfInstance] = useState(null);
 
@@ -30,7 +43,39 @@ const Workspace: NextPage = () => {
     }
   }, [getNotes, walletData?.address]);
 
-  const nodeData = data?.wallets[0]?.blocks.filter(
+  useEffect(() => {
+    const connectOrCreateSandbox = async (walletAddress: string) => {
+      const Sandbox = await getSandbox({
+        variables: {
+          where: { wallet: { address: walletAddress } },
+          directed: false,
+        },
+      });
+      if (Sandbox.data.sandboxes.length === 0) {
+        await addSandboxToWallet({
+          variables: {
+            where: { address: walletAddress },
+            connectOrCreate: {
+              sandbox: {
+                where: {
+                  node: { name: `${walletAddress} Sandbox` },
+                },
+                onCreate: {
+                  node: {
+                    name: `${walletAddress} Sandbox`,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+    };
+    if (walletData?.address) {
+      connectOrCreateSandbox(walletData.address);
+    }
+  }, [getSandbox, walletData?.address]);
+  const nodeData = sandboxData?.sandboxes[0]?.blocks.filter(
     (i) => i.__typename === "Note"
   );
 
