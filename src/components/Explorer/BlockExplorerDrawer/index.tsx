@@ -1,4 +1,4 @@
-import { IconVariants } from "@/common/types";
+import { AddWorkspaceType, IconVariants } from "@/common/types";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
@@ -7,6 +7,10 @@ import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
+import { GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { bodyText } from "@/theme";
+import { useQuery } from "@apollo/client";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -18,40 +22,40 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  useToast,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Portal,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
 import React, { FC, useState } from "react";
 import { RiNodeTree } from "react-icons/ri";
 import { useEnsLookup } from "wagmi";
-
 interface IBlockDrawer {
-  addBlockHandler: (row: any) => Promise<void>;
+  addBlockHandler: (
+    row: any,
+    type: AddWorkspaceType,
+    workspaceUuid?: string
+  ) => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
-  blockData: any;
+  nodeData: any;
 }
 
 export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
   addBlockHandler,
   isOpen,
   onClose,
-  blockData,
+  nodeData,
 }) => {
+  const nodeDataValues = nodeData?.original;
+  const { data: workspaceData } = useQuery(GET_WORKSPACES);
+  const workspaces = workspaceData?.workspaces;
   const [{ data: ENS }] = useEnsLookup({
-    address: blockData?.wallet.address,
+    address: nodeData?.wallet?.address,
   });
-  const dateObj = generateDateString(new Date(blockData?.createdAt));
+  const dateObj = generateDateString(new Date(nodeDataValues?.createdAt));
 
-  //
-  const [workspaceIsOpen, setWorkspaceIsOpen] = useState(false);
-  const open = () => setWorkspaceIsOpen(!isOpen);
-  const close = () => setWorkspaceIsOpen(false);
-
-  if (!blockData) {
+  if (!nodeData) {
     return null;
   }
   return (
@@ -78,62 +82,43 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
               ACTIONS
             </Text>
             <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Popover isOpen={workspaceIsOpen} onClose={close}>
-                <PopoverTrigger>
-                  <Button
-                    onClick={open}
-                    leftIcon={
-                      <PlusIcon width="11px" height="11px" fill="white" />
-                    }
-                    variant="primary"
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  leftIcon={
+                    <PlusIcon width="11px" height="11px" fill="white" />
+                  }
+                  fontSize="12px"
+                  variant="primary"
+                >
+                  Add to workspace
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={() => {
+                      addBlockHandler(nodeData, AddWorkspaceType.Sandbox);
+                      onClose();
+                    }}
                   >
-                    Add to workspace
-                  </Button>
-                </PopoverTrigger>
-                <Portal>
-                  <PopoverContent>
-                    <Box p="12px">
-                      <Text
-                        fontSize="12px"
-                        fontWeight="500"
-                        color="diamond.blue.3"
-                        mb="8px"
-                      >
-                        SELECT A WORKSPACE
-                      </Text>
-                      <Box
-                        borderTop="0.5px solid black"
-                        borderColor="diamond.gray.1"
-                      />
-                      <Box mt="4px" sx={{ "& > *": { py: "4px" } }}>
-                        <Box
-                          _hover={{
-                            bg: "diamond.gray.1",
-                          }}
-                          display="flex"
-                          justifyContent="space-between"
-                          onClick={() => {
-                            addBlockHandler(blockData);
-                            close();
-                          }}
-                        >
-                          <Box>Sandbox</Box>
-                        </Box>
-                        {/* <Box
-                        _hover={{
-                          bg: "diamond.gray.1",
-                        }}
-                        display="flex"
-                        justifyContent="space-between"
-                      >
-                        <Box>Sandbox</Box>
-                      </Box> */}
-                      </Box>
-                    </Box>
-                  </PopoverContent>
-                </Portal>
-              </Popover>
-
+                    Sandbox
+                  </MenuItem>
+                  {workspaces?.map((workspace) => (
+                    <MenuItem
+                      onClick={() => {
+                        addBlockHandler(
+                          nodeData,
+                          AddWorkspaceType.Workspace,
+                          workspace.uuid
+                        );
+                        onClose();
+                      }}
+                      key={workspace.uuid}
+                    >
+                      {workspace.name}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
               <Button
                 onClick={() => {}}
                 leftIcon={<RiNodeTree size="12px" />}
@@ -158,7 +143,8 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
             </Text>
             <Text color="diamond.gray.4">
               {ENS ||
-                "0x" + truncateAddress(blockData?.wallet.address.slice(2), 4)}
+                "0x" +
+                  truncateAddress(nodeDataValues?.wallet.address.slice(2), 4)}
             </Text>
           </Box>
           <Divider mt="16px" />
@@ -167,10 +153,13 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
               BLOCK TEXT
             </Box>
             <Box>
-              {blockData?.text && <AddPillsToText text={blockData?.text} />}
+              {nodeDataValues?.text && (
+                <AddPillsToText text={nodeDataValues?.text} />
+              )}
             </Box>
           </Box>
-          {(blockData.entities.length > 0 || blockData.tags.length > 0) && (
+          {(nodeDataValues?.entities.length > 0 ||
+            nodeDataValues?.tags.length > 0) && (
             <>
               <Divider mt="16px" />
               <Box mt="16px" color="diamond.blue.3" fontWeight={500}>
@@ -181,20 +170,22 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
                 flexWrap="wrap"
                 sx={{ columnGap: "4px", rowGap: "4px" }}
               >
-                {blockData.tags.map((tag: { tag: string }, idx) => (
+                {nodeDataValues?.tags.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {tag.tag}
                     </Text>
                   </Pill>
                 ))}
-                {blockData.entities.map((entity: { name: string }, idx) => (
-                  <Pill key={idx} asButton icon={<EntitiesIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
-                      {entity.name}
-                    </Text>
-                  </Pill>
-                ))}
+                {nodeDataValues?.entities.map(
+                  (entity: { name: string }, idx) => (
+                    <Pill key={idx} asButton icon={<EntitiesIcon />}>
+                      <Text color="diamond.blue.5" fontSize={bodyText}>
+                        {entity.name}
+                      </Text>
+                    </Pill>
+                  )
+                )}
               </Box>
             </>
           )}

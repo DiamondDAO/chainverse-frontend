@@ -1,4 +1,5 @@
 import { validURL } from "@/common/utils";
+import { subText } from "@/theme";
 import {
   Box,
   Button,
@@ -65,7 +66,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
               color={source ? "diamond.blue.5" : "diamond.gray.2"}
               height="max-content"
               _focus={{ border: "none" }}
-              fontSize=".875rem"
+              fontSize="14px"
             >
               <Box as="span" onClick={open}>
                 {source ? "Source:" : "Link a source"}
@@ -98,7 +99,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
         >
           <Text
             color={error ? "red" : "black"}
-            fontSize="10px"
+            fontSize={subText}
             lineHeight="12px"
             fontWeight="500"
           >
@@ -108,7 +109,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
             ref={inputRef}
             mt="2px"
             borderRadius="2px"
-            fontSize="10px"
+            fontSize={subText}
             height="30px"
             px="10px"
             borderColor={error ? "red" : "black"}
@@ -116,7 +117,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
           <Button
             mt="3px"
             alignSelf={"end"}
-            fontSize="10px"
+            fontSize={subText}
             lineHeight="125%"
             color="diamond.link"
             variant="link"

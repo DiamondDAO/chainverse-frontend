@@ -1,3 +1,4 @@
+import { subText } from "@/theme";
 import { Box, ListItem, UnorderedList } from "@chakra-ui/react";
 import Router, { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -18,7 +19,7 @@ export const ExplorerNavigator = (props: Props) => {
       borderColor="diamond.gray.2"
       display="flex"
       flexDir="column"
-      fontSize={"0.875rem"}
+      fontSize={subText}
       bg="white"
       borderRadius="5px"
       sx={{ "&> *": { padding: "10px" } }}

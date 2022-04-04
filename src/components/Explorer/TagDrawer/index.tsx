@@ -19,15 +19,15 @@ import {
 import React, { FC } from "react";
 import { RiNodeTree } from "react-icons/ri";
 
-interface IDetailDrawer {
+interface ITagDrawer {
   isOpen: boolean;
   onClose: () => void;
-  rowData: any;
+  nodeData: any;
 }
 
-export const TagDrawer: FC<IDetailDrawer> = ({ isOpen, onClose, rowData }) => {
-  const dateObj = generateDateString(new Date(rowData?.createdAt));
-  if (!rowData) return null;
+export const TagDrawer: FC<ITagDrawer> = ({ isOpen, onClose, nodeData }) => {
+  const dateObj = generateDateString(new Date(nodeData?.createdAt));
+  if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
@@ -42,7 +42,7 @@ export const TagDrawer: FC<IDetailDrawer> = ({ isOpen, onClose, rowData }) => {
             <TagIcon variant={IconVariants.White} />
           </Box>
           <Box ml="8px" as="span" fontWeight="500">
-            {rowData?.tag}
+            {nodeData?.tag}
           </Box>
         </DrawerHeader>
 
@@ -81,7 +81,7 @@ export const TagDrawer: FC<IDetailDrawer> = ({ isOpen, onClose, rowData }) => {
               BLOCKS CONNECTED
             </Text>
             <Text color="diamond.gray.4">
-              {rowData?.blocksConnection.totalCount}
+              {nodeData?.blocksConnection.totalCount}
             </Text>
           </Box>
           <Divider mt="16px" />

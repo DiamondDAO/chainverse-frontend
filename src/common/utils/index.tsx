@@ -35,3 +35,9 @@ export const generateDateString = (date: Date) => {
 
   return { month, day, year };
 };
+
+export const convertIPFSURLs = (url: string) => {
+  if (url.slice(0, 4) === "ipfs") {
+    return `https://ipfs.io/ipfs/${url.slice(7)}`;
+  } else return url;
+};

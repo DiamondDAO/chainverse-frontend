@@ -121,8 +121,8 @@ const Preferences: NextPage = () => {
       )}
       {(promptLoading || !data?.address) && <Box>Loading...</Box>}
       {!promptLoading && data?.address && (
-        <Container maxW="container.lg">
-          <Box display="flex" justifyContent="center">
+        <>
+          <Box display="flex">
             <Heading mb="20px">Preferences</Heading>
           </Box>
           <Grid templateColumns={["1fr", null, "1fr 2fr"]} gap={6}>
@@ -162,7 +162,7 @@ const Preferences: NextPage = () => {
               </UnorderedList>
             </Box>
           </Grid>
-        </Container>
+        </>
       )}
     </Layout>
   );

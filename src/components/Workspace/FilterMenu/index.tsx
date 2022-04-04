@@ -14,6 +14,7 @@ import Fuse from "fuse.js";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
+import { bodyText, subText } from "@/theme";
 type IFilterMenu = {
   data: string[];
   type: FilterTypes;
@@ -51,22 +52,29 @@ export const FilterMenu: FC<IFilterMenu> = ({
   });
   const [searchInput, setSearchInput] = useState("");
   const typeObjectInstance = typeObject(type);
-  const [filiteredItem, setFilteredItem] = filteredItemState;
+  const [filteredItem, setFilteredItem] = filteredItemState;
   return (
     <Menu>
       <MenuButton
-        bg="diamond.white"
+        bg="diamond.gray.0"
         border="0.5px solid black"
-        borderColor="diamond.gray.3"
+        borderColor="diamond.gray.1"
         color="diamond.gray.4"
         borderRadius="3px"
-        padding="2px 4px"
-        fontSize="12px"
-        height="20px"
+        padding="8px"
+        fontSize={bodyText}
         as={Button}
         rightIcon={<ChevronDownIcon />}
+        sx={{
+          ...(filteredItem.length > 0 && {
+            borderColor: "diamond.link",
+            bg: "diamond.blue.0",
+            color: "diamond.link",
+          }),
+        }}
       >
-        Filter by {type}
+        Filter by {type}{" "}
+        {filteredItem.length > 0 ? `(${filteredItem.length})` : ""}
       </MenuButton>
       <MenuList>
         <MenuGroup>
@@ -79,7 +87,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
                 setSearchInput(e.target.value);
               }}
             />
-            <Text mt="4px" color="diamond.gray.3" fontSize="10px">
+            <Text mt="4px" color="diamond.gray.3" fontSize={subText}>
               ADDED
             </Text>
             <Box
@@ -88,7 +96,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
               maxW="fit-content"
               sx={{ rowGap: "4px", columnGap: "4px" }}
             >
-              {filiteredItem.map((fuseItem: string) => (
+              {filteredItem.map((fuseItem: string) => (
                 <Pill
                   asButton
                   key={fuseItem}
@@ -99,13 +107,13 @@ export const FilterMenu: FC<IFilterMenu> = ({
                     );
                   }}
                 >
-                  <Text color="diamond.blue.5" fontSize="14px">
+                  <Text color="diamond.blue.5" fontSize={bodyText}>
                     {fuseItem}
                   </Text>
                 </Pill>
               ))}
             </Box>
-            <Text mt="4px" color="diamond.gray.3" fontSize="10px">
+            <Text mt="4px" color="diamond.gray.3" fontSize={subText}>
               {typeObjectInstance.text}
             </Text>
             <Box
@@ -118,7 +126,8 @@ export const FilterMenu: FC<IFilterMenu> = ({
                 fuseSearch
                   ?.search(searchInput ?? "")
                   .map((i) => i.item)
-                  .filter((i) => !filiteredItem.includes(i))
+                  .slice(0, 10)
+                  .filter((i) => !filteredItem.includes(i))
                   .map((fuseItem: string) => (
                     <Pill
                       key={fuseItem}
@@ -129,7 +138,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
                       }}
                       icon={typeObjectInstance.icon}
                     >
-                      <Text color="diamond.blue.5" fontSize="14px">
+                      <Text color="diamond.blue.5" fontSize={bodyText}>
                         {fuseItem}
                       </Text>
                     </Pill>

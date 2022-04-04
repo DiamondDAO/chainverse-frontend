@@ -43,7 +43,7 @@ const AllBlocks: NextPage = () => {
   const [getNotes, { data }] = useLazyQuery(GET_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
-  const [currentBlock, setCurrentBlock] = useState(null);
+  const [currentNode, setCurrentNode] = useState(null);
   const filteredTagsState = useState<string[]>([]);
   const filteredEntitiesState = useState<string[]>([]);
 
@@ -80,7 +80,7 @@ const AllBlocks: NextPage = () => {
   );
   return (
     <>
-      <Layout graphBg>
+      <Layout>
         <Box display="flex" width="100%" flexDir="column">
           <Box
             display="flex"
@@ -92,7 +92,7 @@ const AllBlocks: NextPage = () => {
             </Text>
 
             <Text color="diamond.gray.3" zIndex={1}>
-              Blocks Created: {blockCount}
+              You’ve created a total of {blockCount} blocks.
             </Text>
           </Box>
           <Box mt="40px" display="flex" sx={{ columnGap: "50px" }}>
@@ -130,7 +130,7 @@ const AllBlocks: NextPage = () => {
                 >
                   <AddBlockCard onClick={onOpen} />
                   {data?.wallets[0].blocks
-                    .filter((blockData) => blockData.__typename === "Note")
+                    .filter((nodeData) => nodeData.__typename === "Note")
                     .filter((noteData) => {
                       let tagFlag = true;
                       let entitiyFlag = true;
@@ -167,7 +167,7 @@ const AllBlocks: NextPage = () => {
                         <Box
                           cursor={"pointer"}
                           onClick={() => {
-                            setCurrentBlock(block);
+                            setCurrentNode(block);
                             drawerOnOpen();
                           }}
                           p="8px"
@@ -193,15 +193,14 @@ const AllBlocks: NextPage = () => {
             </Box>
           </Box>
           <BlockDrawer
-            blockData={currentBlock}
+            nodeData={currentNode}
             isOpen={drawerIsOpen}
             onClose={drawerOnClose}
             editBlockHandler={onOpen}
-            deleteBlockhandler={() => {}}
           />
           <AddBlockModal
             tags={tags}
-            blockData={drawerIsOpen && currentBlock}
+            nodeData={drawerIsOpen && currentNode}
             entities={entities}
             isOpen={isOpen}
             onClose={onClose}

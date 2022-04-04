@@ -23,6 +23,7 @@ export const Pill = (
       borderRadius="3px"
       p="2px 4px"
       height="17px"
+      whiteSpace="nowrap"
       justifyContent="center"
       bg="diamond.blue.0"
       display="inline-flex"

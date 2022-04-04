@@ -1,4 +1,5 @@
 import { IconVariants } from "@/common/types";
+import { convertIPFSURLs } from "@/common/utils";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
@@ -7,6 +8,7 @@ import {
   Divider,
   Drawer,
   Text,
+  Image,
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
@@ -16,19 +18,21 @@ import {
 } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { RiNodeTree } from "react-icons/ri";
+import { SiTwitter, SiDiscord } from "react-icons/si";
 
-interface IDetailDrawer {
+interface IEntityDrawer {
   isOpen: boolean;
   onClose: () => void;
-  rowData: any;
+  nodeData: any;
 }
 
-export const DetailDrawer: FC<IDetailDrawer> = ({
+export const EntityDrawer: FC<IEntityDrawer> = ({
   isOpen,
   onClose,
-  rowData,
+  nodeData,
 }) => {
-  if (!rowData) return null;
+  console.log(nodeData);
+  if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
@@ -39,11 +43,21 @@ export const DetailDrawer: FC<IDetailDrawer> = ({
       >
         <DrawerCloseButton />
         <DrawerHeader display="flex" alignItems="center">
-          <Box bg="diamond.magenta" borderRadius="100%" padding="5px">
-            <EntitiesIcon variant={IconVariants.White} />
-          </Box>
+          {nodeData?.avatar ? (
+            <Box width="30px" height="30px">
+              <Image
+                borderRadius="100%"
+                alt="entitiy-logo"
+                src={convertIPFSURLs(nodeData?.avatar)}
+              />
+            </Box>
+          ) : (
+            <Box bg="diamond.magenta" borderRadius="100%" padding="5px">
+              <EntitiesIcon variant={IconVariants.White} />
+            </Box>
+          )}
           <Box ml="8px" as="span" fontWeight="500">
-            {rowData?.values?.name}
+            {nodeData?.name}
           </Box>
         </DrawerHeader>
 
@@ -69,37 +83,73 @@ export const DetailDrawer: FC<IDetailDrawer> = ({
             </Box>
           </Box>
           <Divider mt="16px" />
+          {nodeData?.about && (
+            <>
+              {" "}
+              <Box>
+                <Text color="diamond.blue.3" fontWeight={500}>
+                  ABOUT
+                </Text>
+                <Box display="flex" sx={{ columnGap: "4px" }}>
+                  <Text mt="4px" color="diamond.gray.4">
+                    {nodeData?.about}
+                  </Text>
+                </Box>
+              </Box>
+              <Divider mt="16px" />
+            </>
+          )}
           <Box mt="16px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               ID
             </Text>
-            <Text color="diamond.gray.4">{rowData?.values?.id}</Text>
+            <Text color="diamond.gray.4">{nodeData?.id}</Text>
           </Box>
           <Box mt="3px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               NETWORK
             </Text>
-            <Text color="diamond.gray.4">{rowData?.values?.network}</Text>
+            <Text color="diamond.gray.4">{nodeData?.network}</Text>
           </Box>
           <Box mt="3px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               ONLY MEMBER?
             </Text>
-            <Text color="diamond.gray.4">{rowData?.values?.onlyMembers}</Text>
+            <Text color="diamond.gray.4">{nodeData?.onlyMembers}</Text>
           </Box>
           <Box mt="3px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               SYMBOL
             </Text>
-            <Text color="diamond.gray.4">{rowData?.values?.symbol}</Text>
+            <Text color="diamond.gray.4">{nodeData?.symbol}</Text>
           </Box>
+          <Box mt="3px" display="flex" justifyContent="space-between"></Box>
           <Box mt="3px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               YTD PROPOSALS
             </Text>
             <Text color="diamond.gray.4">
-              {rowData?.values?.proposalsAggregate.count}
+              {nodeData?.proposalsAggregate.count}
             </Text>
+          </Box>
+          <Box mt="3px" display="flex" justifyContent="space-between">
+            <Text color="diamond.blue.3" fontWeight={500}>
+              WEBSITE
+            </Text>
+            <Box display="flex" sx={{ columnGap: "4px" }}></Box>
+          </Box>
+          <Box mt="3px" display="flex" justifyContent="space-between">
+            <Text color="diamond.blue.3" fontWeight={500}>
+              SOCIALS
+            </Text>
+            <Box display="flex" sx={{ columnGap: "4px" }}>
+              <Box _hover={{ "& *": { fill: "#369AF0" } }}>
+                <SiTwitter fill="#747575" size="14px" />
+              </Box>
+              <Box _hover={{ "& *": { fill: "#5460EB" } }}>
+                <SiDiscord fill="#747575" size="14px" />
+              </Box>
+            </Box>
           </Box>
           <Divider mt="16px" />
         </DrawerBody>

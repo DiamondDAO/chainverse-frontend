@@ -13,6 +13,7 @@ import {
   PopoverHeader,
   PopoverTrigger,
   Portal,
+  Spinner,
   Table as ChakraTable,
   Tbody,
   Td,
@@ -27,7 +28,6 @@ import {
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
-import { DetailDrawer } from "../DetailsDrawer";
 import { useEnsLookup } from "wagmi";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { Pill } from "@/components/Pill";
@@ -35,10 +35,12 @@ import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
 import { BlockExplorerDrawer } from "../BlockExplorerDrawer";
-import { GET_SANDBOX } from "@/services/Apollo/Queries";
-import { UPDATE_SANDBOX } from "@/services/Apollo/Mutations";
-import { useMutation } from "@apollo/client";
+import { GET_SANDBOX, GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
+import { useMutation, useQuery } from "@apollo/client";
 import Router from "next/router";
+import { bodyText } from "@/theme";
+import { AddWorkspaceType } from "@/common/types";
 
 export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -50,36 +52,66 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
 
   const [selectedRow, setSelectedRow] = useState({});
 
-  const [addBlockToSandbox, { error: addBlockError }] = useMutation(
+  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
-      refetchQueries: [GET_SANDBOX],
+      refetchQueries: [{ query: GET_SANDBOX }],
     }
   );
-  const addBlockHandler = async (row) => {
+
+  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
+    useMutation(UPDATE_WORKSPACE, {
+      refetchQueries: [{ query: GET_WORKSPACES }],
+    });
+  const addBlockHandler = async (
+    row,
+    type: AddWorkspaceType,
+    workspaceUuid?: string
+  ) => {
     try {
-      await addBlockToSandbox({
-        variables: {
-          where: {
-            wallet: {
-              address: walletAddress,
+      if (type === AddWorkspaceType.Sandbox) {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: walletAddress,
+              },
             },
-          },
-          connect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid: row.original.uuid,
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: row.original.uuid,
+                      },
                     },
                   },
-                },
-              ],
+                ],
+              },
             },
           },
-        },
-      });
+        });
+      } else {
+        await addBlockToWorkspace({
+          variables: {
+            where: { uuid: workspaceUuid },
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: row.original.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      }
       toast({
         position: "top-right",
         isClosable: true,
@@ -105,7 +137,11 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
               _hover={{ bg: "diamond.gray.1" }}
               color="black"
               cursor="pointer"
-              onClick={() => Router.push("/workspace")}
+              onClick={() =>
+                AddWorkspaceType.Workspace === type
+                  ? Router.push(`/workspace/${workspaceUuid}`)
+                  : Router.push("/workspace")
+              }
             >
               View workspace
             </Text>
@@ -131,7 +167,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
           </Box>
         ),
       });
-      throw Error(`${addBlockError}, ${e}`);
+      throw Error(`${e}`);
     }
   };
 
@@ -174,7 +210,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
             <>
               {value.map((entity: { name: string }, idx) => (
                 <Pill key={idx} asButton icon={<EntitiesIcon />}>
-                  <Text color="diamond.blue.5" fontSize="14px">
+                  <Text color="diamond.blue.5" fontSize={bodyText}>
                     {entity.name}
                   </Text>
                 </Pill>
@@ -192,7 +228,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
               <>
                 {value.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {tag.tag}
                     </Text>
                   </Pill>
@@ -202,17 +238,22 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
           } else {
             const [tag1, tag2, ...rest] = value;
             return (
-              <Box display="flex" alignItems="center" position="relative">
+              <Box
+                display="flex"
+                alignItems="center"
+                position="relative"
+                flexWrap="wrap"
+              >
                 <Box>
                   <Pill asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {tag1.tag}
                     </Text>
                   </Pill>
                 </Box>
                 <Box>
                   <Pill asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {tag2.tag}
                     </Text>
                   </Pill>
@@ -223,7 +264,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                 >
                   <Box marginTop="-4.5px">
                     <Pill asButton>
-                      <Text color="diamond.blue.5" fontSize="14px">
+                      <Text color="diamond.blue.5" fontSize={bodyText}>
                         +{rest.length}
                       </Text>
                     </Pill>
@@ -245,6 +286,8 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
         Header: "Actions",
         accessor: "actions",
         Cell: (props) => {
+          const { data: workspaceData } = useQuery(GET_WORKSPACES);
+          const workspaces = workspaceData?.workspaces;
           const [isOpen, setIsOpen] = useState(false);
           const open = () => setIsOpen(!isOpen);
           const close = () => setIsOpen(false);
@@ -309,21 +352,34 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                         display="flex"
                         justifyContent="space-between"
                         onClick={() => {
-                          addBlockHandler(props.row);
+                          addBlockHandler(props.row, AddWorkspaceType.Sandbox);
                           close();
                         }}
                       >
                         <Box>Sandbox</Box>
                       </Box>
-                      {/* <Box
-                        _hover={{
-                          bg: "diamond.gray.1",
-                        }}
-                        display="flex"
-                        justifyContent="space-between"
-                      >
-                        <Box>Sandbox</Box>
-                      </Box> */}
+                      {workspaces?.map((workspace) => {
+                        return (
+                          <Box
+                            onClick={() => {
+                              addBlockHandler(
+                                props.row,
+                                AddWorkspaceType.Workspace,
+                                workspace.uuid
+                              );
+                              close();
+                            }}
+                            key={workspace.uuid}
+                            _hover={{
+                              bg: "diamond.gray.1",
+                            }}
+                            display="flex"
+                            justifyContent="space-between"
+                          >
+                            <Box>{workspace.name}</Box>
+                          </Box>
+                        );
+                      })}
                     </Box>
                   </Box>
                 </PopoverContent>
@@ -359,86 +415,96 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
 
   // Render the UI for your table
   return (
-    <InfiniteScroll
-      dataLength={rows.length}
-      next={update}
-      hasMore={hasMore}
-      loader={hasMore ? <h4>Loading more items...</h4> : <></>}
-    >
-      <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
-        {/* set to 99% so we can see left & right borders */}
-        <ChakraTable
-          sx={{ marginTop: ["24px", "32px", "48px", "84px"] }}
-          width="99%"
-          {...getTableProps()}
-        >
-          <Thead>
-            {headerGroups.map((headerGroup, idx) => (
-              <Tr key={idx} {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, idx) => (
-                  <Th
-                    px="10px"
-                    borderBottom="0.5px solid black"
-                    borderColor="diamond.gray.4"
-                    sx={{ textAlign: "inherit" }}
-                    key={idx}
-                    {...column.getHeaderProps()}
-                  >
-                    {column.render("Header")}
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody
-            borderLeft="thin solid #616161"
-            borderRight="0.5px solid #616161"
-            {...getTableBodyProps()}
+    <>
+      <InfiniteScroll
+        dataLength={rows.length}
+        next={update}
+        hasMore={hasMore}
+        loader={hasMore ? <h4>Loading more items...</h4> : <></>}
+      >
+        <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
+          {/* set to 99% so we can see left & right borders */}
+          <ChakraTable
+            sx={{ marginTop: ["24px", "32px", "48px", "84px"] }}
+            width="99%"
+            {...getTableProps()}
           >
-            {rows.map((row, i) => {
-              prepareRow(row);
-              return (
-                <Tr
-                  key={i}
-                  sx={{
-                    ...(i === (selectedRow as any).index && {
-                      bg: "rgba(149, 67, 141, 0.1)",
-                    }),
-                  }}
-                  bg="white"
-                  {...row.getRowProps()}
-                  _hover={{ bg: "diamond.gray.1" }}
-                  cursor="pointer"
-                >
-                  {row.cells.map((cell, idx) => {
-                    return (
-                      <Td
-                        px="10px"
-                        borderBottom="0.5px solid black"
-                        borderColor="diamond.gray.4"
-                        key={idx}
-                        {...cell.getCellProps([
-                          {
-                            style: (cell.column as any).style,
-                          },
-                        ])}
-                      >
-                        {cell.render("Cell")}
-                      </Td>
-                    );
-                  })}
+            <Thead>
+              {headerGroups.map((headerGroup, idx) => (
+                <Tr key={idx} {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column, idx) => (
+                    <Th
+                      px="10px"
+                      borderBottom="0.5px solid black"
+                      borderColor="diamond.gray.4"
+                      sx={{ textAlign: "inherit" }}
+                      key={idx}
+                      {...column.getHeaderProps()}
+                    >
+                      {column.render("Header")}
+                    </Th>
+                  ))}
                 </Tr>
-              );
-            })}
-          </Tbody>
-        </ChakraTable>
-      </Box>
-      <BlockExplorerDrawer
-        addBlockHandler={addBlockHandler}
-        blockData={(selectedRow as any).values}
-        isOpen={drawerIsOpen}
-        onClose={drawerOnClose}
-      />
-    </InfiniteScroll>
+              ))}
+            </Thead>
+            <Tbody
+              borderLeft="thin solid #616161"
+              borderRight="0.5px solid #616161"
+              {...getTableBodyProps()}
+            >
+              {rows.map((row, i) => {
+                prepareRow(row);
+                return (
+                  <Tr
+                    key={i}
+                    sx={{
+                      ...(i === (selectedRow as any).index && {
+                        bg: "rgba(149, 67, 141, 0.1)",
+                      }),
+                    }}
+                    bg="white"
+                    {...row.getRowProps()}
+                    _hover={{ bg: "diamond.gray.1" }}
+                    cursor="pointer"
+                  >
+                    {row.cells.map((cell, idx) => {
+                      return (
+                        <Td
+                          onClick={
+                            row.cells.length - 1 !== idx
+                              ? () => {
+                                  drawerOnOpen();
+                                  setSelectedRow(row);
+                                }
+                              : () => {}
+                          }
+                          px="10px"
+                          borderBottom="0.5px solid black"
+                          borderColor="diamond.gray.4"
+                          key={idx}
+                          {...cell.getCellProps([
+                            {
+                              style: (cell.column as any).style,
+                            },
+                          ])}
+                        >
+                          {cell.render("Cell")}
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </ChakraTable>
+        </Box>
+        <BlockExplorerDrawer
+          addBlockHandler={addBlockHandler}
+          nodeData={selectedRow as any}
+          isOpen={drawerIsOpen}
+          onClose={drawerOnClose}
+        />
+      </InfiniteScroll>
+    </>
   );
 };

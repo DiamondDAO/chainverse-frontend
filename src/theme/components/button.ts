@@ -11,7 +11,7 @@ export const Button = {
   // 3. We can add a new visual variant
   variants: {
     primary: {
-      bg: "diamond.blue.5",
+      bg: "#1C4265 !important",
       color: "diamond.white",
       fontSize: "0.875rem",
       _hover: {

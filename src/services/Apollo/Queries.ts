@@ -66,6 +66,8 @@ export const GET_ENTITIES_DATA = gql`
       network
       onlyMembers
       symbol
+      avatar
+      about
       proposalsAggregate {
         count
       }
@@ -135,10 +137,76 @@ export const GET_SANDBOX = gql`
   query Sandboxes($where: SandboxWhere) {
     sandboxes(where: $where) {
       name
+      entities {
+        name
+        id
+        avatar
+        about
+        proposalsAggregate {
+          count
+        }
+      }
+      blocks {
+        ... on Note {
+          text
+          createdAt
+          uuid
+          wallet {
+            address
+          }
+          tags {
+            tag
+          }
+          entities {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_WORKSPACES = gql`
+  query Query {
+    workspaces {
+      uuid
+      name
       blocks {
         ... on Note {
           text
           uuid
+        }
+      }
+      entities {
+        name
+        id
+      }
+    }
+  }
+`;
+
+export const GET_WORKSPACE = gql`
+  query Query($where: WorkspaceWhere) {
+    workspaces(where: $where) {
+      name
+      rfObject
+      entities {
+        name
+        id
+        avatar
+        about
+        proposalsAggregate {
+          count
+        }
+      }
+      blocks {
+        ... on Note {
+          text
+          createdAt
+          uuid
+          wallet {
+            address
+          }
           tags {
             tag
           }

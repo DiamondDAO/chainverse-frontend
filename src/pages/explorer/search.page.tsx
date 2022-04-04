@@ -50,7 +50,7 @@ const Search: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
-  const [getBlockData] = useLazyQuery(GET_BLOCK_DATA);
+  const [getnodeData] = useLazyQuery(GET_BLOCK_DATA);
   const [getTagsData] = useLazyQuery(GET_TAG_DATA);
   const [{ data: walletData }] = useAccount();
   // search state
@@ -146,18 +146,18 @@ const Search: NextPage = () => {
     [blocks, term]
   );
 
-  const { getBlockDataHandler, blockData, hasMoreBlockData } =
+  const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,
       blocksFuseSearchResult,
-      getBlockData,
+      getnodeData,
     });
 
   if (loading) return <Loader />;
 
   return (
     <>
-      <Layout graphBg>
+      <Layout>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Text fontWeight="600" fontSize="2rem" zIndex={1}>
             Explorer
@@ -334,10 +334,10 @@ const Search: NextPage = () => {
             )}
             {searchType === SearchTypes.Blocks && (
               <BlockTable
-                data={blockData}
+                data={nodeData}
                 walletAddress={walletData?.address}
-                update={() => getBlockDataHandler({ reset: false })}
-                hasMore={hasMoreBlockData}
+                update={() => getnodeDataHandler({ reset: false })}
+                hasMore={hasMorenodeData}
               />
             )}
             {searchType === SearchTypes.Tags && (

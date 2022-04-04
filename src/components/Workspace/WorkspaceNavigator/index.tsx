@@ -1,6 +1,9 @@
+import { Loader } from "@/components/Loader";
+import { GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { useQuery } from "@apollo/client";
 import { Box, ListItem, UnorderedList } from "@chakra-ui/react";
 import Router, { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Props = {};
 
@@ -13,6 +16,11 @@ const enum WorkspacePaths {
 export const WorkspaceNavigator = (props: Props) => {
   const router = useRouter();
   const [selected, setSelected] = useState("/workspace");
+
+  const { data: workspaceData } = useQuery(GET_WORKSPACES);
+
+  const workspaces = workspaceData?.workspaces;
+
   return (
     <Box
       border="0.5px solid black"
@@ -29,7 +37,7 @@ export const WorkspaceNavigator = (props: Props) => {
         borderTopLeftRadius="5px"
         borderTopRightRadius="5px"
         sx={{
-          ...(router.pathname === WorkspacePaths.Sandbox && {
+          ...(router.asPath === WorkspacePaths.Sandbox && {
             bg: "diamond.blue.0",
             fontWeight: "500",
           }),
@@ -39,39 +47,50 @@ export const WorkspaceNavigator = (props: Props) => {
         Sandbox
       </Box>
       <Box>
-        Workspaces
+        My Workspaces
         <UnorderedList
           color="diamond.gray.3"
           styleType="none"
           marginLeft={"2px"}
           sx={{ "li:before": { content: '"> "', paddingRight: "5px" } }}
         >
-          <ListItem>Test</ListItem>
-          <ListItem>Test</ListItem>
-          <ListItem>Test</ListItem>
+          {workspaces?.map((workspace) => (
+            <ListItem
+              onClick={() => Router.push(`/workspace/${workspace.uuid}`)}
+              key={workspace.uuid}
+              sx={{
+                ...(router.asPath === `/workspace/${workspace.uuid}` && {
+                  bg: "diamond.blue.0",
+                  fontWeight: "500",
+                }),
+              }}
+            >
+              {workspace.name}
+            </ListItem>
+          ))}
         </UnorderedList>
       </Box>
       <Box
         onClick={() => Router.push("/workspace/blocks")}
         sx={{
-          ...(router.pathname === WorkspacePaths.Blocks && {
+          ...(router.asPath === WorkspacePaths.Blocks && {
             bg: "diamond.blue.0",
             fontWeight: "500",
           }),
         }}
       >
-        All blocks
+        My Blocks
       </Box>
       <Box
         onClick={() => setSelected("narratives")}
         sx={{
-          ...(router.pathname === WorkspacePaths.Narratives && {
+          ...(router.asPath === WorkspacePaths.Narratives && {
             bg: "diamond.blue.0",
             fontWeight: "500",
           }),
         }}
       >
-        All narratives
+        My Narratives (Coming soon)
       </Box>
     </Box>
   );

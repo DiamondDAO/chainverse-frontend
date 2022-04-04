@@ -7,26 +7,38 @@ import { IconVariants } from "@/common/types";
 
 type Props = {};
 
-export const BlockNode = ({ data }) => {
+export const BlockNode = ({
+  data,
+}: {
+  data: { label: string; dim: boolean; selectNode: () => void };
+}) => {
   return (
     <Box
       cursor={"pointer"}
       p="8px"
-      fontSize="12px"
-      width="220px"
-      borderRadius="2px"
-      minH="76px"
+      onDoubleClick={data.selectNode}
+      fontSize="10px"
+      maxW="200px"
+      borderRadius="8px"
       border="1px solid #000000"
       bg="rgba(0, 0, 0, 0.05)"
-      display="grid"
-      gridTemplateColumns="1fr 5fr"
+      display="flex"
+      sx={{ ...(data.dim && { opacity: 0.2, bg: "rgba(0, 0, 0, 0.05)" }) }}
     >
-      <Box>
-        <BlockIcon variant={IconVariants.Black} />
+      <Box mr="4px">
+        <Box
+          p="4px"
+          width={"fit-content"}
+          height="fit-content"
+          bg="black"
+          borderRadius="100%"
+        >
+          <BlockIcon variant={IconVariants.White} />
+        </Box>
       </Box>
-      <Text>
+      <Box verticalAlign="middle">
         <AddPillsToText text={data.label} />
-      </Text>
+      </Box>
       <Handle type="target" id="a" position={Position.Left} />
       <Handle type="source" id="b" position={Position.Right} />
     </Box>

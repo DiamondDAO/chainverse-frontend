@@ -18,7 +18,14 @@ const Preferences: NextPage = () => {
 
   const [{ data: walletData }] = useAccount();
   const [addBlock] = useMutation(CREATE_NOTES, {
-    refetchQueries: [GET_NOTES, { query: GET_ALL_NOTES }],
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
+      ,
+      { query: GET_ALL_NOTES },
+    ],
   });
 
   useEffect(() => {

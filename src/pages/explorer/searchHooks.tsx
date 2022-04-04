@@ -3,22 +3,22 @@ import { useEffect, useMemo, useState } from "react";
 export const useGetBlockTableData = ({
   term,
   blocksFuseSearchResult,
-  getBlockData,
+  getnodeData,
 }) => {
   const [blockTableData, setBlockTableData] = useState([]);
 
   useEffect(() => {
-    getBlockDataHandler({ reset: true });
+    getnodeDataHandler({ reset: true });
   }, [term, blocksFuseSearchResult]);
 
-  const getBlockDataHandler = async ({ reset = false }: { reset: boolean }) => {
+  const getnodeDataHandler = async ({ reset = false }: { reset: boolean }) => {
     if (blocksFuseSearchResult.length > 0) {
       const length = reset ? 0 : blockTableData.length;
       const lengthAdd = reset ? 15 : blockTableData.length + 15;
       const t = blocksFuseSearchResult
         .slice(length, lengthAdd)
         .map((i) => i.item);
-      const data = await getBlockData({
+      const data = await getnodeData({
         variables: {
           where: {
             text_IN: t,
@@ -31,12 +31,12 @@ export const useGetBlockTableData = ({
       setBlockTableData([]);
     }
   };
-  const blockData = useMemo(() => blockTableData, [blockTableData, term]);
-  const hasMoreBlockData = useMemo(
+  const nodeData = useMemo(() => blockTableData, [blockTableData, term]);
+  const hasMorenodeData = useMemo(
     () => blockTableData.length < blocksFuseSearchResult.length,
     [blockTableData, blocksFuseSearchResult]
   );
-  return { getBlockDataHandler, blockData, hasMoreBlockData };
+  return { getnodeDataHandler, nodeData, hasMorenodeData };
 };
 
 export const useGetEntityTableData = ({

@@ -21,6 +21,7 @@ import { RiNodeTree } from "react-icons/ri";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { BiDetail } from "react-icons/bi";
 import { TagDrawer } from "../TagDrawer";
+import { bodyText } from "@/theme";
 
 export const TagTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -43,7 +44,7 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
           return (
             <>
               <Pill asButton icon={<TagIcon />}>
-                <Text color="diamond.blue.5" fontSize="14px">
+                <Text color="diamond.blue.5" fontSize={bodyText}>
                   {value}
                 </Text>
               </Pill>
@@ -195,6 +196,14 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
                   {row.cells.map((cell, idx) => {
                     return (
                       <Td
+                        onClick={
+                          row.cells.length - 1 !== idx
+                            ? () => {
+                                drawerOnOpen();
+                                setSelectedRow(row);
+                              }
+                            : () => {}
+                        }
                         px="10px"
                         borderBottom="0.5px solid black"
                         borderColor="diamond.gray.4"
@@ -216,7 +225,7 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
         </ChakraTable>
       </Box>
       <TagDrawer
-        rowData={(selectedRow as any).values}
+        nodeData={(selectedRow as any).values}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}
       />

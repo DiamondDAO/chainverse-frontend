@@ -42,3 +42,8 @@ export enum IconVariants {
   White = "white",
   Black = "black",
 }
+
+export enum AddWorkspaceType {
+  Workspace = "Workspace",
+  Sandbox = "Sandbox",
+}

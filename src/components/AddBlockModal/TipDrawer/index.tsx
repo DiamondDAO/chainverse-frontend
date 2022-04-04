@@ -1,7 +1,7 @@
 import AccountIcon from "@/components/Icons/AccountIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
+import { bodyText } from "@/theme";
 import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -44,25 +44,32 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
       >
         💡 Tips for creating a block:
       </Text>
-      <UnorderedList mt="20px" fontSize="14px">
+      <UnorderedList mt="20px" fontSize={bodyText}>
         <ListItem>
-          A block can stand alone, but when several blocks are linked together,
-          they create a narrative and provide context on the entities the block
-          is associated with.
+          A {`"block"`} of information is an atomic unit of knowledge. A block
+          can stand alone, but when several blocks are linked together, they
+          create a narrative and provide context on the entities the block is
+          associated with.
         </ListItem>
-        <ListItem>Type # to insert an association to a</ListItem>
+        <br />
+        <ListItem alignItems="center">
+          Type # to insert an association to a{" "}
+          <Pill icon={<EntitiesIcon />}>entities</Pill>
+          (nodes) represent people, places, and things. They contain little to
+          no actionable knowledge on their own, and require relationships to
+          link them to other entities.
+        </ListItem>
+        <br />
+        <ListItem alignItems="center">
+          Type @ to insert an association to a{" "}
+        </ListItem>
         <ListItem listStyleType="none">
           <UnorderedList>
             <ListItem>
               <Pill icon={<EntitiesIcon />}>entities</Pill>
-              (nodes) represent people, places, and things. They contain little
-              to no actionable knowledge on their own, and require relationships
-              to link them to other entities.
-            </ListItem>
-            <ListItem>
-              <Pill icon={<TagIcon />}>tags</Pill>
-              are any categorically significant piece of information that could
-              be used to link multiple entities
+              represent people, places, and things. They contain little to no
+              actionable knowledge on their own, and require relationships to
+              link them to other entities.
             </ListItem>
             <ListItem>
               <Pill icon={<AccountIcon />}>users</Pill>
@@ -70,6 +77,7 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
             </ListItem>
           </UnorderedList>
         </ListItem>
+        <br />
         <ListItem>
           Curators bring value to entities by providing contextual information
           and meaning in the form of a {"block"}.

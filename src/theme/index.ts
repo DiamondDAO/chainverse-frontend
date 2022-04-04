@@ -3,6 +3,11 @@ import { extendTheme } from "@chakra-ui/react";
 import { Button } from "./components/button";
 
 // 2. Extend the theme to include custom colors, fonts, etc
+
+// TEXT SIZE CONSTANTS
+export const subText = "10px";
+export const bodyText = "14px";
+
 const colors = {
   diamond: {
     white: "#FFFFFF",

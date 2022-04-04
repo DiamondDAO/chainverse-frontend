@@ -32,6 +32,7 @@ import {
   GET_NOTES,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
+import { bodyText, subText } from "@/theme";
 
 // node_walk: walk the element tree, stop when func(node) returns false
 function node_walk(node, func) {
@@ -120,13 +121,13 @@ export const AddBlockModal = ({
   entities,
   isOpen,
   onClose,
-  blockData,
+  nodeData,
 }: {
   tags: string[];
   entities: string[];
   isOpen: boolean;
   onClose: () => void;
-  blockData?: any;
+  nodeData?: any;
 }) => {
   // States
   const [clickedTip, setClickedTip] = useState(false);
@@ -191,15 +192,21 @@ export const AddBlockModal = ({
   const [{ data: walletData }] = useAccount();
   const [addBlock, { error: addBlockError }] = useMutation(CREATE_NOTES, {
     refetchQueries: [
-      GET_NOTES,
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_NOTES },
+      GET_ALL_NOTES,
     ],
   });
 
   const [updateBlock, { error: updateBlockError }] = useMutation(UPDATE_NOTES, {
     refetchQueries: [
-      GET_NOTES,
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
       GET_TAGS_AND_ENTITIES,
       { query: GET_ALL_NOTES },
     ],
@@ -214,10 +221,10 @@ export const AddBlockModal = ({
     onClose();
   };
   useEffect(() => {
-    if (blockData?.sources) {
-      setSource(blockData.sources?.[0]?.url);
+    if (nodeData?.sources) {
+      setSource(nodeData.sources?.[0]?.url);
     }
-  }, [blockData?.sources]);
+  }, [nodeData?.sources]);
   const submitBlockHandler = async ({
     action,
   }: {
@@ -278,7 +285,7 @@ export const AddBlockModal = ({
         await updateBlock({
           variables: {
             update: {},
-            where: { uuid: blockData.uuid },
+            where: { uuid: nodeData.uuid },
             disconnect: {
               tags: [
                 {
@@ -333,13 +340,13 @@ export const AddBlockModal = ({
                 },
               }),
             },
-            where: { uuid: blockData.uuid },
+            where: { uuid: nodeData.uuid },
           },
         });
       }
       closeHandler();
       toast({
-        title: `Block ${blockData ? "Saved" : "Created"}!`,
+        title: `Block ${nodeData ? "Saved" : "Created"}!`,
         status: "success",
         duration: 2000,
         isClosable: true,
@@ -392,7 +399,7 @@ export const AddBlockModal = ({
           <Box>
             <ModalHeader px="0">
               <Text fontWeight="500" fontSize="1.25rem" color="diamond.white">
-                {blockData ? "Edit" : "Create"} a knowledge block
+                {nodeData ? "Edit" : "Create"} a knowledge block
               </Text>
             </ModalHeader>
             <ModalBody padding={0}>
@@ -443,7 +450,7 @@ export const AddBlockModal = ({
                                 (activationChar === "#" && <TagIcon />)
                               }
                             >
-                              <Text fontSize="14px" fontWeight="400">
+                              <Text fontSize={bodyText} fontWeight="400">
                                 {pillText}
                               </Text>
                             </Pill>
@@ -452,7 +459,7 @@ export const AddBlockModal = ({
                         <PopoverBody>
                           {activationChar == "@" && (
                             <Box fontWeight="400">
-                              <Text color="diamond.gray.3" fontSize="10px">
+                              <Text color="diamond.gray.3" fontSize={subText}>
                                 ENTITIES
                               </Text>
                               {entityFuse
@@ -468,7 +475,7 @@ export const AddBlockModal = ({
                                   >
                                     <Text
                                       color="diamond.blue.5"
-                                      fontSize="14px"
+                                      fontSize={bodyText}
                                     >
                                       {tag}
                                     </Text>
@@ -478,7 +485,7 @@ export const AddBlockModal = ({
                           )}
                           {activationChar === "#" && (
                             <Box fontWeight="400" mt="15px">
-                              <Text color="diamond.gray.3" fontSize="10px">
+                              <Text color="diamond.gray.3" fontSize={subText}>
                                 TAGS
                               </Text>
                               {tagFuse
@@ -494,7 +501,7 @@ export const AddBlockModal = ({
                                   >
                                     <Text
                                       color="diamond.blue.5"
-                                      fontSize="14px"
+                                      fontSize={bodyText}
                                     >
                                       {tag}
                                     </Text>
@@ -536,7 +543,7 @@ export const AddBlockModal = ({
                     placeholder="Type # to insert"
                     fontSize=".875rem"
                   >
-                    {blockData?.text}
+                    {nodeData?.text}
                   </Box>
 
                   <LinkSourceModal
@@ -560,7 +567,7 @@ export const AddBlockModal = ({
                 isLoading={addingBlock}
                 onClick={() =>
                   submitBlockHandler({
-                    action: blockData
+                    action: nodeData
                       ? submitBlockAction.Update
                       : submitBlockAction.Add,
                   })

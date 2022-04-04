@@ -1,5 +1,6 @@
 import { IconVariants } from "@/common/types";
 import { generateDateString, truncateAddress } from "@/common/utils";
+import { DeleteModal } from "@/components/DeleteBlockModal";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
@@ -12,6 +13,7 @@ import {
   GET_NOTES,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
+import { bodyText } from "@/theme";
 import { useMutation } from "@apollo/client";
 import {
   Box,
@@ -26,44 +28,55 @@ import {
   DrawerOverlay,
   toast,
   useToast,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { FC, useState } from "react";
-import { useEnsLookup } from "wagmi";
+import { useAccount, useEnsLookup } from "wagmi";
 
 interface IBlockDrawer {
   isOpen: boolean;
   onClose: () => void;
   editBlockHandler: () => void;
-  deleteBlockhandler: () => void;
-  blockData: any;
+  nodeData: any;
 }
 
 export const BlockDrawer: FC<IBlockDrawer> = ({
   isOpen,
   onClose,
   editBlockHandler,
-  blockData,
+  nodeData,
 }) => {
-  const [{ data: ENS }] = useEnsLookup({
-    address: blockData?.wallet.address,
+  const {
+    isOpen: isDeleteModalOpen,
+    onClose: onDeleteModalClose,
+    onOpen: onDeleteModalOpen,
+  } = useDisclosure();
+  const [{ data: walletData, loading: walletDataLoading }] = useAccount({
+    fetchEns: true,
   });
-  const dateObj = generateDateString(new Date(blockData?.createdAt));
+  const [{ data: ENS }] = useEnsLookup({
+    address: nodeData?.wallet?.address,
+  });
+  const dateObj = generateDateString(new Date(nodeData?.createdAt));
   const [deletingBlock, setDeletingBlock] = useState(false);
   const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
-      GET_NOTES,
+      {
+        query: GET_NOTES,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
       GET_TAGS_AND_ENTITIES,
       { query: GET_ALL_NOTES },
     ],
   });
-
   const toast = useToast();
+
   const deleteBlockHandler = async () => {
     try {
       setDeletingBlock(true);
       await deleteBlock({
         variables: {
-          where: { uuid: blockData.uuid },
+          where: { uuid: nodeData.uuid },
         },
       });
       toast({
@@ -85,7 +98,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
     onClose();
     setDeletingBlock(false);
   };
-  if (!blockData) {
+  if (!nodeData) {
     return null;
   }
   return (
@@ -107,30 +120,32 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
         </DrawerHeader>
 
         <DrawerBody fontSize="12px">
-          <Box>
-            <Text color="diamond.blue.3" fontWeight={500}>
-              ACTIONS
-            </Text>
-            <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Button
-                onClick={editBlockHandler}
-                leftIcon={<CreateSnapshotIcon />}
-                variant="primary"
-              >
-                Edit Block
-              </Button>
-              <Button
-                isDisabled={deletingBlock}
-                isLoading={deletingBlock}
-                onClick={deleteBlockHandler}
-                leftIcon={<CreateSnapshotIcon />}
-                variant="primary"
-              >
-                Delete Block
-              </Button>
-            </Box>
-          </Box>
-          <Divider mt="16px" />
+          {walletData?.address === nodeData?.wallet?.address && (
+            <>
+              <Box>
+                <Text color="diamond.blue.3" fontWeight={500}>
+                  ACTIONS
+                </Text>
+                <Box display="flex" sx={{ columnGap: "4px" }}>
+                  <Button
+                    onClick={editBlockHandler}
+                    leftIcon={<CreateSnapshotIcon />}
+                    variant="primary"
+                  >
+                    Edit Block
+                  </Button>
+                  <Button
+                    onClick={onDeleteModalOpen}
+                    leftIcon={<CreateSnapshotIcon />}
+                    variant="primary"
+                  >
+                    Delete Block
+                  </Button>
+                </Box>
+              </Box>{" "}
+              <Divider mt="16px" />
+            </>
+          )}
           <Box mt="16px" display="flex" justifyContent="space-between">
             <Text color="diamond.blue.3" fontWeight={500}>
               DATE CREATED
@@ -145,7 +160,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
             </Text>
             <Text color="diamond.gray.4">
               {ENS ||
-                "0x" + truncateAddress(blockData?.wallet.address.slice(2), 4)}
+                "0x" + truncateAddress(nodeData?.wallet?.address.slice(2), 4)}
             </Text>
           </Box>
           <Divider mt="16px" />
@@ -154,10 +169,10 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               BLOCK TEXT
             </Box>
             <Box>
-              {blockData?.text && <AddPillsToText text={blockData?.text} />}
+              {nodeData?.text && <AddPillsToText text={nodeData?.text} />}
             </Box>
           </Box>
-          {(blockData.entities.length > 0 || blockData.tags.length > 0) && (
+          {(nodeData.entities.length > 0 || nodeData.tags.length > 0) && (
             <>
               <Divider mt="16px" />
               <Box mt="16px" color="diamond.blue.3" fontWeight={500}>
@@ -168,16 +183,16 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
                 flexWrap="wrap"
                 sx={{ columnGap: "4px", rowGap: "4px" }}
               >
-                {blockData.tags.map((tag: { tag: string }, idx) => (
+                {nodeData.tags.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {tag.tag}
                     </Text>
                   </Pill>
                 ))}
-                {blockData.entities.map((entity: { name: string }, idx) => (
+                {nodeData.entities.map((entity: { name: string }, idx) => (
                   <Pill key={idx} asButton icon={<EntitiesIcon />}>
-                    <Text color="diamond.blue.5" fontSize="14px">
+                    <Text color="diamond.blue.5" fontSize={bodyText}>
                       {entity.name}
                     </Text>
                   </Pill>
@@ -187,6 +202,14 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
           )}
         </DrawerBody>
       </DrawerContent>
+      <DeleteModal
+        title={`Delete Block`}
+        subtitle={`Are you sure you want to delete the block?`}
+        onClose={onDeleteModalClose}
+        isOpen={isDeleteModalOpen}
+        deleting={deletingBlock}
+        actionHandler={deleteBlockHandler}
+      />
     </Drawer>
   );
 };

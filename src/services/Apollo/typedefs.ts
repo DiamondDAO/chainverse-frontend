@@ -15,11 +15,13 @@ export const typeDefs = gql`
     """
     uuid: ID! @id(autogenerate: true)
     name: String @unique #under assumption name for entities are unique
-    id: String
+    id: String @unique
     minScore: Float
     network: Float
     onlyMembers: String
     symbol: String
+    avatar: String
+    about: String
     proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
   }
 
@@ -65,8 +67,11 @@ export const typeDefs = gql`
   type Workspace {
     uuid: ID! @id(autogenerate: true)
     createdAt: DateTime! @timestamp
+    updatedAt: DateTime @timestamp
     name: String!
-    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+    rfObject: String
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: OUT)
+    entities: [Entity!]! @relationship(type: "CONTAINS", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
@@ -75,8 +80,8 @@ export const typeDefs = gql`
     uuid: ID! @id(autogenerate: true)
     createdAt: DateTime! @timestamp
     name: String! @unique
-    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
-    Entities: [Entity!]! @relationship(type: "CONTAINS", direction: IN)
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: OUT)
+    entities: [Entity!]! @relationship(type: "CONTAINS", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 

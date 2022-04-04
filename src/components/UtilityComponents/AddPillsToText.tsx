@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import React, { FC } from "react";
 import reactStringReplace from "react-string-replace";
 import { EntitiesIcon } from "../Icons/EntitiesIcon";
@@ -10,20 +11,25 @@ interface IAddPillsToText {
 
 export const AddPillsToText: FC<IAddPillsToText> = ({ text }) => {
   return (
-    <>
+    <Box>
       {reactStringReplace(
         reactStringReplace(text, /#(?=\S*[-]*)([a-zA-Z-]+)/g, (match, i) => (
-          <Pill sx={{ p: 0 }} icon={<TagIcon />} key={i + match}>
+          <Pill
+            verticalAlign="middle"
+            m="1px"
+            icon={<TagIcon />}
+            key={i + match}
+          >
             {match}
           </Pill>
         )),
         /@(?=\S*[-]*)([a-zA-Z-]+)/g,
         (match, i) => (
-          <Pill icon={<EntitiesIcon />} key={i + match}>
+          <Pill verticalAlign="middle" icon={<EntitiesIcon />} key={i + match}>
             {match}
           </Pill>
         )
       )}
-    </>
+    </Box>
   );
 };

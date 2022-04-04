@@ -3,7 +3,6 @@ import { useTable } from "react-table";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
   Box,
-  Button,
   Table as ChakraTable,
   Tbody,
   Td,
@@ -11,12 +10,22 @@ import {
   Thead,
   Tooltip,
   Tr,
+  Text,
   useDisclosure,
+  useToast,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
-import { DetailDrawer } from "../DetailsDrawer";
+import { EntityDrawer } from "../EntityDrawer";
+import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
+import { GET_SANDBOX, GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { AddWorkspaceType } from "@/common/types";
+import Router from "next/router";
 
 export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -25,6 +34,118 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
     onClose: drawerOnClose,
   } = useDisclosure();
   const [selectedRow, setSelectedRow] = useState({});
+  const toast = useToast();
+  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
+    UPDATE_SANDBOX,
+    {
+      refetchQueries: [{ query: GET_SANDBOX }],
+    }
+  );
+
+  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
+    useMutation(UPDATE_WORKSPACE, {
+      refetchQueries: [{ query: GET_WORKSPACES }],
+    });
+
+  const addBlockHandler = async (
+    row,
+    type: AddWorkspaceType,
+    workspaceUuid?: string
+  ) => {
+    try {
+      if (type === AddWorkspaceType.Sandbox) {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: walletAddress,
+              },
+            },
+            connect: {
+              entities: {
+                where: {
+                  node: {
+                    id: row.original.id,
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else {
+        await addBlockToWorkspace({
+          variables: {
+            where: { uuid: workspaceUuid },
+            connect: {
+              entities: {
+                where: {
+                  node: {
+                    id: row.original.id,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.green"
+          >
+            <Text fontWeight="500">Added to workspace</Text>
+            <Text mt="4px">Block added to Sandbox</Text>
+            <Text
+              mt="12px"
+              borderRadius="2px"
+              p="2px"
+              ml="-2px"
+              width="fit-content"
+              _hover={{ bg: "diamond.gray.1" }}
+              color="black"
+              cursor="pointer"
+              onClick={() =>
+                AddWorkspaceType.Workspace == type
+                  ? Router.push(`/workspace/${workspaceUuid}`)
+                  : Router.push("/workspace")
+              }
+            >
+              View workspace
+            </Text>
+          </Box>
+        ),
+      });
+    } catch (e) {
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.red"
+          >
+            <Text fontWeight="500">There was an error adding to workspace</Text>
+          </Box>
+        ),
+      });
+      throw Error(`${e}`);
+    }
+  };
 
   useEffect(() => {
     if (!drawerIsOpen) {
@@ -58,6 +179,12 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
         Header: "Actions",
         accessor: "actions",
         Cell: (props) => {
+          const { data: workspaceData } = useQuery(GET_WORKSPACES);
+          const workspaces = workspaceData?.workspaces;
+          const [isOpen, setIsOpen] = useState(false);
+          const open = () => setIsOpen(!isOpen);
+          const close = () => setIsOpen(false);
+
           return (
             <Box display="flex">
               <Tooltip label="View details" placement="top">
@@ -78,20 +205,78 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                   <BiDetail size="14px" />
                 </Box>
               </Tooltip>
-              <Tooltip label="Add to workspace" placement="top">
-                <Box
-                  sx={{ "& *": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
-                >
-                  <PlusIcon width="14px" />
-                </Box>
-              </Tooltip>
+              <Popover isOpen={isOpen} onClose={close}>
+                <PopoverTrigger>
+                  <Tooltip label="Add to workspace" placement="top">
+                    <Box
+                      onClick={open}
+                      sx={{ "& *": { fill: "diamond.gray.4" } }}
+                      _hover={{
+                        bg: "diamond.gray.0",
+                        "& path": { fill: "diamond.link" },
+                      }}
+                      display="flex"
+                      justifyContent="center"
+                      padding="4px"
+                    >
+                      <PlusIcon width="14px" />
+                    </Box>
+                  </Tooltip>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Box p="12px">
+                    <Text
+                      fontSize="12px"
+                      fontWeight="500"
+                      color="diamond.blue.3"
+                      mb="8px"
+                    >
+                      SELECT A WORKSPACE
+                    </Text>
+                    <Box
+                      borderTop="0.5px solid black"
+                      borderColor="diamond.gray.1"
+                    />
+                    <Box mt="4px" sx={{ "& > *": { py: "4px" } }}>
+                      <Box
+                        _hover={{
+                          bg: "diamond.gray.1",
+                        }}
+                        display="flex"
+                        justifyContent="space-between"
+                        onClick={() => {
+                          addBlockHandler(props.row, AddWorkspaceType.Sandbox);
+                          close();
+                        }}
+                      >
+                        <Box>Sandbox</Box>
+                      </Box>
+                      {workspaces?.map((workspace) => {
+                        return (
+                          <Box
+                            onClick={() => {
+                              addBlockHandler(
+                                props.row,
+                                AddWorkspaceType.Workspace,
+                                workspace.uuid
+                              );
+                              close();
+                            }}
+                            key={workspace.uuid}
+                            _hover={{
+                              bg: "diamond.gray.1",
+                            }}
+                            display="flex"
+                            justifyContent="space-between"
+                          >
+                            <Box>{workspace.name}</Box>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                </PopoverContent>
+              </Popover>
               <Tooltip label="Go to graph" placement="top">
                 <Box
                   sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
@@ -177,6 +362,14 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                   {row.cells.map((cell, idx) => {
                     return (
                       <Td
+                        onClick={
+                          row.cells.length - 1 !== idx
+                            ? () => {
+                                drawerOnOpen();
+                                setSelectedRow(row);
+                              }
+                            : () => {}
+                        }
                         px="10px"
                         borderBottom="0.5px solid black"
                         borderColor="diamond.gray.4"
@@ -197,8 +390,8 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
           </Tbody>
         </ChakraTable>
       </Box>
-      <DetailDrawer
-        rowData={selectedRow}
+      <EntityDrawer
+        nodeData={(selectedRow as any)?.original}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}
       />

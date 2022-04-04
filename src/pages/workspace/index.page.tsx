@@ -1,6 +1,6 @@
-import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import type { NextPage } from "next";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { AddBlockModal } from "@/components/AddBlockModal";
 import { useAccount } from "wagmi";
@@ -9,19 +9,32 @@ import {
   GET_NOTES,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
+  GET_WORKSPACES,
 } from "@/services/Apollo/Queries";
 import { filterUniqueObjects } from "@/common/utils";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { Flow } from "@/components/Workspace/Flow";
-import { ADD_SANDBOX_TO_WALLET } from "@/services/Apollo/Mutations";
+import {
+  ADD_SANDBOX_TO_WALLET,
+  CREATE_WORKSPACES,
+  RESET_SANDBOX,
+} from "@/services/Apollo/Mutations";
+import { bodyText } from "@/theme";
+import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
 
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const {
+    isOpen: drawerIsOpen,
+    onOpen: drawerOnOpen,
+    onClose: drawerOnClose,
+  } = useDisclosure();
 
+  const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState("");
-  const [getNotes, { data }] = useLazyQuery(GET_NOTES);
+  const [{ data: walletData }] = useAccount();
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
   const [addSandboxToWallet, { error: addBlockError }] = useMutation(
@@ -31,17 +44,30 @@ const Workspace: NextPage = () => {
     }
   );
   const [getSandbox, { data: sandboxData }] = useLazyQuery(GET_SANDBOX);
-  const [{ data: walletData }] = useAccount();
-  const [rfInstance, setRfInstance] = useState(null);
 
+  const [createWorkspace, { error: createWorkspaceError }] =
+    useMutation(CREATE_WORKSPACES);
+  const [resetSandbox, { error: resetSandboxError }] = useMutation(
+    RESET_SANDBOX,
+    {
+      refetchQueries: [
+        {
+          query: GET_SANDBOX,
+          variables: {
+            where: { wallet: { address: walletData?.address } },
+            directed: false,
+          },
+        },
+        GET_WORKSPACES,
+      ],
+    }
+  );
+
+  const [rfInstance, setRfInstance] = useState(null);
+  const toast = useToast();
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-  useEffect(() => {
-    if (walletData?.address) {
-      getNotes({ variables: { where: { address: walletData.address } } });
-    }
-  }, [getNotes, walletData?.address]);
 
   useEffect(() => {
     const connectOrCreateSandbox = async (walletAddress: string) => {
@@ -75,9 +101,103 @@ const Workspace: NextPage = () => {
       connectOrCreateSandbox(walletData.address);
     }
   }, [getSandbox, walletData?.address]);
-  const nodeData = sandboxData?.sandboxes[0]?.blocks.filter(
-    (i) => i.__typename === "Note"
+  const entityData = useMemo(
+    () => sandboxData?.sandboxes[0]?.entities,
+    [sandboxData]
   );
+  const notesData = useMemo(
+    () =>
+      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note"),
+    [sandboxData]
+  );
+  const nodeData = useMemo(
+    () => entityData?.concat(notesData),
+    [entityData, notesData]
+  );
+
+  const workspaceNameRef = useRef(null);
+  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
+
+  const saveWorkspaceHandler = async () => {
+    setIsSavingWorkspace(true);
+    try {
+      await createWorkspace({
+        variables: {
+          input: [
+            {
+              name: workspaceNameRef.current.innerText || "",
+              rfObject: JSON.stringify(rfInstance.toObject()),
+              blocks: {
+                Note: {
+                  connect: {
+                    where: {
+                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
+                    },
+                  },
+                },
+              },
+              entities: {
+                connect: {
+                  where: {
+                    node: {
+                      id_IN: nodeData
+                        .filter((node) => node.__typename === "Entity")
+                        .map((node) => node.id),
+                    },
+                  },
+                },
+              },
+              wallet: {
+                connect: { where: { node: { address: walletData?.address } } },
+              },
+            },
+          ],
+        },
+      });
+      await resetSandbox({
+        variables: {
+          disconnect: {
+            blocks: {
+              Note: [
+                {
+                  where: {
+                    node: {
+                      uuid_NOT: 0,
+                    },
+                  },
+                },
+              ],
+            },
+            entities: [
+              {
+                where: {
+                  node: {
+                    id_NOT: null,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      });
+      toast({
+        title: `Workspace ${workspaceNameRef.current.innerText} Created!`,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when creating your workspace. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    setIsSavingWorkspace(false);
+  };
 
   return (
     <>
@@ -91,7 +211,17 @@ const Workspace: NextPage = () => {
           position="absolute"
           zIndex={0}
         >
-          {nodeData && <Flow nodeData={nodeData} onInit={setRfInstance} />}
+          {nodeData && (
+            <Flow
+              currentNode={currentNode}
+              nodeData={nodeData}
+              onInit={setRfInstance}
+              setCurrentNode={(value) => {
+                setCurrentNode(value);
+                drawerOnOpen();
+              }}
+            />
+          )}
         </Box>
         <Box display="flex" width="100%" flexDir="column">
           <Box
@@ -100,6 +230,7 @@ const Workspace: NextPage = () => {
             justifyContent="space-between"
           >
             <Text
+              ref={workspaceNameRef}
               suppressContentEditableWarning={true}
               contentEditable
               fontWeight="600"
@@ -117,11 +248,21 @@ const Workspace: NextPage = () => {
             <Box maxWidth="210px" zIndex={3}>
               <WorkspaceNavigator />
               <Box mt="24px">
-                <Button leftIcon={<CreateSnapshotIcon />} variant="primary">
+                <Button
+                  isLoading={isSavingWorkspace}
+                  isDisabled={isSavingWorkspace}
+                  p="8px 12px"
+                  fontSize={bodyText}
+                  onClick={saveWorkspaceHandler}
+                  leftIcon={<CreateSnapshotIcon />}
+                  variant="primary"
+                >
                   Save as workspace
                 </Button>
                 <Button
                   mt="4px"
+                  p="8px 12px"
+                  fontSize={bodyText}
                   leftIcon={<AddBlockIcon />}
                   onClick={onOpen}
                   variant="primary"
@@ -131,7 +272,15 @@ const Workspace: NextPage = () => {
               </Box>
             </Box>
           </Box>
-
+          <BlockDrawer
+            nodeData={currentNode}
+            isOpen={drawerIsOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              drawerOnClose();
+            }}
+            editBlockHandler={onOpen}
+          />
           <AddBlockModal
             tags={
               filterUniqueObjects(tagAndEntitiesData?.tags, "text")?.map(
@@ -144,6 +293,7 @@ const Workspace: NextPage = () => {
               ) || []
             }
             isOpen={isOpen}
+            nodeData={drawerIsOpen && currentNode}
             onClose={onClose}
           />
         </Box>
