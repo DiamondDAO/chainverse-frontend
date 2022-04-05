@@ -1,5 +1,6 @@
 import AccountIcon from "@/components/Icons/AccountIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
+import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { bodyText } from "@/theme";
 import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
@@ -44,7 +45,11 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
       >
         💡 Tips for creating a block:
       </Text>
-      <UnorderedList mt="20px" fontSize={bodyText}>
+      <UnorderedList
+        sx={{ "& *": { verticalAlign: "middle" } }}
+        mt="20px"
+        fontSize={bodyText}
+      >
         <ListItem>
           A {`"block"`} of information is an atomic unit of knowledge. A block
           can stand alone, but when several blocks are linked together, they
@@ -54,10 +59,9 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
         <br />
         <ListItem alignItems="center">
           Type # to insert an association to a{" "}
-          <Pill icon={<EntitiesIcon />}>entities</Pill>
-          (nodes) represent people, places, and things. They contain little to
-          no actionable knowledge on their own, and require relationships to
-          link them to other entities.
+          <Pill icon={<TagIcon />}>tag</Pill>, which is any categorically
+          significant piece of information that could be used to link multiple
+          entities.
         </ListItem>
         <br />
         <ListItem alignItems="center">
