@@ -134,7 +134,6 @@ export const Inner: FC<IFlow> = ({
         })
       );
     } else {
-      console.log(currentNode);
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id !== currentNode?.id && node.id !== currentNode?.uuid) {

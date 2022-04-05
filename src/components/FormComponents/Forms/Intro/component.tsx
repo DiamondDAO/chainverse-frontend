@@ -1,24 +1,34 @@
-import { Box, Heading, Text, Image } from "@chakra-ui/react";
+import { Box, Heading, Radio, Text, Textarea } from "@chakra-ui/react";
+import Model from "./model";
 import React, { FC } from "react";
+import {
+  InputControl,
+  RadioGroupControl,
+  TextareaControl,
+} from "formik-chakra-ui";
 
-export const IntroContent: FC = () => {
+export const Intro: FC = () => {
   return (
-    <>
-      <Heading textAlign="center" mb="30px">
-        Welcome to Diamond DAO!
+    <Box>
+      <Heading size="md" mb="20px">
+        {Model.formTitle}
       </Heading>
-      <Text>
-        {`Thank you for helping build Chainverse. Let's start with some
-        path-finding questions to understand what you are looking for in
-        community and the types of communities you're passionate about.`}
-      </Text>
-      <Box display="flex" justifyContent="center">
-        <Image
-          alt="rotating-diamond"
-          maxHeight="15rem"
-          src="/img/animation_diamond.gif"
-        />
-      </Box>
-    </>
+      <InputControl name={Model.fields[0].name} label={Model.fields[0].label} />
+      <TextareaControl
+        mt="25px"
+        name={Model.fields[1].name}
+        label={Model.fields[1].label}
+      />
+      <RadioGroupControl
+        mt="25px"
+        name={Model.fields[2].name}
+        label={Model.fields[2].label}
+      >
+        <Radio value="0-2">0-2</Radio>
+        <Radio value="3-5">3-5</Radio>
+        <Radio value="5+">5+</Radio>
+        <Radio value="10+">10+</Radio>
+      </RadioGroupControl>
+    </Box>
   );
 };

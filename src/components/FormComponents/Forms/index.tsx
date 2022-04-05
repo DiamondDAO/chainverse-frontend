@@ -1,5 +1,7 @@
-import IntroContent from "./Intro";
+import Welcome from "./Welcome";
+import Intro from "./Intro";
 import Skills from "./Skills";
-import Topics from "./Topics";
+import Topics from "./Interests";
+import Contact from "./Contact";
 
-export { IntroContent, Skills, Topics };
+export { Welcome, Skills, Topics, Intro, Contact };

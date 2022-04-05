@@ -2,21 +2,24 @@ import * as Yup from "yup";
 import { FormType } from "../types";
 const questions = [
   {
-    question: "What skills do you bring to the Web3 community space?",
-    initVal: [],
+    question: "What do you like to be called?",
+    initVal: "",
   },
   {
-    question: "Which aspects of DAO governance or operations interest you?",
+    question: "How did you get involved in Web3/DAOs?",
+    initVal: "",
+  },
+  {
+    question: "How many Web3 communities do you participate in?",
     initVal: "",
   },
 ];
 const model: Omit<FormType, "component"> = {
-  formTitle: "Skills",
+  formTitle: "Intro",
   validation: Yup.object().shape({
-    [questions[0].question]: Yup.array()
-      .of(Yup.string())
-      .min(1, "You need to select at least one skill"), //TODO: tighten validation so that only a certain set of strings can pass
+    [questions[0].question]: Yup.string().required("A name is required"), //TODO: tighten validation so that only a certain set of strings can pass,
     [questions[1].question]: Yup.string().required("An answer is required"), //TODO: tighten validation so that only a certain set of strings can pass,
+    [questions[2].question]: Yup.string().required("An answer is required"), //TODO: tighten validation so that only a certain set of strings can pass,
   }),
   //Do not need to edit
   initialValue: questions.reduce((accVal, curQuestion) => {

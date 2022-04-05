@@ -520,7 +520,7 @@ export const AddBlockModal = ({
                     onInput={inputHandler}
                     suppressContentEditableWarning={true}
                     contentEditable
-                    data-placeholder="Insert here"
+                    data-placeholder="Type # to insert a tag, or @ to insert an entity or user"
                     p="0"
                     pb="4px"
                     resize="none"

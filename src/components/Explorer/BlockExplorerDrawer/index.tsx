@@ -7,9 +7,9 @@ import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { Pill } from "@/components/Pill";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
-import { GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { bodyText } from "@/theme";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
@@ -27,9 +27,9 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { RiNodeTree } from "react-icons/ri";
-import { useEnsLookup } from "wagmi";
+import { useAccount, useEnsLookup } from "wagmi";
 interface IBlockDrawer {
   addBlockHandler: (
     row: any,
@@ -48,7 +48,17 @@ export const BlockExplorerDrawer: FC<IBlockDrawer> = ({
   nodeData,
 }) => {
   const nodeDataValues = nodeData?.original;
-  const { data: workspaceData } = useQuery(GET_WORKSPACES);
+
+  const [{ data: walletData }] = useAccount();
+  const [getWorkspaceOwned, { data: workspaceData, loading }] =
+    useLazyQuery(GET_WORKSPACE_OWNED);
+  useEffect(() => {
+    if (walletData?.address) {
+      getWorkspaceOwned({
+        variables: { where: { wallet: { address: walletData?.address } } },
+      });
+    }
+  }, [walletData?.address]);
   const workspaces = workspaceData?.workspaces;
   const [{ data: ENS }] = useEnsLookup({
     address: nodeData?.wallet?.address,

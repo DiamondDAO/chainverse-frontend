@@ -31,7 +31,6 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
   onClose,
   nodeData,
 }) => {
-  console.log(nodeData);
   if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>

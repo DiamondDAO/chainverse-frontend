@@ -28,16 +28,16 @@ import {
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
-import { useEnsLookup } from "wagmi";
+import { useAccount, useEnsLookup } from "wagmi";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
 import { BlockExplorerDrawer } from "../BlockExplorerDrawer";
-import { GET_SANDBOX, GET_WORKSPACES } from "@/services/Apollo/Queries";
+import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
-import { useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import Router from "next/router";
 import { bodyText } from "@/theme";
 import { AddWorkspaceType } from "@/common/types";
@@ -49,7 +49,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
     onClose: drawerOnClose,
   } = useDisclosure();
   const toast = useToast();
-
+  const [{ data: walletData }] = useAccount();
   const [selectedRow, setSelectedRow] = useState({});
 
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
@@ -61,7 +61,12 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
 
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
-      refetchQueries: [{ query: GET_WORKSPACES }],
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+      ],
     });
   const addBlockHandler = async (
     row,
@@ -286,7 +291,18 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
         Header: "Actions",
         accessor: "actions",
         Cell: (props) => {
-          const { data: workspaceData } = useQuery(GET_WORKSPACES);
+          const [{ data: walletData }] = useAccount();
+          const [getWorkspaceOwned, { data: workspaceData, loading }] =
+            useLazyQuery(GET_WORKSPACE_OWNED);
+          useEffect(() => {
+            if (walletData?.address) {
+              getWorkspaceOwned({
+                variables: {
+                  where: { wallet: { address: walletData?.address } },
+                },
+              });
+            }
+          }, [walletData?.address]);
           const workspaces = workspaceData?.workspaces;
           const [isOpen, setIsOpen] = useState(false);
           const open = () => setIsOpen(!isOpen);

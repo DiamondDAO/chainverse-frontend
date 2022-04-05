@@ -185,6 +185,25 @@ export const GET_WORKSPACES = gql`
   }
 `;
 
+export const GET_WORKSPACE_OWNED = gql`
+  query Workspaces($where: WorkspaceWhere) {
+    workspaces(where: $where) {
+      uuid
+      name
+      blocks {
+        ... on Note {
+          text
+          uuid
+        }
+      }
+      entities {
+        name
+        id
+      }
+    }
+  }
+`;
+
 export const GET_WORKSPACE = gql`
   query Query($where: WorkspaceWhere) {
     workspaces(where: $where) {

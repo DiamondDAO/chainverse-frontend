@@ -1,24 +1,23 @@
 import { Box, Heading, Text } from "@chakra-ui/react";
 import Model from "./model";
 import React, { FC } from "react";
-import { CheckboxContainer, CheckboxControl } from "formik-chakra-ui";
+import {
+  CheckboxContainer,
+  CheckboxControl,
+  TextareaControl,
+} from "formik-chakra-ui";
 
 export const Skills: FC = () => {
   const SkillsOptions = [
-    "Content creation",
-    "Community Design",
-    "Product Design",
-    "Tokenomics design",
+    "Data Science / Analytics",
+    "Investing",
     "Engineering",
-    "Data Science",
-    "Product Management",
-    "Marketing",
-    "Sales",
-    "Recruitment",
-    "Project Management",
-    "Art",
-    "Performance",
-    "Content editing",
+    "Content creation",
+    "Legal",
+    "Product design",
+    "Business Development / Partnership",
+    "Community design",
+    "Other",
   ];
   return (
     <Box>
@@ -26,7 +25,7 @@ export const Skills: FC = () => {
         {Model.formTitle}
       </Heading>
       <CheckboxContainer
-        sx={{ "& > label": { fontWeight: "bold", mb: "20px" } }}
+        mt="25px"
         name={Model.fields[0].name}
         label={Model.fields[0].label}
       >
@@ -38,6 +37,11 @@ export const Skills: FC = () => {
           </CheckboxControl>
         ))}
       </CheckboxContainer>
+      <TextareaControl
+        mt="25px"
+        name={Model.fields[1].name}
+        label={Model.fields[1].label}
+      />
     </Box>
   );
 };

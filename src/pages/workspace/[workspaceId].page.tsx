@@ -9,7 +9,7 @@ import {
   GET_NOTES,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
-  GET_WORKSPACES,
+  GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
 import { filterUniqueObjects } from "@/common/utils";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
@@ -48,7 +48,7 @@ const Workspace: NextPage = () => {
     onClose: onDeleteModalClose,
     onOpen: onDeleteModalOpen,
   } = useDisclosure();
-
+  const [{ data: walletData }] = useAccount();
   const {
     loading,
     error,
@@ -62,7 +62,10 @@ const Workspace: NextPage = () => {
     UPDATE_WORKSPACE,
     {
       refetchQueries: [
-        GET_WORKSPACES,
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
         { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
       ],
     }
@@ -70,14 +73,20 @@ const Workspace: NextPage = () => {
 
   const [deleteWorkspace, { error: deleteWokspaceError }] = useMutation(
     DELETE_WORKSPACE,
-    { refetchQueries: [GET_WORKSPACES] }
+    {
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+      ],
+    }
   );
 
   const workspace = workspaceData?.workspaces?.[0];
   const [date, setDate] = useState("");
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [currentNode, setCurrentNode] = useState(null);
-  const [{ data: walletData }] = useAccount();
   const [rfInstance, setRfInstance] = useState(null);
   // TODO: make it a real last updated
   useEffect(() => {
@@ -158,7 +167,7 @@ const Workspace: NextPage = () => {
     <>
       <Layout>
         {/* Graph */}
-        {workspace?.length !== 0 && (
+        {workspaceData?.workspaces.length !== 0 && (
           <>
             <Box
               top="0"
@@ -281,7 +290,7 @@ const Workspace: NextPage = () => {
             />
           </>
         )}
-        {workspace?.length === 0 && (
+        {workspaceData?.workspaces.length === 0 && (
           <Box display="flex" justifyContent="center">
             Not a valid workspace
           </Box>

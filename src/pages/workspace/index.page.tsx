@@ -9,7 +9,7 @@ import {
   GET_NOTES,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
-  GET_WORKSPACES,
+  GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
 import { filterUniqueObjects } from "@/common/utils";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
@@ -58,7 +58,10 @@ const Workspace: NextPage = () => {
             directed: false,
           },
         },
-        GET_WORKSPACES,
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
       ],
     }
   );

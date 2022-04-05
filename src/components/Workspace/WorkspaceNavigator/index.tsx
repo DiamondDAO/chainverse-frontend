@@ -1,9 +1,10 @@
 import { Loader } from "@/components/Loader";
-import { GET_WORKSPACES } from "@/services/Apollo/Queries";
-import { useQuery } from "@apollo/client";
+import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { Box, ListItem, UnorderedList } from "@chakra-ui/react";
 import Router, { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useAccount } from "wagmi";
 
 type Props = {};
 
@@ -17,8 +18,16 @@ export const WorkspaceNavigator = (props: Props) => {
   const router = useRouter();
   const [selected, setSelected] = useState("/workspace");
 
-  const { data: workspaceData } = useQuery(GET_WORKSPACES);
-
+  const [{ data: walletData }] = useAccount();
+  const [getWorkspaceOwned, { data: workspaceData, loading }] =
+    useLazyQuery(GET_WORKSPACE_OWNED);
+  useEffect(() => {
+    if (walletData?.address) {
+      getWorkspaceOwned({
+        variables: { where: { wallet: { address: walletData?.address } } },
+      });
+    }
+  }, [walletData?.address]);
   const workspaces = workspaceData?.workspaces;
 
   return (

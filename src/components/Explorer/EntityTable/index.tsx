@@ -22,10 +22,11 @@ import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
 import { EntityDrawer } from "../EntityDrawer";
 import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
-import { GET_SANDBOX, GET_WORKSPACES } from "@/services/Apollo/Queries";
-import { useMutation, useQuery } from "@apollo/client";
+import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { AddWorkspaceType } from "@/common/types";
 import Router from "next/router";
+import { useAccount } from "wagmi";
 
 export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -41,10 +42,16 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
       refetchQueries: [{ query: GET_SANDBOX }],
     }
   );
+  const [{ data: walletData, loading }] = useAccount();
 
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
-      refetchQueries: [{ query: GET_WORKSPACES }],
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+      ],
     });
 
   const addBlockHandler = async (
@@ -179,7 +186,18 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
         Header: "Actions",
         accessor: "actions",
         Cell: (props) => {
-          const { data: workspaceData } = useQuery(GET_WORKSPACES);
+          const [{ data: walletData }] = useAccount();
+          const [getWorkspaceOwned, { data: workspaceData, loading }] =
+            useLazyQuery(GET_WORKSPACE_OWNED);
+          useEffect(() => {
+            if (walletData?.address) {
+              getWorkspaceOwned({
+                variables: {
+                  where: { wallet: { address: walletData?.address } },
+                },
+              });
+            }
+          }, [walletData?.address]);
           const workspaces = workspaceData?.workspaces;
           const [isOpen, setIsOpen] = useState(false);
           const open = () => setIsOpen(!isOpen);
