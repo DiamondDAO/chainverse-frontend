@@ -150,7 +150,7 @@ const Workspace: NextPage = () => {
           input: [
             {
               name: workspaceNameRef.current.innerText || "",
-              rfObject: JSON.stringify(rfInstance.toObject()),
+              rfObject: JSON.stringify(rfInstance?.toObject()),
               blocks: {
                 Note: {
                   connect: {

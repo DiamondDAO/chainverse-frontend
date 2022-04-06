@@ -1,13 +1,9 @@
 import React from "react";
 import { Box, Text, Image } from "@chakra-ui/react";
 import { Handle, Position } from "react-flow-renderer";
-import { BlockIcon } from "@/components/Icons/BlockIcon";
-import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { IconVariants } from "@/common/types";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { convertIPFSURLs } from "@/common/utils";
-
-type Props = {};
 
 export const EntityNode = ({
   data,

@@ -54,11 +54,11 @@ export const Inner: FC<IFlow> = ({
     () =>
       nodeData?.map((node, idx) => {
         if (node?.__typename === "Entity") {
-          const selectedNode = restoredFlowJSON?.nodes?.find(
-            (selectNode) => node.id === selectNode.id
+          const selectedNode = restoredFlowJSON?.nodes?.find((selectNode) =>
+            node?.id ? node.id === selectNode.id : node.name === selectNode.name
           );
           return {
-            id: node.id,
+            id: node.id ? node.id : node.name,
             data: {
               node,
               title: node.name,

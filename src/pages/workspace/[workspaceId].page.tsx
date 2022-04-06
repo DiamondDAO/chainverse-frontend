@@ -103,7 +103,6 @@ const Workspace: NextPage = () => {
 
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
-  console.log(rfInstance.toObject());
   const saveWorkspaceHandler = async () => {
     setIsSavingWorkspace(true);
     try {
@@ -113,7 +112,7 @@ const Workspace: NextPage = () => {
             uuid: workspaceId,
           },
           update: {
-            rfObject: JSON.stringify(rfInstance.toObject()),
+            rfObject: JSON.stringify(rfInstance?.toObject()),
             name: workspaceNameRef.current.innerText,
           },
         },
