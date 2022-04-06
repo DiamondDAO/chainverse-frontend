@@ -10,13 +10,12 @@ type Props = {};
 export const BlockNode = ({
   data,
 }: {
-  data: { label: string; dim: boolean; selectNode: () => void };
+  data: { label: string; dim: boolean };
 }) => {
   return (
     <Box
       cursor={"pointer"}
       p="8px"
-      onDoubleClick={data.selectNode}
       fontSize="10px"
       maxW="200px"
       borderRadius="8px"

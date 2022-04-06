@@ -122,13 +122,16 @@ const AllBlocks: NextPage = () => {
                     gap: "30px",
                     columnWidth: "260px",
                     "& > *": {
-                      display: "inline-flex",
+                      display: "block",
+                      wordBreak: "break-all",
                       mb: "16px",
                       breakInside: "avoid",
                     },
                   }}
                 >
-                  <AddBlockCard onClick={onOpen} />
+                  <Box display="inline-flex" width="100%">
+                    <AddBlockCard onClick={onOpen} />
+                  </Box>
                   {data?.wallets[0].blocks
                     .filter((nodeData) => nodeData.__typename === "Note")
                     .filter((noteData) => {

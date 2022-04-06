@@ -17,14 +17,12 @@ export const EntityNode = ({
     about?: string;
     avatar?: string;
     dim: boolean;
-    selectNode: () => void;
   };
 }) => {
   return (
     <Box
       cursor={"pointer"}
       p="8px"
-      onDoubleClick={data.selectNode}
       fontSize="10px"
       maxW="200px"
       borderRadius="8px"

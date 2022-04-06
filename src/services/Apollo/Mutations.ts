@@ -5,6 +5,7 @@ export const CREATE_NOTES = gql`
   mutation CreateNotes($input: [NoteCreateInput!]!) {
     createNotes(input: $input) {
       notes {
+        uuid
         wallet {
           address
         }
@@ -97,6 +98,7 @@ export const UPDATE_NOTES = gql`
   ) {
     updateNotes(update: $update, where: $where, disconnect: $disconnect) {
       notes {
+        uuid
         wallet {
           address
         }

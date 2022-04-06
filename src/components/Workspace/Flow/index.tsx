@@ -60,11 +60,11 @@ export const Inner: FC<IFlow> = ({
           return {
             id: node.id,
             data: {
+              node,
               title: node.name,
               about: node.about,
               avatar: node.avatar,
               dim: false,
-              selectNode: () => setCurrentNode(node),
             },
             type: "entity",
             position: selectedNode
@@ -78,9 +78,9 @@ export const Inner: FC<IFlow> = ({
           return {
             id: node.uuid,
             data: {
+              node,
               dim: false,
               label: node.text,
-              selectNode: () => setCurrentNode(node),
             },
             type: "block",
             position: selectedNode
@@ -178,6 +178,7 @@ export const Inner: FC<IFlow> = ({
       nodes={nodes}
       onEdgesChange={onEdgesChange}
       onNodesChange={onNodesChange}
+      onNodeClick={(_, node) => setCurrentNode(node.data.node)}
       onConnect={onConnect}
       onInit={onInit}
       edges={edges}
@@ -200,7 +201,7 @@ export const Flow: FC<IFlow> = ({
   onInit,
   currentNode,
   setCurrentNode,
-  restoredFlow = {},
+  restoredFlow,
 }) => {
   return (
     <ReactFlowProvider>

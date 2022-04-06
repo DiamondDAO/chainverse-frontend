@@ -20,16 +20,23 @@ import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
   RESET_SANDBOX,
+  UPDATE_SANDBOX,
 } from "@/services/Apollo/Mutations";
 import { bodyText } from "@/theme";
 import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
+import { EntityDrawer } from "@/components/Explorer/EntityDrawer";
 
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
-    isOpen: drawerIsOpen,
-    onOpen: drawerOnOpen,
-    onClose: drawerOnClose,
+    isOpen: blockDrawerIsOpen,
+    onOpen: blockDrawerOnOpen,
+    onClose: blockDrawerOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: entityDrawerIsOpen,
+    onOpen: entityDrawerOnOpen,
+    onClose: entityDrawerOnClose,
   } = useDisclosure();
 
   const [currentNode, setCurrentNode] = useState(null);
@@ -44,7 +51,20 @@ const Workspace: NextPage = () => {
     }
   );
   const [getSandbox, { data: sandboxData }] = useLazyQuery(GET_SANDBOX);
-
+  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
+    UPDATE_SANDBOX,
+    {
+      refetchQueries: [
+        {
+          query: GET_SANDBOX,
+          variables: {
+            where: { wallet: { address: walletData?.address } },
+            directed: false,
+          },
+        },
+      ],
+    }
+  );
   const [createWorkspace, { error: createWorkspaceError }] =
     useMutation(CREATE_WORKSPACES);
   const [resetSandbox, { error: resetSandboxError }] = useMutation(
@@ -104,14 +124,15 @@ const Workspace: NextPage = () => {
       connectOrCreateSandbox(walletData.address);
     }
   }, [getSandbox, walletData?.address]);
+
   const entityData = useMemo(
     () => sandboxData?.sandboxes[0]?.entities,
-    [sandboxData]
+    [sandboxData?.sandboxes[0]?.entities]
   );
   const notesData = useMemo(
     () =>
       sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note"),
-    [sandboxData]
+    [sandboxData?.sandboxes[0]?.blocks]
   );
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
@@ -202,6 +223,35 @@ const Workspace: NextPage = () => {
     setIsSavingWorkspace(false);
   };
 
+  const addBlockToSandboxHandler = async (data?: any) => {
+    try {
+      await addBlockToSandbox({
+        variables: {
+          where: {
+            wallet: {
+              address: data?.walletAddress,
+            },
+          },
+          connect: {
+            blocks: {
+              Note: [
+                {
+                  where: {
+                    node: {
+                      uuid: data?.uuid,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw e;
+    }
+  };
+
   return (
     <>
       <Layout>
@@ -221,7 +271,8 @@ const Workspace: NextPage = () => {
               onInit={setRfInstance}
               setCurrentNode={(value) => {
                 setCurrentNode(value);
-                drawerOnOpen();
+                value.__typename === "Note" && blockDrawerOnOpen();
+                value.__typename === "Entity" && entityDrawerOnOpen();
               }}
             />
           )}
@@ -276,13 +327,21 @@ const Workspace: NextPage = () => {
             </Box>
           </Box>
           <BlockDrawer
-            nodeData={currentNode}
-            isOpen={drawerIsOpen}
+            nodeData={currentNode?.__typename == "Note" && currentNode}
+            isOpen={blockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
-              drawerOnClose();
+              blockDrawerOnClose();
             }}
             editBlockHandler={onOpen}
+          />
+          <EntityDrawer
+            nodeData={currentNode?.__typename == "Entity" && currentNode}
+            isOpen={entityDrawerIsOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              entityDrawerOnClose();
+            }}
           />
           <AddBlockModal
             tags={
@@ -296,7 +355,7 @@ const Workspace: NextPage = () => {
               ) || []
             }
             isOpen={isOpen}
-            nodeData={drawerIsOpen && currentNode}
+            saveToWorkspaceFn={addBlockToSandboxHandler}
             onClose={onClose}
           />
         </Box>

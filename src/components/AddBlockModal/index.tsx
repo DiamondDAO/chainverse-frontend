@@ -122,12 +122,14 @@ export const AddBlockModal = ({
   isOpen,
   onClose,
   nodeData,
+  saveToWorkspaceFn,
 }: {
   tags: string[];
   entities: string[];
   isOpen: boolean;
   onClose: () => void;
   nodeData?: any;
+  saveToWorkspaceFn?: (data: any) => Promise<void>;
 }) => {
   // States
   const [clickedTip, setClickedTip] = useState(false);
@@ -196,8 +198,8 @@ export const AddBlockModal = ({
         query: GET_NOTES,
         variables: { where: { address: walletData?.address } },
       },
-      GET_TAGS_AND_ENTITIES,
-      GET_ALL_NOTES,
+      { query: GET_TAGS_AND_ENTITIES },
+      { query: GET_ALL_NOTES },
     ],
   });
 
@@ -207,7 +209,7 @@ export const AddBlockModal = ({
         query: GET_NOTES,
         variables: { where: { address: walletData?.address } },
       },
-      GET_TAGS_AND_ENTITIES,
+      { query: GET_TAGS_AND_ENTITIES },
       { query: GET_ALL_NOTES },
     ],
   });
@@ -246,9 +248,9 @@ export const AddBlockModal = ({
         })) || [];
     try {
       setAddingBlock(true);
-
+      let blockResult = null;
       if (action === submitBlockAction.Add) {
-        await addBlock({
+        blockResult = await addBlock({
           variables: {
             input: [
               {
@@ -311,7 +313,7 @@ export const AddBlockModal = ({
             },
           },
         });
-        await updateBlock({
+        blockResult = await updateBlock({
           variables: {
             update: {
               text: inputRef.current?.innerText,
@@ -344,6 +346,10 @@ export const AddBlockModal = ({
           },
         });
       }
+      saveToWorkspaceFn({
+        ...blockResult?.data?.createNotes?.notes?.[0],
+        walletAddress: walletData?.address,
+      });
       closeHandler();
       toast({
         title: `Block ${nodeData ? "Saved" : "Created"}!`,

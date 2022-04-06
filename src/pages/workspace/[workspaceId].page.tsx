@@ -59,28 +59,28 @@ const Workspace: NextPage = () => {
   });
   const toast = useToast();
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
-    UPDATE_WORKSPACE,
-    {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-        { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
-      ],
-    }
+    UPDATE_WORKSPACE
+    // {
+    //   refetchQueries: [
+    //     {
+    //       query: GET_WORKSPACE_OWNED,
+    //       variables: { where: { wallet: { address: walletData?.address } } },
+    //     },
+    //     { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
+    //   ],
+    // }
   );
 
   const [deleteWorkspace, { error: deleteWokspaceError }] = useMutation(
-    DELETE_WORKSPACE,
-    {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    }
+    DELETE_WORKSPACE
+    // {
+    //   refetchQueries: [
+    //     {
+    //       query: GET_WORKSPACE_OWNED,
+    //       variables: { where: { wallet: { address: walletData?.address } } },
+    //     },
+    //   ],
+    // }
   );
 
   const workspace = workspaceData?.workspaces?.[0];
@@ -103,6 +103,7 @@ const Workspace: NextPage = () => {
 
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
+  console.log(rfInstance.toObject());
   const saveWorkspaceHandler = async () => {
     setIsSavingWorkspace(true);
     try {
@@ -233,7 +234,7 @@ const Workspace: NextPage = () => {
                       onClick={onDeleteModalOpen}
                       variant="error"
                     >
-                      Remove Workspace
+                      Delete Workspace
                     </Button>
                     <Button
                       mt="4px"

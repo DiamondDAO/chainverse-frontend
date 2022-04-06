@@ -60,6 +60,10 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
     workspaceUuid?: string
   ) => {
     try {
+      if (row.original) row = row.original;
+
+      const nodeObject = row?.id ? { id: row?.id } : { name: row?.name };
+      console.log(nodeObject);
       if (type === AddWorkspaceType.Sandbox) {
         await addBlockToSandbox({
           variables: {
@@ -71,9 +75,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
             connect: {
               entities: {
                 where: {
-                  node: {
-                    id: row.original.id,
-                  },
+                  node: nodeObject,
                 },
               },
             },
@@ -86,9 +88,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
             connect: {
               entities: {
                 where: {
-                  node: {
-                    id: row.original.id,
-                  },
+                  node: nodeObject,
                 },
               },
             },
@@ -409,6 +409,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
         </ChakraTable>
       </Box>
       <EntityDrawer
+        addBlockHandler={addBlockHandler}
         nodeData={(selectedRow as any)?.original}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}

@@ -29,7 +29,6 @@ export const GET_ALL_NOTES = gql`
   query Notes {
     notes {
       text
-      createdAt
       sources {
         url
       }
@@ -87,7 +86,6 @@ export const GET_BLOCK_DATA = gql`
       tags {
         tag
       }
-      createdAt
       wallet {
         address
       }

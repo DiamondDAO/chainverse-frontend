@@ -1,7 +1,9 @@
-import { IconVariants } from "@/common/types";
+import { AddWorkspaceType, IconVariants } from "@/common/types";
 import { convertIPFSURLs } from "@/common/utils";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
+import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
+import { useLazyQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -15,22 +17,46 @@ import {
   DrawerHeader,
   DrawerOverlay,
   useToast,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from "@chakra-ui/react";
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import { RiNodeTree } from "react-icons/ri";
 import { SiTwitter, SiDiscord } from "react-icons/si";
+import { useAccount } from "wagmi";
 
 interface IEntityDrawer {
+  addBlockHandler?: (
+    row: any,
+    type: AddWorkspaceType,
+    workspaceUuid?: string
+  ) => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
   nodeData: any;
+  hideActions?: boolean;
 }
 
 export const EntityDrawer: FC<IEntityDrawer> = ({
   isOpen,
   onClose,
   nodeData,
+  hideActions,
+  addBlockHandler,
 }) => {
+  const [{ data: walletData }] = useAccount();
+  const [getWorkspaceOwned, { data: workspaceData, loading }] =
+    useLazyQuery(GET_WORKSPACE_OWNED);
+  useEffect(() => {
+    if (walletData?.address) {
+      getWorkspaceOwned({
+        variables: { where: { wallet: { address: walletData?.address } } },
+      });
+    }
+  }, [walletData?.address]);
+  const workspaces = workspaceData?.workspaces;
   if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
@@ -61,27 +87,66 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
         </DrawerHeader>
 
         <DrawerBody fontSize="12px">
-          <Box>
-            <Text color="diamond.blue.3" fontWeight={500}>
-              ACTIONS
-            </Text>
-            <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Button
-                leftIcon={<PlusIcon width="11px" height="11px" fill="white" />}
-                variant="primary"
-              >
-                Add to workspace
-              </Button>
-              <Button
-                onClick={() => {}}
-                leftIcon={<RiNodeTree size="12px" />}
-                variant="primary"
-              >
-                View graph
-              </Button>
-            </Box>
-          </Box>
-          <Divider mt="16px" />
+          {!hideActions && (
+            <>
+              <Box>
+                <Text color="diamond.blue.3" fontWeight={500}>
+                  ACTIONS
+                </Text>
+                <Box display="flex" sx={{ columnGap: "4px" }}>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      leftIcon={
+                        <PlusIcon width="11px" height="11px" fill="white" />
+                      }
+                      fontSize="12px"
+                      variant="primary"
+                    >
+                      Add to workspace
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        onClick={() => {
+                          console.log(nodeData);
+                          addBlockHandler &&
+                            addBlockHandler(nodeData, AddWorkspaceType.Sandbox);
+                          onClose();
+                        }}
+                      >
+                        Sandbox
+                      </MenuItem>
+                      {workspaces?.map((workspace) => (
+                        <MenuItem
+                          onClick={() => {
+                            addBlockHandler &&
+                              addBlockHandler(
+                                nodeData,
+                                AddWorkspaceType.Workspace,
+                                workspace.uuid
+                              );
+                            onClose();
+                          }}
+                          key={workspace.uuid}
+                        >
+                          {workspace.name}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                  <Button
+                    onClick={() => {}}
+                    leftIcon={<RiNodeTree size="12px" />}
+                    variant="primary"
+                  >
+                    View graph
+                  </Button>
+                </Box>
+              </Box>
+              <Divider mt="16px" />
+            </>
+          )}
+
           {nodeData?.about && (
             <>
               {" "}
