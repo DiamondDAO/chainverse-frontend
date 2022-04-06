@@ -87,7 +87,7 @@ export const typeDefs = gql`
 
   union Block = Note | Response
 
-  type Note {
+  type Note @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
     text: String!
     createdAt: DateTime @timestamp #todo: should be non-nullable but db currently has null fields ingested
@@ -97,7 +97,7 @@ export const typeDefs = gql`
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
-  type Response {
+  type Response @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
     text: String!
     prompt: Prompt! @relationship(type: "RESPONDS_TO", direction: OUT)
