@@ -118,12 +118,11 @@ const AllBlocks: NextPage = () => {
                   maxWidth={["260px", null, null, "900px", "1440px"]}
                   sx={{
                     columnCount: [1, null, 2, 3, 4],
-
                     gap: "30px",
                     columnWidth: "260px",
                     "& > *": {
                       display: "block",
-                      wordBreak: "break-all",
+                      wordBreak: "break-word",
                       mb: "16px",
                       breakInside: "avoid",
                     },
@@ -180,7 +179,8 @@ const AllBlocks: NextPage = () => {
                           border="1px solid #000000"
                           key={idx}
                           bg="diamond.white"
-                          display="flex"
+                          display="inline-block"
+                          width="100%"
                         >
                           <Box mr="4px">
                             <BlockIcon variant={IconVariants.White} />
