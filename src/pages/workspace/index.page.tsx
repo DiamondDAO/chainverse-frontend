@@ -64,7 +64,7 @@ const Workspace: NextPage = () => {
         {
           query: GET_SANDBOX,
           variables: {
-            where: { wallet: { address: walletData?.address } },
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
             directed: false,
           },
         },
@@ -80,13 +80,15 @@ const Workspace: NextPage = () => {
         {
           query: GET_SANDBOX,
           variables: {
-            where: { wallet: { address: walletData?.address } },
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
             directed: false,
           },
         },
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
       ],
     }
@@ -126,7 +128,7 @@ const Workspace: NextPage = () => {
       }
     };
     if (walletData?.address) {
-      connectOrCreateSandbox(walletData.address);
+      connectOrCreateSandbox(walletData.address.toLowerCase());
     }
   }, [getSandbox, walletData?.address]);
 

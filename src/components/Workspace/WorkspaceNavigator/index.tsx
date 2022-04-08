@@ -24,7 +24,9 @@ export const WorkspaceNavigator = (props: Props) => {
   useEffect(() => {
     if (walletData?.address) {
       getWorkspaceOwned({
-        variables: { where: { wallet: { address: walletData?.address } } },
+        variables: {
+          where: { wallet: { address: walletData?.address.toLowerCase() } },
+        },
       });
     }
   }, [walletData?.address]);

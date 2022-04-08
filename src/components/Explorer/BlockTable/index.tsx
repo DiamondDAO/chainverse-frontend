@@ -63,7 +63,9 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
       refetchQueries: [
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
       ],
     });
@@ -283,7 +285,11 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
         Header: "Wallet",
         accessor: "wallet",
         Cell: ({ value }) => {
-          return <Box>{"0x" + truncateAddress(value.address.slice(2), 4)}</Box>;
+          return (
+            <Box>
+              {"0x" + truncateAddress(value.address.toLowerCase().slice(2), 4)}
+            </Box>
+          );
         },
       },
       {
@@ -297,7 +303,9 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
             if (walletData?.address) {
               getWorkspaceOwned({
                 variables: {
-                  where: { wallet: { address: walletData?.address } },
+                  where: {
+                    wallet: { address: walletData?.address.toLowerCase() },
+                  },
                 },
               });
             }

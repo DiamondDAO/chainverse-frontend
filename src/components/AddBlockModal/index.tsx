@@ -196,7 +196,7 @@ export const AddBlockModal = ({
     refetchQueries: [
       {
         query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
+        variables: { where: { address: walletData?.address.toLowerCase() } },
       },
       { query: GET_TAGS_AND_ENTITIES },
       { query: GET_ALL_NOTES },
@@ -207,7 +207,7 @@ export const AddBlockModal = ({
     refetchQueries: [
       {
         query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
+        variables: { where: { address: walletData?.address.toLowerCase() } },
       },
       { query: GET_TAGS_AND_ENTITIES },
       { query: GET_ALL_NOTES },
@@ -259,7 +259,7 @@ export const AddBlockModal = ({
                   connect: {
                     where: {
                       node: {
-                        address: walletData?.address,
+                        address: walletData?.address.toLowerCase(),
                       },
                     },
                   },
@@ -321,7 +321,7 @@ export const AddBlockModal = ({
                 connect: {
                   where: {
                     node: {
-                      address: walletData?.address,
+                      address: walletData?.address.toLowerCase(),
                     },
                   },
                 },
@@ -349,7 +349,7 @@ export const AddBlockModal = ({
       saveToWorkspaceFn &&
         saveToWorkspaceFn({
           ...blockResult?.data?.createNotes?.notes?.[0],
-          walletAddress: walletData?.address,
+          walletAddress: walletData?.address.toLowerCase(),
         });
       closeHandler();
       toast({

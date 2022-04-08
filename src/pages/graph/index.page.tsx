@@ -21,7 +21,7 @@ const Preferences: NextPage = () => {
     refetchQueries: [
       {
         query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
+        variables: { where: { address: walletData?.address.toLowerCase() } },
       },
       ,
       { query: GET_ALL_NOTES },
@@ -30,7 +30,9 @@ const Preferences: NextPage = () => {
 
   useEffect(() => {
     if (walletData?.address) {
-      getNotes({ variables: { where: { address: walletData.address } } });
+      getNotes({
+        variables: { where: { address: walletData.address.toLowerCase() } },
+      });
     }
   }, [walletData?.address]);
 
@@ -57,7 +59,7 @@ const Preferences: NextPage = () => {
                             connect: {
                               where: {
                                 node: {
-                                  address: walletData?.address,
+                                  address: walletData?.address.toLowerCase(),
                                 },
                               },
                             },

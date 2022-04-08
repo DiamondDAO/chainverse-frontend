@@ -327,7 +327,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Entities && (
               <EntityTable
                 data={entityData}
-                walletAddress={walletData?.address}
+                walletAddress={walletData?.address.toLowerCase()}
                 update={() => getEntityDataHandler({ reset: false })}
                 hasMore={hasMoreEntityData}
               />
@@ -335,7 +335,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Blocks && (
               <BlockTable
                 data={nodeData}
-                walletAddress={walletData?.address}
+                walletAddress={walletData?.address.toLowerCase()}
                 update={() => getnodeDataHandler({ reset: false })}
                 hasMore={hasMorenodeData}
               />
@@ -343,7 +343,7 @@ const Search: NextPage = () => {
             {searchType === SearchTypes.Tags && (
               <TagTable
                 data={tagData}
-                walletAddress={walletData?.address}
+                walletAddress={walletData?.address.toLowerCase()}
                 update={() => getTagDataHandler({ reset: false })}
                 hasMore={hasMoreTagData}
               />

@@ -19,7 +19,10 @@ export const useGetAccountName = ({
     } else if (data?.ens?.name) {
       return data.ens.name;
     } else if (data?.address) {
-      return `0x${data?.address && truncateAddress(data?.address.slice(2), 3)}`;
+      return `0x${
+        data?.address &&
+        truncateAddress(data?.address.toLowerCase().slice(2), 3)
+      }`;
     } else {
       return loadingComponent;
     }

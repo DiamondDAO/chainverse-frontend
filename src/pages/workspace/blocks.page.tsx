@@ -72,7 +72,9 @@ const AllBlocks: NextPage = () => {
 
   useEffect(() => {
     if (walletData?.address) {
-      getNotes({ variables: { where: { address: walletData.address } } });
+      getNotes({
+        variables: { where: { address: walletData.address.toLowerCase() } },
+      });
     }
   }, [getNotes, walletData?.address]);
 
@@ -94,7 +96,7 @@ const AllBlocks: NextPage = () => {
     refetchQueries: [
       {
         query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
+        variables: { where: { address: walletData?.address.toLowerCase() } },
       },
       GET_TAGS_AND_ENTITIES,
       { query: GET_ALL_NOTES },
@@ -138,7 +140,9 @@ const AllBlocks: NextPage = () => {
       refetchQueries: [
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
       ],
     });
@@ -153,7 +157,7 @@ const AllBlocks: NextPage = () => {
           variables: {
             where: {
               wallet: {
-                address: walletData.address,
+                address: walletData.address.toLowerCase(),
               },
             },
             connect: {

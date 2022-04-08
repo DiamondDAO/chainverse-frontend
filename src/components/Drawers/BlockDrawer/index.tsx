@@ -59,7 +59,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
   // Wallet Data
   const [{ data: walletData }] = useAccount();
   const [{ data: ENS }] = useEnsLookup({
-    address: nodeData?.wallet?.address,
+    address: nodeData?.wallet?.address.toLowerCase(),
   });
 
   const [deletingBlock, setDeletingBlock] = useState(false);
@@ -67,7 +67,9 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
   useEffect(() => {
     if (walletData?.address) {
       getWorkspaceOwned({
-        variables: { where: { wallet: { address: walletData?.address } } },
+        variables: {
+          where: { wallet: { address: walletData?.address.toLowerCase() } },
+        },
       });
     }
   }, [walletData?.address]);
@@ -201,7 +203,11 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
             </Text>
             <Text color="diamond.gray.4">
               {ENS ||
-                "0x" + truncateAddress(nodeData?.wallet?.address.slice(2), 4)}
+                "0x" +
+                  truncateAddress(
+                    nodeData?.wallet?.address.toLowerCase().slice(2),
+                    4
+                  )}
             </Text>
           </Box>
           <Divider mt="16px" />

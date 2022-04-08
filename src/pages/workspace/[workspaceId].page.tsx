@@ -68,7 +68,9 @@ const Workspace: NextPage = () => {
       refetchQueries: [
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
         { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
       ],
@@ -81,7 +83,9 @@ const Workspace: NextPage = () => {
       refetchQueries: [
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
       ],
     }
@@ -167,7 +171,7 @@ const Workspace: NextPage = () => {
     refetchQueries: [
       {
         query: GET_NOTES,
-        variables: { where: { address: nodeData?.wallet?.address } },
+        variables: { where: { address: nodeData?.wallet?.toLowerCase() } },
       },
       GET_TAGS_AND_ENTITIES,
       { query: GET_ALL_NOTES },

@@ -50,7 +50,9 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
       refetchQueries: [
         {
           query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
+          variables: {
+            where: { wallet: { address: walletData?.address.toLowerCase() } },
+          },
         },
       ],
     });
@@ -65,7 +67,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
       const nodeObject = row?.id
         ? { id: row?.id }
         : row?.address
-        ? { address: row?.address }
+        ? { address: row?.address.toLowerCase() }
         : row?.name
         ? { name: row?.name }
         : null;
@@ -204,7 +206,9 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
             if (walletData?.address) {
               getWorkspaceOwned({
                 variables: {
-                  where: { wallet: { address: walletData?.address } },
+                  where: {
+                    wallet: { address: walletData?.address.toLowerCase() },
+                  },
                 },
               });
             }

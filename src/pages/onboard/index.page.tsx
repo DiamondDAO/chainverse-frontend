@@ -56,8 +56,12 @@ const Onboard: NextPage = () => {
                     },
                     wallet: {
                       connectOrCreate: {
-                        where: { node: { address: data?.address } },
-                        onCreate: { node: { address: data?.address } },
+                        where: {
+                          node: { address: data?.address.toLowerCase() },
+                        },
+                        onCreate: {
+                          node: { address: data?.address.toLowerCase() },
+                        },
                       },
                     },
                   })),
@@ -77,8 +81,12 @@ const Onboard: NextPage = () => {
                     },
                     wallet: {
                       connectOrCreate: {
-                        where: { node: { address: data?.address } },
-                        onCreate: { node: { address: data?.address } },
+                        where: {
+                          node: { address: data?.address.toLowerCase() },
+                        },
+                        onCreate: {
+                          node: { address: data?.address.toLowerCase() },
+                        },
                       },
                     },
                   },
