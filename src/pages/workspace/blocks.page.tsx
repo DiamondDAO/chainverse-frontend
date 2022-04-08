@@ -206,7 +206,10 @@ const AllBlocks: NextPage = () => {
             bg="diamond.green"
           >
             <Text fontWeight="500">Added to workspace</Text>
-            <Text mt="4px">Block added to Sandbox</Text>
+            <Text mt="4px">
+              Block added to{" "}
+              {AddWorkspaceType.Sandbox === type ? "Sandbox" : "Workspace"}
+            </Text>
             <Text
               mt="12px"
               borderRadius="2px"
