@@ -197,6 +197,42 @@ const Workspace: NextPage = () => {
     }
     onClose();
   };
+  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
+    useMutation(UPDATE_WORKSPACE, {
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+        { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
+      ],
+    });
+
+  const addBlockToWorkspaceHandler = async (data?: any) => {
+    try {
+      await addBlockToWorkspace({
+        variables: {
+          where: { uuid: workspaceId },
+          connect: {
+            blocks: {
+              Note: [
+                {
+                  where: {
+                    node: {
+                      uuid: data.uuid,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw e;
+    }
+  };
+
   if (!workspaceData) {
     return <Loader />;
   }
@@ -314,6 +350,7 @@ const Workspace: NextPage = () => {
                   )?.map((i) => i.name) || []
                 }
                 isOpen={isOpen}
+                saveToWorkspaceFn={addBlockToWorkspaceHandler}
                 onClose={onClose}
               />
             </Box>
