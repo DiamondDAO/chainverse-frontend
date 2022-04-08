@@ -94,20 +94,19 @@ const Explorer: NextPage = () => {
       filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
     [notesData]
   );
-
   const tagFuse = new Fuse(tags, {
     includeScore: false,
-    threshold: 0.2,
+    threshold: 0.7,
   });
 
   const entityFuse = new Fuse(entities, {
     includeScore: false,
-    threshold: 0.2,
+    threshold: 0.7,
   });
 
   const blockFuse = new Fuse(blocks, {
     includeScore: false,
-    threshold: 0.2,
+    threshold: 0.7,
   });
 
   return (
