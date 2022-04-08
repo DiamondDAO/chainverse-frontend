@@ -15,7 +15,6 @@ import { borderStyles } from "@/theme";
 import { useAccount } from "wagmi";
 import { truncateAddress } from "@/common/utils";
 import Router from "next/router";
-import { PreferenceData } from "@/common/types";
 import { useLazyQuery } from "@apollo/client";
 import { GET_PROMPT_INFO } from "@/services/Apollo/Queries";
 

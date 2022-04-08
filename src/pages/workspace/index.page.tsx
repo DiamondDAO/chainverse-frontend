@@ -1,30 +1,36 @@
-import { Box, Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Layout } from "@/components/Layout";
-import { AddBlockModal } from "@/components/AddBlockModal";
+import { Box, Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+
+import { Layout } from "@/components/Layout";
+import { AddBlockModal } from "@/components/AddBlockModal";
+import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
+import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
+import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
+import { Flow } from "@/components/Workspace/Flow";
+import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
+
 import {
+  GET_ALL_NOTES,
   GET_NOTES,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
-import { filterUniqueObjects } from "@/common/utils";
-import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
-import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
-import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
-import { Flow } from "@/components/Workspace/Flow";
 import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
+  DELETE_NOTES,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from "@/services/Apollo/Mutations";
+
+import { filterUniqueObjects } from "@/common/utils";
 import { bodyText } from "@/theme";
-import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import { EntityDrawer } from "@/components/Explorer/EntityDrawer";
+import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { Block } from "@/common/types";
 
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -97,7 +103,6 @@ const Workspace: NextPage = () => {
       const Sandbox = await getSandbox({
         variables: {
           where: { wallet: { address: walletAddress } },
-          directed: false,
         },
       });
       if (Sandbox.data.sandboxes.length === 0) {
@@ -251,6 +256,41 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
+  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_NOTES },
+    ],
+  });
+  const deleteBlockHandler = async (block: Block) => {
+    try {
+      await deleteBlock({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when deleting your block. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
 
   return (
     <>
@@ -333,7 +373,7 @@ const Workspace: NextPage = () => {
               setCurrentNode(null);
               blockDrawerOnClose();
             }}
-            editBlockHandler={onOpen}
+            actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
           />
           <EntityDrawer
             nodeData={currentNode?.__typename == "Entity" && currentNode}

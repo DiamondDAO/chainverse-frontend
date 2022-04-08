@@ -7,36 +7,6 @@ export enum Socials {
   Documentation = "documentation",
 }
 
-export enum Assets {
-  ERC20 = "ERC-20",
-  ERC721 = "ERC-721",
-}
-
-export type InvestableAssets = { type: Assets; address: string }[];
-
-export type SocialType = { type: Socials; link: string }[];
-
-export type PreferenceData = {
-  activeSince: string;
-  purpose: string[];
-  interests: string[];
-};
-
-export type DAOData = {
-  name: string;
-  members: number;
-  image?: string;
-  type: string[];
-  summoned: string;
-  impactAreas: string[];
-  description: string;
-  network: string;
-  memberRequirements: string;
-  successStories: string;
-  investableAssets: InvestableAssets;
-  investDirections: string;
-  social: SocialType;
-};
 export enum IconVariants {
   Default = "default",
   White = "white",
@@ -47,3 +17,7 @@ export enum AddWorkspaceType {
   Workspace = "Workspace",
   Sandbox = "Sandbox",
 }
+
+export type Block = {
+  uuid: string;
+};

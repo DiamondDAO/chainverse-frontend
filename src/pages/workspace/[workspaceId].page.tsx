@@ -6,6 +6,7 @@ import { AddBlockModal } from "@/components/AddBlockModal";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
+  GET_ALL_NOTES,
   GET_NOTES,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
@@ -19,14 +20,16 @@ import { Flow } from "@/components/Workspace/Flow";
 import Router, { useRouter } from "next/router";
 import { Loader } from "@/components/Loader";
 import {
+  DELETE_NOTES,
   DELETE_WORKSPACE,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
 import { subText } from "@/theme";
-import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import { EntityDrawer } from "@/components/Explorer/EntityDrawer";
+import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 
 import { DeleteModal } from "@/components/DeleteBlockModal";
+import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { Block } from "@/common/types";
 
 const Workspace: NextPage = () => {
   const router = useRouter();
@@ -57,30 +60,31 @@ const Workspace: NextPage = () => {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
   });
+  console.log(workspaceData);
   const toast = useToast();
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
-    UPDATE_WORKSPACE
-    // {
-    //   refetchQueries: [
-    //     {
-    //       query: GET_WORKSPACE_OWNED,
-    //       variables: { where: { wallet: { address: walletData?.address } } },
-    //     },
-    //     { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
-    //   ],
-    // }
+    UPDATE_WORKSPACE,
+    {
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+        { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
+      ],
+    }
   );
 
   const [deleteWorkspace, { error: deleteWokspaceError }] = useMutation(
-    DELETE_WORKSPACE
-    // {
-    //   refetchQueries: [
-    //     {
-    //       query: GET_WORKSPACE_OWNED,
-    //       variables: { where: { wallet: { address: walletData?.address } } },
-    //     },
-    //   ],
-    // }
+    DELETE_WORKSPACE,
+    {
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+      ],
+    }
   );
 
   const workspace = workspaceData?.workspaces?.[0];
@@ -150,7 +154,7 @@ const Workspace: NextPage = () => {
       toast({
         title: "Error",
         description:
-          "There was an error when creating your block. Please try again.",
+          "There was an error when deleting your workspace. Please try again.",
         status: "error",
         duration: 2000,
         isClosable: true,
@@ -159,7 +163,41 @@ const Workspace: NextPage = () => {
     onClose();
     setDeletingWorkspace(false);
   };
-
+  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_NOTES },
+    ],
+  });
+  const deleteBlockHandler = async (block: Block) => {
+    try {
+      await deleteBlock({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when deleting your block. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
   if (!workspaceData) {
     return <Loader />;
   }
@@ -254,7 +292,7 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   blockDrawerOnClose();
                 }}
-                editBlockHandler={onOpen}
+                actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
               />
               <EntityDrawer
                 nodeData={currentNode?.__typename == "Entity" && currentNode}

@@ -234,14 +234,14 @@ export const AddBlockModal = ({
   }) => {
     const tags =
       inputRef.current.innerText
-        .match(/#(?=\S*[-]*)([a-zA-Z'-]+)/g)
+        .match(/#(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
         ?.map((i) => ({
           where: { node: { tag: i.slice(1) } },
           onCreate: { node: { tag: i.slice(1) } },
         })) || [];
     const entity =
       inputRef.current.innerText
-        .match(/@(?=\S*[-]*)([a-zA-Z'-]+)/g)
+        .match(/@(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
         ?.map((i) => ({
           where: { node: { name: i.slice(1) } },
           onCreate: { node: { name: i.slice(1) } },
@@ -346,10 +346,11 @@ export const AddBlockModal = ({
           },
         });
       }
-      saveToWorkspaceFn({
-        ...blockResult?.data?.createNotes?.notes?.[0],
-        walletAddress: walletData?.address,
-      });
+      saveToWorkspaceFn &&
+        saveToWorkspaceFn({
+          ...blockResult?.data?.createNotes?.notes?.[0],
+          walletAddress: walletData?.address,
+        });
       closeHandler();
       toast({
         title: `Block ${nodeData ? "Saved" : "Created"}!`,
@@ -358,6 +359,7 @@ export const AddBlockModal = ({
         isClosable: true,
       });
     } catch (e) {
+      console.log(e);
       toast({
         title: "Error",
         description:
@@ -375,7 +377,7 @@ export const AddBlockModal = ({
       setPillText(
         inputRef.current?.innerText
           .slice(dialogStartPosition)
-          .match(/[@#](?=\S*[-]*)([a-zA-Z'-]+)/g)?.[0]
+          .match(/[@#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
           ?.slice(1)
       );
     }

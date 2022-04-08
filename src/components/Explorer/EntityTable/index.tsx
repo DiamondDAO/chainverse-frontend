@@ -20,13 +20,14 @@ import {
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
 import { RiNodeTree } from "react-icons/ri";
-import { EntityDrawer } from "../EntityDrawer";
+import { EntityDrawer } from "../../Drawers/EntityDrawer";
 import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
 import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { AddWorkspaceType } from "@/common/types";
 import Router from "next/router";
 import { useAccount } from "wagmi";
+import { ERRORS } from "@/common/errors";
 
 export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -61,9 +62,17 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   ) => {
     try {
       if (row.original) row = row.original;
+      const nodeObject = row?.id
+        ? { id: row?.id }
+        : row?.address
+        ? { address: row?.address }
+        : row?.name
+        ? { name: row?.name }
+        : null;
 
-      const nodeObject = row?.id ? { id: row?.id } : { name: row?.name };
-      console.log(nodeObject);
+      if (!nodeObject) {
+        throw Error(ERRORS.NO_UNIQUE_ID);
+      }
       if (type === AddWorkspaceType.Sandbox) {
         await addBlockToSandbox({
           variables: {
@@ -132,6 +141,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
         ),
       });
     } catch (e) {
+      console.log(e);
       toast({
         position: "top-right",
         isClosable: true,
@@ -146,11 +156,12 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
             fontSize="12px"
             bg="diamond.red"
           >
-            <Text fontWeight="500">There was an error adding to workspace</Text>
+            <Text fontWeight="500">
+              There was an error adding to workspace: {e.message}
+            </Text>
           </Box>
         ),
       });
-      throw Error(`${e}`);
     }
   };
 

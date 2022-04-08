@@ -66,6 +66,7 @@ export const GET_ENTITIES_DATA = gql`
       onlyMembers
       symbol
       avatar
+      address
       about
       proposalsAggregate {
         count
@@ -137,7 +138,7 @@ export const GET_SANDBOX = gql`
       name
       entities {
         name
-        id
+        address
         avatar
         about
         proposalsAggregate {
@@ -196,7 +197,12 @@ export const GET_WORKSPACE_OWNED = gql`
       }
       entities {
         name
-        id
+        address
+        avatar
+        about
+        proposalsAggregate {
+          count
+        }
       }
     }
   }

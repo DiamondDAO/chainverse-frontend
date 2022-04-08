@@ -33,8 +33,7 @@ import { generateDateString, truncateAddress } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import { BlockExplorerDrawer } from "../BlockExplorerDrawer";
+import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
@@ -69,7 +68,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
       ],
     });
   const addBlockHandler = async (
-    row,
+    block: { uuid: string },
     type: AddWorkspaceType,
     workspaceUuid?: string
   ) => {
@@ -88,7 +87,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                   {
                     where: {
                       node: {
-                        uuid: row.original.uuid,
+                        uuid: block.uuid,
                       },
                     },
                   },
@@ -107,7 +106,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                   {
                     where: {
                       node: {
-                        uuid: row.original.uuid,
+                        uuid: block.uuid,
                       },
                     },
                   },
@@ -514,11 +513,11 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
             </Tbody>
           </ChakraTable>
         </Box>
-        <BlockExplorerDrawer
-          addBlockHandler={addBlockHandler}
+        <BlockDrawer
           nodeData={selectedRow as any}
           isOpen={drawerIsOpen}
           onClose={drawerOnClose}
+          actions={{ addBlockToWorkspace: addBlockHandler }}
         />
       </InfiniteScroll>
     </>

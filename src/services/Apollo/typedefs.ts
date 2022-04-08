@@ -13,13 +13,14 @@ export const typeDefs = gql`
     """
     TODO: Should this be restricted
     """
-    uuid: ID! @id(autogenerate: true)
+    uuid: ID @id(autogenerate: true)
     name: String @unique #under assumption name for entities are unique
     id: String @unique
     minScore: Float
     network: Float
     onlyMembers: String
     symbol: String
+    address: String @unique
     avatar: String
     about: String
     proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)

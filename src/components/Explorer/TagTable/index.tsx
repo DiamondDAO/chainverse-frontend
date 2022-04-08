@@ -20,7 +20,7 @@ import { TagIcon } from "@/components/Icons/TagIcon";
 import { RiNodeTree } from "react-icons/ri";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { BiDetail } from "react-icons/bi";
-import { TagDrawer } from "../TagDrawer";
+import { TagDrawer } from "../../Drawers/TagDrawer";
 import { bodyText } from "@/theme";
 
 export const TagTable = ({ data, update, hasMore, walletAddress }) => {

@@ -1,19 +1,31 @@
-import { Box, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Text, toast, useDisclosure, useToast } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { AddBlockModal } from "@/components/AddBlockModal";
 import { useAccount } from "wagmi";
-import { useLazyQuery, useQuery } from "@apollo/client";
-import { GET_NOTES, GET_TAGS_AND_ENTITIES } from "@/services/Apollo/Queries";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import {
+  GET_ALL_NOTES,
+  GET_NOTES,
+  GET_SANDBOX,
+  GET_TAGS_AND_ENTITIES,
+  GET_WORKSPACE_OWNED,
+} from "@/services/Apollo/Queries";
 import { filterUniqueObjects } from "@/common/utils";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { FilterMenu, FilterTypes } from "@/components/Workspace/FilterMenu";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
-import { BlockDrawer } from "@/components/Workspace/BlockDrawer";
-import { IconVariants } from "@/common/types";
+import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
+import {
+  DELETE_NOTES,
+  UPDATE_SANDBOX,
+  UPDATE_WORKSPACE,
+} from "@/services/Apollo/Mutations";
+import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import Router from "next/router";
 
 const AddBlockCard = ({ onClick }) => (
   <Box
@@ -39,7 +51,7 @@ const AddBlockCard = ({ onClick }) => (
 
 const AllBlocks: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-
+  const toast = useToast();
   const [getNotes, { data }] = useLazyQuery(GET_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
@@ -78,6 +90,165 @@ const AllBlocks: NextPage = () => {
       ) || [],
     [tagAndEntitiesData?.entities]
   );
+  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_NOTES },
+    ],
+  });
+  const deleteBlockHandler = async (block: Block) => {
+    try {
+      await deleteBlock({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when creating your block. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
+
+  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
+    UPDATE_SANDBOX,
+    {
+      refetchQueries: [{ query: GET_SANDBOX }],
+    }
+  );
+
+  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
+    useMutation(UPDATE_WORKSPACE, {
+      refetchQueries: [
+        {
+          query: GET_WORKSPACE_OWNED,
+          variables: { where: { wallet: { address: walletData?.address } } },
+        },
+      ],
+    });
+  const addBlockHandler = async (
+    block: Block,
+    type: AddWorkspaceType,
+    workspaceUuid?: string
+  ) => {
+    try {
+      if (type === AddWorkspaceType.Sandbox) {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: walletData.address,
+              },
+            },
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: block.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      } else {
+        await addBlockToWorkspace({
+          variables: {
+            where: { uuid: workspaceUuid },
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: block.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      }
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.green"
+          >
+            <Text fontWeight="500">Added to workspace</Text>
+            <Text mt="4px">Block added to Sandbox</Text>
+            <Text
+              mt="12px"
+              borderRadius="2px"
+              p="2px"
+              ml="-2px"
+              width="fit-content"
+              _hover={{ bg: "diamond.gray.1" }}
+              color="black"
+              cursor="pointer"
+              onClick={() =>
+                AddWorkspaceType.Workspace === type
+                  ? Router.push(`/workspace/${workspaceUuid}`)
+                  : Router.push("/workspace")
+              }
+            >
+              View workspace
+            </Text>
+          </Box>
+        ),
+      });
+    } catch (e) {
+      toast({
+        position: "top-right",
+        isClosable: true,
+        duration: 2000,
+        render: () => (
+          <Box
+            maxW="300px"
+            mt="50px"
+            borderRadius={"5px"}
+            color="white"
+            p={"8px"}
+            fontSize="12px"
+            bg="diamond.red"
+          >
+            <Text fontWeight="500">There was an error adding to workspace</Text>
+          </Box>
+        ),
+      });
+      throw Error(`${e}`);
+    }
+  };
   return (
     <>
       <Layout>
@@ -196,10 +367,17 @@ const AllBlocks: NextPage = () => {
             </Box>
           </Box>
           <BlockDrawer
-            nodeData={currentNode}
+            nodeData={currentNode?.__typename == "Note" && currentNode}
             isOpen={drawerIsOpen}
-            onClose={drawerOnClose}
-            editBlockHandler={onOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              drawerOnOpen();
+            }}
+            actions={{
+              addBlockToWorkspace: addBlockHandler,
+              editBlock: onOpen,
+              deleteBlock: deleteBlockHandler,
+            }}
           />
           <AddBlockModal
             tags={tags}

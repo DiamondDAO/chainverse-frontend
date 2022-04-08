@@ -35,7 +35,11 @@ export const BlockNode = ({
           <BlockIcon variant={IconVariants.White} />
         </Box>
       </Box>
-      <Box verticalAlign="middle">
+      <Box
+        wordBreak="break-all"
+        sx={{ breakInside: "avoid" }}
+        verticalAlign="middle"
+      >
         <AddPillsToText text={data.label} />
       </Box>
       <Handle type="target" id="a" position={Position.Left} />
