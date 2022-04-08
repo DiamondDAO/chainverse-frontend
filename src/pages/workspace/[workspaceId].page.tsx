@@ -60,7 +60,6 @@ const Workspace: NextPage = () => {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
   });
-  console.log(workspaceData);
   const toast = useToast();
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
     UPDATE_WORKSPACE,

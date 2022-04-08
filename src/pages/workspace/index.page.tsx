@@ -169,9 +169,23 @@ const Workspace: NextPage = () => {
                 connect: {
                   where: {
                     node: {
-                      id_IN: nodeData
-                        .filter((node) => node.__typename === "Entity")
-                        .map((node) => node.id),
+                      OR: [
+                        {
+                          id_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.id),
+                        },
+                        {
+                          address_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.address),
+                        },
+                        {
+                          name_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.name),
+                        },
+                      ],
                     },
                   },
                 },
@@ -201,7 +215,7 @@ const Workspace: NextPage = () => {
               {
                 where: {
                   node: {
-                    id_NOT: null,
+                    name_NOT: null,
                   },
                 },
               },

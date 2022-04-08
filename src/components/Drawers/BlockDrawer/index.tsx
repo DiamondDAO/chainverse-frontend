@@ -79,7 +79,6 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
 
   // Date of Block Creation
   const dateObj = generateDateString(new Date(nodeData?.createdAt));
-  console.log(nodeData);
   if (!nodeData || Object.keys(nodeData).length === 0) {
     return null;
   }

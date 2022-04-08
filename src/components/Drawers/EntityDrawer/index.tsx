@@ -108,7 +108,6 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
                     <MenuList>
                       <MenuItem
                         onClick={() => {
-                          console.log(nodeData);
                           addBlockHandler &&
                             addBlockHandler(nodeData, AddWorkspaceType.Sandbox);
                           onClose();
