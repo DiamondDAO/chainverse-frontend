@@ -232,6 +232,20 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
+  const tags = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      [],
+    [tagAndEntitiesData?.tags]
+  );
+
+  const entities = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+        (i) => i.name
+      ) || [],
+    [tagAndEntitiesData?.entities]
+  );
 
   if (!workspaceData) {
     return <Loader />;
@@ -338,17 +352,8 @@ const Workspace: NextPage = () => {
                 }}
               />
               <AddBlockModal
-                tags={
-                  filterUniqueObjects(tagAndEntitiesData?.tags, "text")?.map(
-                    (i) => i.text
-                  ) || []
-                }
-                entities={
-                  filterUniqueObjects(
-                    tagAndEntitiesData?.entities,
-                    "name"
-                  )?.map((i) => i.name) || []
-                }
+                tags={tags}
+                entities={entities}
                 isOpen={isOpen}
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
                 onClose={onClose}

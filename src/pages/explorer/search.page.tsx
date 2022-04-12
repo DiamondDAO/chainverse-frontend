@@ -91,7 +91,7 @@ const Search: NextPage = () => {
       tags.length > 0
         ? new Fuse(tags, {
             includeScore: false,
-            threshold: 0.7,
+            threshold: 0.3,
           })?.search((term as string) || "")
         : [],
     [tags, term]
@@ -115,7 +115,7 @@ const Search: NextPage = () => {
       entities.length > 0
         ? new Fuse(entities, {
             includeScore: false,
-            threshold: 0.7,
+            threshold: 0.3,
           })?.search((term as string) || "")
         : [],
     [entities, term]
