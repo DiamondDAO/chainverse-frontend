@@ -90,7 +90,7 @@ export const WorkspaceNavigator = (props: Props) => {
       >
         My Blocks
       </Box>
-      <Box
+      {/* <Box
         onClick={() => setSelected("narratives")}
         sx={{
           ...(router.asPath === WorkspacePaths.Narratives && {
@@ -100,7 +100,7 @@ export const WorkspaceNavigator = (props: Props) => {
         }}
       >
         My Narratives (Coming soon)
-      </Box>
+      </Box> */}
     </Box>
   );
 };

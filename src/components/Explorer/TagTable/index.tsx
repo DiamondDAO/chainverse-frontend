@@ -111,7 +111,7 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
                   <PlusIcon width="14px" />
                 </Box>
               </Tooltip>
-              <Tooltip label="Go to graph" placement="top">
+              {/* <Tooltip label="Go to graph" placement="top">
                 <Box
                   sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
                   _hover={{
@@ -124,7 +124,7 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
                 >
                   <RiNodeTree size="14px" />
                 </Box>
-              </Tooltip>
+              </Tooltip> */}
             </Box>
           );
         },

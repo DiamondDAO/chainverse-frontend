@@ -170,7 +170,7 @@ const Search: NextPage = () => {
         >
           <Box sx={{ columnGap: "50px" }}>
             <Box w="100%" zIndex={3} display={["none", null, null, "flex"]}>
-              <ExplorerNavigator />
+              {/* <ExplorerNavigator /> */}
             </Box>
           </Box>
           <Box ml={["unset", null, null, "50px"]}>

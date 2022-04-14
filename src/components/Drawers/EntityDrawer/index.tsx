@@ -133,13 +133,13 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
                       ))}
                     </MenuList>
                   </Menu>
-                  <Button
+                  {/* <Button
                     onClick={() => {}}
                     leftIcon={<RiNodeTree size="12px" />}
                     variant="primary"
                   >
                     View graph
-                  </Button>
+                  </Button> */}
                 </Box>
               </Box>
               <Divider mt="16px" />

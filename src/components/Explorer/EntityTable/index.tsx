@@ -309,7 +309,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                   </Box>
                 </PopoverContent>
               </Popover>
-              <Tooltip label="Go to graph" placement="top">
+              {/* <Tooltip label="Go to graph" placement="top">
                 <Box
                   sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
                   _hover={{
@@ -322,7 +322,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                 >
                   <RiNodeTree size="14px" />
                 </Box>
-              </Tooltip>
+              </Tooltip> */}
             </Box>
           );
         },

@@ -127,7 +127,7 @@ const Explorer: NextPage = () => {
             sx={{ columnGap: "50px" }}
           >
             <Box w="100%" maxWidth="210px" zIndex={3}>
-              <ExplorerNavigator />
+              {/* <ExplorerNavigator /> */}
             </Box>
           </Box>
           <Box display="flex" justifyContent="center">
@@ -208,7 +208,7 @@ const Explorer: NextPage = () => {
                         Search: {`"`} {searchValue} {`"`}
                       </Text>
                     </Box>
-                    <Tabs px="25px" variant="unstyled">
+                    {/* <Tabs px="25px" variant="unstyled">
                       <TabList sx={{ "& > button": { padding: "12px" } }}>
                         <Tab
                           marginLeft="-12px"
@@ -330,7 +330,7 @@ const Explorer: NextPage = () => {
                             ))}
                         </TabPanel>
                       </TabPanels>
-                    </Tabs>
+                    </Tabs> */}
                   </AnimatedBox>
                 )}
               </Box>
