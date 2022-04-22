@@ -16,19 +16,17 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  useToast,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
 import React, { FC, useEffect } from "react";
-import { RiNodeTree } from "react-icons/ri";
 import { SiTwitter, SiDiscord } from "react-icons/si";
 import { useAccount } from "wagmi";
-
+import * as styles from "../styles";
 interface IEntityDrawer {
-  addBlockHandler?: (
+  addEntityHandler?: (
     row: any,
     type: AddWorkspaceType,
     workspaceUuid?: string
@@ -44,7 +42,7 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
   onClose,
   nodeData,
   hideActions,
-  addBlockHandler,
+  addEntityHandler,
 }) => {
   const [{ data: walletData }] = useAccount();
   const [getWorkspaceOwned, { data: workspaceData, loading }] =
@@ -55,21 +53,18 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
         variables: { where: { wallet: { address: walletData?.address } } },
       });
     }
-  }, [walletData?.address]);
+  }, [getWorkspaceOwned, walletData?.address]);
+
   const workspaces = workspaceData?.workspaces;
   if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
-      <DrawerContent
-        _focus={{ boxShadow: "-2px 0px 15px #C3C3C3 !important" }}
-        boxShadow={"-2px 0px 15px #C3C3C3"}
-        sx={{ top: "50px !important" }}
-      >
+      <DrawerContent sx={styles.DrawerContentStyles}>
         <DrawerCloseButton />
-        <DrawerHeader display="flex" alignItems="center">
+        <DrawerHeader sx={styles.DrawerHeader}>
           {nodeData?.avatar ? (
-            <Box width="30px" height="30px">
+            <Box sx={styles.EntityContainer}>
               <Image
                 borderRadius="100%"
                 alt="entitiy-logo"
@@ -77,11 +72,11 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
               />
             </Box>
           ) : (
-            <Box bg="diamond.magenta" borderRadius="100%" padding="5px">
+            <Box sx={styles.EntityIconBg}>
               <EntitiesIcon variant={IconVariants.White} />
             </Box>
           )}
-          <Box ml="8px" as="span" fontWeight="500">
+          <Box as="span" sx={styles.EntityName}>
             {nodeData?.name}
           </Box>
         </DrawerHeader>
@@ -108,8 +103,11 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
                     <MenuList>
                       <MenuItem
                         onClick={() => {
-                          addBlockHandler &&
-                            addBlockHandler(nodeData, AddWorkspaceType.Sandbox);
+                          addEntityHandler &&
+                            addEntityHandler(
+                              nodeData,
+                              AddWorkspaceType.Sandbox
+                            );
                           onClose();
                         }}
                       >
@@ -118,8 +116,8 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
                       {workspaces?.map((workspace) => (
                         <MenuItem
                           onClick={() => {
-                            addBlockHandler &&
-                              addBlockHandler(
+                            addEntityHandler &&
+                              addEntityHandler(
                                 nodeData,
                                 AddWorkspaceType.Workspace,
                                 workspace.uuid

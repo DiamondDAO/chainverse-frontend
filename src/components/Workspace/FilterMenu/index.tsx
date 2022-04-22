@@ -9,7 +9,7 @@ import {
   MenuGroup,
   MenuList,
 } from "@chakra-ui/react";
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useState } from "react";
 import Fuse from "fuse.js";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";

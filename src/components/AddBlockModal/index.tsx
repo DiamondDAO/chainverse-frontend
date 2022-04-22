@@ -16,7 +16,7 @@ import {
   useToast,
   Button,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import Fuse from "fuse.js";
 
 import { TipDrawer } from "./TipDrawer";
@@ -33,106 +33,46 @@ import {
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
 import { bodyText, subText } from "@/theme";
-
-// node_walk: walk the element tree, stop when func(node) returns false
-function node_walk(node, func) {
-  var result = func(node);
-  for (
-    node = node.firstChild;
-    result !== false && node;
-    node = node.nextSibling
-  )
-    result = node_walk(node, func);
-  return result;
-}
-
-// getCaretPosition: return [start, end] as offsets to elem.textContent that
-//   correspond to the selected portion of text
-//   (if start == end, caret is at given position and no text is selected)
-function getCaretPosition(elem) {
-  var sel = window.getSelection();
-  var cum_length = [0, 0];
-  //@ts-ignore
-  if (sel.anchorNode == elem) cum_length = [sel.anchorOffset, sel.extentOffset];
-  else {
-    //@ts-ignore
-
-    var nodes_to_find = [sel.anchorNode, sel.extentNode];
-    //@ts-ignore
-
-    if (!elem.contains(sel.anchorNode) || !elem.contains(sel.extentNode))
-      return undefined;
-    else {
-      var found = [0, 0];
-      var i;
-      node_walk(elem, function (node) {
-        for (i = 0; i < 2; i++) {
-          if (node == nodes_to_find[i]) {
-            //@ts-ignore
-
-            found[i] = true;
-            if (found[i == 0 ? 1 : 0]) return false; // all done
-          }
-        }
-
-        if (node.textContent && !node.firstChild) {
-          for (i = 0; i < 2; i++) {
-            if (!found[i]) cum_length[i] += node.textContent.length;
-          }
-        }
-      });
-      cum_length[0] += sel.anchorOffset;
-      //@ts-ignore
-
-      cum_length[1] += sel.extentOffset;
-    }
-  }
-  if (cum_length[0] <= cum_length[1]) return cum_length[1];
-  return cum_length[1];
-}
-
-const getCaretCoordinates = () => {
-  let x, y;
-  const selection = window.getSelection();
-  if (selection.rangeCount !== 0) {
-    const range = selection.getRangeAt(0).cloneRange();
-    range.collapse(false);
-    let rect = range.getClientRects()[0];
-    if (!rect) {
-      // when range is empty, we need to set something so that a rect exists
-      try {
-        range?.setEnd(selection.anchorNode, 1);
-      } catch (e) {}
-      rect = range.getClientRects()[0];
-    }
-    x = rect?.left;
-    y = rect?.top || 149;
-    return { x, y };
-  }
-};
+import { getCaretPosition, getCaretCoordinates } from "./utils";
+import * as styles from "./styles";
 
 enum submitBlockAction {
   Add = "add",
   Update = "update",
 }
 
-export const AddBlockModal = ({
-  tags,
-  entities,
-  isOpen,
-  onClose,
-  nodeData,
-  saveToWorkspaceFn,
-}: {
+interface IAddBlockModal {
   tags: string[];
   entities: string[];
   isOpen: boolean;
   onClose: () => void;
   nodeData?: any;
   saveToWorkspaceFn?: (data: any) => Promise<void>;
+}
+export const AddBlockModal: FC<IAddBlockModal> = ({
+  tags,
+  entities,
+  isOpen,
+  onClose,
+  nodeData,
+  saveToWorkspaceFn,
 }) => {
-  // States
+  const toast = useToast();
+  const [{ data: walletData }] = useAccount();
+
   const [clickedTip, setClickedTip] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [dialogStartPosition, setDialogStartPosition] = useState(0);
+  const [activationChar, setActivationChar] = useState("");
+  const [source, setSource] = useState("");
+  const [addingBlock, setAddingBlock] = useState(false);
+  const [pillText, setPillText] = useState("");
+
+  const inputRef = useRef<HTMLDivElement>(null);
+  const [_, setTextArea] = useState("");
+
+  const position = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
     if (!isOpen) {
       setClickedTip(false);
@@ -141,13 +81,12 @@ export const AddBlockModal = ({
     }
   }, [isOpen]);
 
-  // Animations
-  const position = useRef({ x: 0, y: 0 });
-  const [visible, setVisible] = useState(false);
-  const [dialogStartPosition, setDialogStartPosition] = useState(0);
-  const [activationChar, setActivationChar] = useState("");
-  const [source, setSource] = useState("");
-  const [_, setTextArea] = useState("");
+  useEffect(() => {
+    if (nodeData?.sources) {
+      setSource(nodeData.sources?.[0]?.url);
+    }
+  }, [nodeData?.sources]);
+
   const hashTagListener = (e) => {
     if (
       String.fromCharCode(e.which) === "#" ||
@@ -159,6 +98,7 @@ export const AddBlockModal = ({
       setVisible(true);
     }
   };
+
   const keyUpListener = (e) => {
     if (
       (visible && e.key === " ") ||
@@ -188,10 +128,12 @@ export const AddBlockModal = ({
     setVisible(false);
     setDialogStartPosition(0);
   };
-  const [pillText, setPillText] = useState("");
-  const inputRef = useRef<HTMLDivElement>(null);
+  const closeHandler = () => {
+    inputRef.current.innerText = "";
+    setSource("");
+    onClose();
+  };
 
-  const [{ data: walletData }] = useAccount();
   const [addBlock, { error: addBlockError }] = useMutation(CREATE_NOTES, {
     refetchQueries: [
       {
@@ -214,24 +156,32 @@ export const AddBlockModal = ({
     ],
   });
 
-  const [addingBlock, setAddingBlock] = useState(false);
-  const toast = useToast();
-
-  const closeHandler = () => {
-    inputRef.current.innerText = "";
-    setSource("");
-    onClose();
-  };
-  useEffect(() => {
-    if (nodeData?.sources) {
-      setSource(nodeData.sources?.[0]?.url);
+  const inputHandler = (e) => {
+    if (visible) {
+      setPillText(
+        inputRef.current?.innerText
+          .slice(dialogStartPosition)
+          .match(/[@#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
+          ?.slice(1)
+      );
     }
-  }, [nodeData?.sources]);
+    setTextArea(inputRef.current.innerText);
+  };
+  const tagFuse = new Fuse(tags, {
+    includeScore: false,
+    threshold: 0.3,
+  });
+  const entityFuse = new Fuse(entities, {
+    includeScore: false,
+    threshold: 0.3,
+  });
+
   const submitBlockHandler = async ({
     action,
   }: {
     action: submitBlockAction;
   }) => {
+    // regex for tags & entities in block text
     const tags =
       inputRef.current.innerText
         .match(/#(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
@@ -250,6 +200,7 @@ export const AddBlockModal = ({
       setAddingBlock(true);
       let blockResult = null;
       if (action === submitBlockAction.Add) {
+        // creating block in db
         blockResult = await addBlock({
           variables: {
             input: [
@@ -284,6 +235,7 @@ export const AddBlockModal = ({
           },
         });
       } else if (action === submitBlockAction.Update) {
+        // updating block in db
         await updateBlock({
           variables: {
             update: {},
@@ -346,6 +298,7 @@ export const AddBlockModal = ({
           },
         });
       }
+      // save block to workspace if fn exists
       saveToWorkspaceFn &&
         saveToWorkspaceFn({
           ...blockResult?.data?.createNotes?.notes?.[0],
@@ -362,8 +315,9 @@ export const AddBlockModal = ({
       console.log(e);
       toast({
         title: "Error",
-        description:
-          "There was an error when creating your block. Please try again.",
+        description: `There was an error when ${
+          action === submitBlockAction.Add ? "creating" : "updating"
+        }  your block. Please try again.`,
         status: "error",
         duration: 2000,
         isClosable: true,
@@ -371,26 +325,6 @@ export const AddBlockModal = ({
     }
     setAddingBlock(false);
   };
-
-  const inputHandler = (e) => {
-    if (visible) {
-      setPillText(
-        inputRef.current?.innerText
-          .slice(dialogStartPosition)
-          .match(/[@#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
-          ?.slice(1)
-      );
-    }
-    setTextArea(inputRef.current.innerText);
-  };
-  const tagFuse = new Fuse(tags, {
-    includeScore: false,
-    threshold: 0.3,
-  });
-  const entityFuse = new Fuse(entities, {
-    includeScore: false,
-    threshold: 0.3,
-  });
 
   return (
     <>
@@ -411,44 +345,16 @@ export const AddBlockModal = ({
               </Text>
             </ModalHeader>
             <ModalBody padding={0}>
-              <Box
-                position="relative"
-                width={["90vw", null, "600px"]}
-                height="300px"
-                bg="diamond.white"
-                border="1px solid black"
-                borderRadius="5px"
-                boxShadow={"0px 8px 20px rgba(0, 0, 0, 0.15)"}
-                p="24px"
-              >
+              <Box sx={styles.ModalBodyStyle}>
                 <Grid gridTemplateRows={"11fr 1fr"}>
-                  <Box
-                    position="fixed"
-                    top={position.current?.y + 10}
-                    left={position.current?.x}
-                    display={visible ? "block" : "none"}
-                  >
+                  <Box sx={styles.EntityTagDialog(position.current, visible)}>
                     <Popover placement="bottom-start" isOpen>
                       <PopoverTrigger>
-                        <Box
-                          display={visible ? "flex" : "none"}
-                          position="fixed"
-                        />
+                        <Box sx={styles.PopoverTrigger(visible)} />
                       </PopoverTrigger>
-                      <PopoverContent
-                        border="1px solid #C3C3C3"
-                        borderRadius={"5px"}
-                        boxShadow={"0px 4px 20px rgba(0, 0, 0, 0.25)"}
-                        p="12px"
-                      >
+                      <PopoverContent sx={styles.PopoverContent}>
                         <PopoverHeader border="0">
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            fontWeight="500"
-                            fontSize="16px"
-                            color="diamond.blue.5"
-                          >
+                          <Box sx={styles.PopoverHeader}>
                             <Box mr="4px">+ Create</Box>
                             <Pill
                               onClick={onClickPillHandler}
@@ -529,31 +435,10 @@ export const AddBlockModal = ({
                     suppressContentEditableWarning={true}
                     contentEditable
                     data-placeholder="Type # to insert a tag, or @ to insert an entity or user"
-                    p="0"
-                    pb="4px"
-                    resize="none"
-                    border="none"
-                    width="100%"
-                    height="100%"
-                    maxH="250px"
-                    overflow="scroll"
-                    _focus={{ border: "none", outline: "none" }}
-                    sx={{
-                      "&:empty:before": {
-                        color: "diamond.gray.3",
-                        content: "attr(data-placeholder)",
-                      },
-                      "&::-webkit-scrollbar": {
-                        display: "none",
-                      },
-                      scrollbarWidth: "none",
-                    }}
-                    placeholder="Type # to insert"
-                    fontSize=".875rem"
+                    sx={styles.TextboxStyles}
                   >
                     {nodeData?.text}
                   </Box>
-
                   <LinkSourceModal
                     source={source}
                     setSource={setSource}
@@ -562,11 +447,7 @@ export const AddBlockModal = ({
                 </Grid>
               </Box>
             </ModalBody>
-            <ModalFooter
-              px="0"
-              display={clickedTip ? "none" : "flex"}
-              justifyContent="space-between"
-            >
+            <ModalFooter sx={styles.ModalFooter(clickedTip)}>
               <Button onClick={closeHandler} variant="neutral">
                 Cancel
               </Button>

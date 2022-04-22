@@ -1,5 +1,5 @@
 import { GET_WALLET_COUNT } from "@/services/Apollo/Queries";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAccount, useConnect } from "wagmi";
 import { useLazyQuery } from "@apollo/client";
 import Router, { useRouter } from "next/router";

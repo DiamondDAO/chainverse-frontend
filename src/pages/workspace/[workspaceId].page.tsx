@@ -27,7 +27,7 @@ import {
 import { subText } from "@/theme";
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 
-import { DeleteModal } from "@/components/DeleteBlockModal";
+import { DeleteModal } from "@/components/DeleteModal";
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
 
@@ -361,11 +361,11 @@ const Workspace: NextPage = () => {
             </Box>
             <DeleteModal
               title={`Delete Workspace`}
-              subtitle={`Are you sure you want to delete the workspace?`}
+              subtitle={`Are you sure you want to delete the workspace? Deleting this workspace will not remove the nodes from the Chainverse graph.`}
               onClose={onDeleteModalClose}
               isOpen={isDeleteModalOpen}
-              deleting={deletingWorkspace}
-              actionHandler={deleteWorkspaceHandler}
+              isDeleting={deletingWorkspace}
+              deleteFn={deleteWorkspaceHandler}
             />
           </>
         )}

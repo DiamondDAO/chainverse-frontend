@@ -4,16 +4,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Select,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Text,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
@@ -24,35 +15,20 @@ import {
   GET_ALL_NOTES,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
-import { ExplorerNavigator } from "@/components/Explorer/ExplorerNavigator";
-import { ChevronDownIcon, SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import { useSpring, a } from "react-spring";
 import Fuse from "fuse.js";
 import { filterUniqueObjects } from "@/common/utils";
-import { Pill } from "@/components/Pill";
-import { TagIcon } from "@/components/Icons/TagIcon";
-import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import Router from "next/router";
 import { bodyText } from "@/theme";
 
 const Explorer: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+
   const [searchValue, setSearchValue] = useState("");
   const [displaySearchBox, setDisplaySearchBox] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
-  const [searchBoxStyle, api] = useSpring(() => {
-    opacity: 0;
-  });
-
-  const AnimatedBox = a(Box);
-  useEffect(() => {
-    if (displaySearchBox) {
-      api.start({ opacity: 1 });
-    } else {
-      api.start({ opacity: 0 });
-    }
-  }, [api, displaySearchBox]);
 
   const searchBoxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -108,6 +84,19 @@ const Explorer: NextPage = () => {
     includeScore: false,
     threshold: 0.7,
   });
+
+  // animations
+  const [searchBoxStyle, api] = useSpring(() => {
+    opacity: 0;
+  });
+  const AnimatedBox = a(Box);
+  useEffect(() => {
+    if (displaySearchBox) {
+      api.start({ opacity: 1 });
+    } else {
+      api.start({ opacity: 0 });
+    }
+  }, [api, displaySearchBox]);
 
   return (
     <>

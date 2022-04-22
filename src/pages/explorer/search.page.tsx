@@ -102,6 +102,7 @@ const Search: NextPage = () => {
     tagFusSearchResult,
     getTagsData,
   });
+
   // Entities
   const entities = useMemo(
     () =>
@@ -145,7 +146,7 @@ const Search: NextPage = () => {
         : [],
     [blocks, term]
   );
-
+  console.log(blocks, notesData);
   const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,

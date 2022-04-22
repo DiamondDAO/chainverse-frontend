@@ -1,9 +1,7 @@
 import { Box, Image } from "@chakra-ui/react";
-import React from "react";
+import React, { FC } from "react";
 
-type Props = {};
-
-export const Loader = () => {
+export const Loader: FC = () => {
   return (
     <Box
       position="fixed"

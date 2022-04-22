@@ -11,14 +11,13 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import Router from "next/router";
-import React from "react";
+import React, { FC } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useAccount, useConnect } from "wagmi";
 import { useGetAccountName } from "@/common/hooks/use-get-account-name";
 import AccountIcon from "../Icons/AccountIcon";
-interface Props {}
 
-export const AccountMenu = (props: Props) => {
+export const AccountMenu: FC = () => {
   const [
     {
       data: { connected, connectors },
@@ -26,7 +25,7 @@ export const AccountMenu = (props: Props) => {
     connect,
   ] = useConnect();
   const [_, disconnect] = useAccount();
-  const { accountName, loading: accountNameLoading } = useGetAccountName({
+  const { accountName } = useGetAccountName({
     loadingComponent: <Spinner size="xs" color="diamond.gray.2" />,
   });
   return (

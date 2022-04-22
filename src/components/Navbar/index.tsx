@@ -1,13 +1,11 @@
-import { Box, Text, Image, useTheme, HStack } from "@chakra-ui/react";
+import { Box, Image, useTheme } from "@chakra-ui/react";
 import Router from "next/router";
 import React, { FC } from "react";
 import { borderStyles } from "@/theme";
 import { AccountMenu } from "./AccountMenu";
 import { NavPages } from "./NavPages";
 
-export interface INavbar {}
-
-export const NavBar: FC<INavbar> = ({}) => {
+export const NavBar: FC = () => {
   const { space } = useTheme();
   const navigationPages = [
     { text: "Workspace", link: "/workspace" },

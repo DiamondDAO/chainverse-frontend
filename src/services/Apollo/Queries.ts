@@ -45,6 +45,29 @@ export const GET_ALL_NOTES = gql`
     }
   }
 `;
+
+export const GET_BLOCK_DATA = gql`
+  query Notes($where: NoteWhere) {
+    notes(where: $where) {
+      text
+      uuid
+      createdAt
+      sources {
+        url
+      }
+      tags {
+        tag
+      }
+      wallet {
+        address
+      }
+      entities {
+        name
+      }
+    }
+  }
+`;
+
 export const GET_TAGS_AND_ENTITIES = gql`
   query Tags {
     tags {
@@ -70,28 +93,6 @@ export const GET_ENTITIES_DATA = gql`
       about
       proposalsAggregate {
         count
-      }
-    }
-  }
-`;
-
-export const GET_BLOCK_DATA = gql`
-  query Notes($where: NoteWhere) {
-    notes(where: $where) {
-      text
-      uuid
-      createdAt
-      sources {
-        url
-      }
-      tags {
-        tag
-      }
-      wallet {
-        address
-      }
-      entities {
-        name
       }
     }
   }

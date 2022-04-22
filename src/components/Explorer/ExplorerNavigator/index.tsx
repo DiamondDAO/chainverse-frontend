@@ -1,7 +1,6 @@
 import { subText } from "@/theme";
-import { Box, ListItem, UnorderedList } from "@chakra-ui/react";
-import Router, { useRouter } from "next/router";
-import React, { useState } from "react";
+import { Box } from "@chakra-ui/react";
+import React, { FC } from "react";
 
 type Props = {};
 
@@ -11,8 +10,7 @@ const enum WorkspacePaths {
   Narratives = "/workspace/narratives",
 }
 
-export const ExplorerNavigator = (props: Props) => {
-  const router = useRouter();
+export const ExplorerNavigator: FC = () => {
   return (
     <Box
       border="0.5px solid black"

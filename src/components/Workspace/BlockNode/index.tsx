@@ -1,17 +1,15 @@
-import React from "react";
+import React, { FC } from "react";
 import { Box, Text } from "@chakra-ui/react";
 import { Handle, Position } from "react-flow-renderer";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { IconVariants } from "@/common/types";
 
-type Props = {};
-
-export const BlockNode = ({
-  data,
-}: {
+interface IBlockNode {
   data: { label: string; dim: boolean };
-}) => {
+}
+
+export const BlockNode: FC<IBlockNode> = ({ data }) => {
   return (
     <Box
       cursor={"pointer"}

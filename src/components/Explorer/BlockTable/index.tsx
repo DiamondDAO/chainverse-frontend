@@ -3,17 +3,9 @@ import { useTable } from "react-table";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import {
   Box,
-  Button,
   Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
   PopoverContent,
-  PopoverFooter,
-  PopoverHeader,
   PopoverTrigger,
-  Portal,
-  Spinner,
   Table as ChakraTable,
   Tbody,
   Td,
@@ -23,23 +15,20 @@ import {
   Tooltip,
   Tr,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
-import { RiNodeTree } from "react-icons/ri";
-import { useAccount, useEnsLookup } from "wagmi";
+import { useAccount } from "wagmi";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
-import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
-import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import Router from "next/router";
+import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
+import { useLazyQuery } from "@apollo/client";
 import { bodyText } from "@/theme";
 import { AddWorkspaceType } from "@/common/types";
+import { useAddBlockHandler } from "./handlers";
 
 export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -47,142 +36,15 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
     onOpen: drawerOnOpen,
     onClose: drawerOnClose,
   } = useDisclosure();
-  const toast = useToast();
-  const [{ data: walletData }] = useAccount();
   const [selectedRow, setSelectedRow] = useState({});
-
-  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
-    UPDATE_SANDBOX,
-    {
-      refetchQueries: [{ query: GET_SANDBOX }],
-    }
-  );
-
-  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
-    useMutation(UPDATE_WORKSPACE, {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    });
-  const addBlockHandler = async (
-    block: { uuid: string },
-    type: AddWorkspaceType,
-    workspaceUuid?: string
-  ) => {
-    try {
-      if (type === AddWorkspaceType.Sandbox) {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: block.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else {
-        await addBlockToWorkspace({
-          variables: {
-            where: { uuid: workspaceUuid },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: block.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      }
-      toast({
-        position: "top-right",
-        isClosable: true,
-        duration: 2000,
-        render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.green"
-          >
-            <Text fontWeight="500">Added to workspace</Text>
-            <Text mt="4px">
-              Block added to{" "}
-              {AddWorkspaceType.Sandbox === type ? "Sandbox" : "Workspace"}
-            </Text>
-            <Text
-              mt="12px"
-              borderRadius="2px"
-              p="2px"
-              ml="-2px"
-              width="fit-content"
-              _hover={{ bg: "diamond.gray.1" }}
-              color="black"
-              cursor="pointer"
-              onClick={() =>
-                AddWorkspaceType.Workspace === type
-                  ? Router.push(`/workspace/${workspaceUuid}`)
-                  : Router.push("/workspace")
-              }
-            >
-              View workspace
-            </Text>
-          </Box>
-        ),
-      });
-    } catch (e) {
-      toast({
-        position: "top-right",
-        isClosable: true,
-        duration: 2000,
-        render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.red"
-          >
-            <Text fontWeight="500">There was an error adding to workspace</Text>
-          </Box>
-        ),
-      });
-      throw Error(`${e}`);
-    }
-  };
+  const addBlockHandler = useAddBlockHandler(walletAddress);
 
   useEffect(() => {
     if (!drawerIsOpen) {
       setSelectedRow({});
     }
   }, [drawerIsOpen]);
+
   const columns = useMemo(
     () => [
       {
@@ -304,7 +166,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                 },
               });
             }
-          }, [walletData?.address]);
+          }, [getWorkspaceOwned, walletData?.address]);
           const workspaces = workspaceData?.workspaces;
           const [isOpen, setIsOpen] = useState(false);
           const open = () => setIsOpen(!isOpen);
@@ -421,7 +283,7 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
         },
       },
     ],
-    []
+    [addBlockHandler, drawerOnOpen]
   );
 
   // Use the state and functions returned from useTable to build your UI

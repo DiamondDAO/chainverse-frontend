@@ -16,10 +16,9 @@ const enum WorkspacePaths {
 
 export const WorkspaceNavigator = (props: Props) => {
   const router = useRouter();
-  const [selected, setSelected] = useState("/workspace");
 
   const [{ data: walletData }] = useAccount();
-  const [getWorkspaceOwned, { data: workspaceData, loading }] =
+  const [getWorkspaceOwned, { data: workspaceData }] =
     useLazyQuery(GET_WORKSPACE_OWNED);
   useEffect(() => {
     if (walletData?.address) {

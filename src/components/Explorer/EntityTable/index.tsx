@@ -12,22 +12,18 @@ import {
   Tr,
   Text,
   useDisclosure,
-  useToast,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { BiDetail } from "react-icons/bi";
-import { RiNodeTree } from "react-icons/ri";
 import { EntityDrawer } from "../../Drawers/EntityDrawer";
-import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
-import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
+import { useLazyQuery } from "@apollo/client";
 import { AddWorkspaceType } from "@/common/types";
-import Router from "next/router";
 import { useAccount } from "wagmi";
-import { ERRORS } from "@/common/errors";
+import { useAddEntityHandler } from "./handlers";
 
 export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -36,137 +32,8 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
     onClose: drawerOnClose,
   } = useDisclosure();
   const [selectedRow, setSelectedRow] = useState({});
-  const toast = useToast();
-  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
-    UPDATE_SANDBOX,
-    {
-      refetchQueries: [{ query: GET_SANDBOX }],
-    }
-  );
-  const [{ data: walletData, loading }] = useAccount();
 
-  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
-    useMutation(UPDATE_WORKSPACE, {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    });
-
-  const addBlockHandler = async (
-    row,
-    type: AddWorkspaceType,
-    workspaceUuid?: string
-  ) => {
-    try {
-      if (row.original) row = row.original;
-      const nodeObject = row?.id
-        ? { id: row?.id }
-        : row?.address
-        ? { address: row?.address }
-        : row?.name
-        ? { name: row?.name }
-        : null;
-
-      if (!nodeObject) {
-        throw Error(ERRORS.NO_UNIQUE_ID);
-      }
-      if (type === AddWorkspaceType.Sandbox) {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: walletAddress,
-              },
-            },
-            connect: {
-              entities: {
-                where: {
-                  node: nodeObject,
-                },
-              },
-            },
-          },
-        });
-      } else {
-        await addBlockToWorkspace({
-          variables: {
-            where: { uuid: workspaceUuid },
-            connect: {
-              entities: {
-                where: {
-                  node: nodeObject,
-                },
-              },
-            },
-          },
-        });
-      }
-      toast({
-        position: "top-right",
-        isClosable: true,
-        duration: 2000,
-        render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.green"
-          >
-            <Text fontWeight="500">Added to workspace</Text>
-            <Text mt="4px">
-              Block added to{" "}
-              {AddWorkspaceType.Sandbox === type ? "Sandbox" : "Workspace"}
-            </Text>
-            <Text
-              mt="12px"
-              borderRadius="2px"
-              p="2px"
-              ml="-2px"
-              width="fit-content"
-              _hover={{ bg: "diamond.gray.1" }}
-              color="black"
-              cursor="pointer"
-              onClick={() =>
-                AddWorkspaceType.Workspace == type
-                  ? Router.push(`/workspace/${workspaceUuid}`)
-                  : Router.push("/workspace")
-              }
-            >
-              View workspace
-            </Text>
-          </Box>
-        ),
-      });
-    } catch (e) {
-      console.log(e);
-      toast({
-        position: "top-right",
-        isClosable: true,
-        duration: 2000,
-        render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.red"
-          >
-            <Text fontWeight="500">
-              There was an error adding to workspace: {e.message}
-            </Text>
-          </Box>
-        ),
-      });
-    }
-  };
+  const addEntityHandler = useAddEntityHandler(walletAddress);
 
   useEffect(() => {
     if (!drawerIsOpen) {
@@ -211,7 +78,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                 },
               });
             }
-          }, [walletData?.address]);
+          }, [walletAddress]);
           const workspaces = workspaceData?.workspaces;
           const [isOpen, setIsOpen] = useState(false);
           const open = () => setIsOpen(!isOpen);
@@ -277,7 +144,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                         display="flex"
                         justifyContent="space-between"
                         onClick={() => {
-                          addBlockHandler(props.row, AddWorkspaceType.Sandbox);
+                          addEntityHandler(props.row, AddWorkspaceType.Sandbox);
                           close();
                         }}
                       >
@@ -287,7 +154,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                         return (
                           <Box
                             onClick={() => {
-                              addBlockHandler(
+                              addEntityHandler(
                                 props.row,
                                 AddWorkspaceType.Workspace,
                                 workspace.uuid
@@ -423,7 +290,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
         </ChakraTable>
       </Box>
       <EntityDrawer
-        addBlockHandler={addBlockHandler}
+        addEntityHandler={addEntityHandler}
         nodeData={(selectedRow as any)?.original}
         isOpen={drawerIsOpen}
         onClose={drawerOnClose}

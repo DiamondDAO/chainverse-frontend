@@ -1,20 +1,20 @@
-import React from "react";
+import React, { FC } from "react";
 import { Box, Text, Image } from "@chakra-ui/react";
 import { Handle, Position } from "react-flow-renderer";
 import { IconVariants } from "@/common/types";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { convertIPFSURLs } from "@/common/utils";
 
-export const EntityNode = ({
-  data,
-}: {
+interface IEntityNode {
   data: {
     title: string;
     about?: string;
     avatar?: string;
     dim: boolean;
   };
-}) => {
+}
+
+export const EntityNode: FC<IEntityNode> = ({ data }) => {
   return (
     <Box
       cursor={"pointer"}

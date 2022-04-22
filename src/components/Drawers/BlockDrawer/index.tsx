@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
+
 import {
   Box,
   Button,
@@ -15,7 +16,6 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { RiNodeTree } from "react-icons/ri";
 import { useAccount, useEnsLookup } from "wagmi";
 
 import { BlockIcon } from "@/components/Icons/BlockIcon";
@@ -32,6 +32,7 @@ import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { bodyText } from "@/theme";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
+import * as styles from "./styles";
 
 interface IBlockDrawer {
   isOpen: boolean;
@@ -85,17 +86,13 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
-      <DrawerContent
-        _focus={{ boxShadow: "-2px 0px 15px #C3C3C3 !important" }}
-        boxShadow={"-2px 0px 15px #C3C3C3"}
-        sx={{ top: "50px !important" }}
-      >
+      <DrawerContent sx={styles.DrawerContentStyles}>
         <DrawerCloseButton />
-        <DrawerHeader display="flex" alignItems="center">
-          <Box bg="diamond.black" borderRadius="100%" padding="5px">
+        <DrawerHeader sx={styles.DrawerHeader}>
+          <Box sx={styles.BlockIconBg}>
             <BlockIcon variant={IconVariants.White} />
           </Box>
-          <Box ml="8px" as="span" fontWeight="500">
+          <Box as="span" sx={styles.BlockIconText}>
             Block
           </Box>
         </DrawerHeader>
@@ -186,7 +183,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
             </Box>
           </Box>
           <Divider mt="16px" />
-          <Box mt="16px" display="flex" justifyContent="space-between">
+          <Box sx={styles.DateCreated}>
             <Text color="diamond.blue.3" fontWeight={500}>
               DATE CREATED
             </Text>
@@ -194,7 +191,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               {dateObj.month + "/" + dateObj.day + "/" + dateObj.year}
             </Text>
           </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
+          <Box sx={styles.CreatedBy}>
             <Text color="diamond.blue.3" fontWeight={500}>
               CREATED BY
             </Text>
@@ -215,14 +212,8 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
           {(nodeData?.entities.length > 0 || nodeData?.tags.length > 0) && (
             <>
               <Divider mt="16px" />
-              <Box mt="16px" color="diamond.blue.3" fontWeight={500}>
-                LINKED TO
-              </Box>
-              <Box
-                display="flex"
-                flexWrap="wrap"
-                sx={{ columnGap: "4px", rowGap: "4px" }}
-              >
+              <Box sx={styles.LinkedTo}>LINKED TO</Box>
+              <Box sx={styles.TagsAndEntities}>
                 {nodeData?.tags.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
                     <Text color="diamond.blue.5" fontSize={bodyText}>

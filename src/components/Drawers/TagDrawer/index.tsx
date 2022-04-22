@@ -1,6 +1,5 @@
 import { IconVariants } from "@/common/types";
 import { generateDateString } from "@/common/utils";
-import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import {
@@ -14,10 +13,8 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  useToast,
 } from "@chakra-ui/react";
 import React, { FC } from "react";
-import { RiNodeTree } from "react-icons/ri";
 
 interface ITagDrawer {
   isOpen: boolean;
