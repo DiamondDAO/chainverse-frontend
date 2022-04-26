@@ -62,3 +62,14 @@ export const EntityName = {
   ml: "8px",
   fontWeight: "500",
 };
+
+export const RowContainer = {
+  display: "flex",
+  columnGap: "4px",
+};
+
+export const DataContainer = {
+  mt: "3px",
+  display: "flex",
+  justifyContent: "space-between",
+};

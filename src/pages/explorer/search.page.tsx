@@ -62,7 +62,6 @@ const Search: NextPage = () => {
       setSearchValue(term as string);
     }
   }, [term]);
-
   useEffect(() => {
     // used to prevent types not in our defined set
     const typeHandler = () => {
@@ -146,7 +145,6 @@ const Search: NextPage = () => {
         : [],
     [blocks, term]
   );
-  console.log(blocks, notesData);
   const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,
@@ -167,7 +165,7 @@ const Search: NextPage = () => {
         <Box
           mt="40px"
           display="grid"
-          gridTemplateColumns={["1fr", null, null, "210px 1fr"]}
+          gridTemplateColumns={["1fr", null, null, "1fr"]}
         >
           <Box sx={{ columnGap: "50px" }}>
             <Box w="100%" zIndex={3} display={["none", null, null, "flex"]}>

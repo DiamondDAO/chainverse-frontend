@@ -21,7 +21,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useMemo } from "react";
 import { SiTwitter, SiDiscord } from "react-icons/si";
 import { useAccount } from "wagmi";
 import * as styles from "../styles";
@@ -55,6 +55,30 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
     }
   }, [getWorkspaceOwned, walletData?.address]);
 
+  const entityData = useMemo(
+    () => [
+      { title: "ID", data: nodeData?.id },
+      { title: "NETWORK", data: nodeData?.network },
+      { title: "ONLY MEMBER?", data: nodeData?.onlyMembers },
+      { title: "SYMBOL", data: nodeData?.symbol },
+      { title: "YTD PROPOSALS", data: nodeData?.proposalsAggregate?.count },
+      { title: "WEBSITE", data: "" },
+      {
+        title: "SOCIALS",
+        data: (
+          <Box display="flex" sx={{ columnGap: "4px" }}>
+            <Box _hover={{ "& *": { fill: "#369AF0" } }}>
+              <SiTwitter fill="#747575" size="14px" />
+            </Box>
+            <Box _hover={{ "& *": { fill: "#5460EB" } }}>
+              <SiDiscord fill="#747575" size="14px" />
+            </Box>
+          </Box>
+        ),
+      },
+    ],
+    [nodeData]
+  );
   const workspaces = workspaceData?.workspaces;
   if (!nodeData) return null;
   return (
@@ -66,6 +90,7 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
           {nodeData?.avatar ? (
             <Box sx={styles.EntityContainer}>
               <Image
+                fontSize={"0px"}
                 borderRadius="100%"
                 alt="entitiy-logo"
                 src={convertIPFSURLs(nodeData?.avatar)}
@@ -88,7 +113,7 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
                 <Text color="diamond.blue.3" fontWeight={500}>
                   ACTIONS
                 </Text>
-                <Box display="flex" sx={{ columnGap: "4px" }}>
+                <Box sx={styles.RowContainer}>
                   <Menu>
                     <MenuButton
                       as={Button}
@@ -146,12 +171,11 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
 
           {nodeData?.about && (
             <>
-              {" "}
-              <Box>
+              <Box mt="16px">
                 <Text color="diamond.blue.3" fontWeight={500}>
                   ABOUT
                 </Text>
-                <Box display="flex" sx={{ columnGap: "4px" }}>
+                <Box sx={styles.RowContainer}>
                   <Text mt="4px" color="diamond.gray.4">
                     {nodeData?.about}
                   </Text>
@@ -160,57 +184,21 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
               <Divider mt="16px" />
             </>
           )}
-          <Box mt="16px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              ID
-            </Text>
-            <Text color="diamond.gray.4">{nodeData?.id}</Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              NETWORK
-            </Text>
-            <Text color="diamond.gray.4">{nodeData?.network}</Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              ONLY MEMBER?
-            </Text>
-            <Text color="diamond.gray.4">{nodeData?.onlyMembers}</Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              SYMBOL
-            </Text>
-            <Text color="diamond.gray.4">{nodeData?.symbol}</Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between"></Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              YTD PROPOSALS
-            </Text>
-            <Text color="diamond.gray.4">
-              {nodeData?.proposalsAggregate.count}
-            </Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              WEBSITE
-            </Text>
-            <Box display="flex" sx={{ columnGap: "4px" }}></Box>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              SOCIALS
-            </Text>
-            <Box display="flex" sx={{ columnGap: "4px" }}>
-              <Box _hover={{ "& *": { fill: "#369AF0" } }}>
-                <SiTwitter fill="#747575" size="14px" />
-              </Box>
-              <Box _hover={{ "& *": { fill: "#5460EB" } }}>
-                <SiDiscord fill="#747575" size="14px" />
-              </Box>
-            </Box>
+          <Box mt="16px">
+            {entityData.map((dataItem, idx) => {
+              return (
+                <Box key={idx} sx={styles.DataContainer}>
+                  <Text color="diamond.blue.3" fontWeight={500}>
+                    {dataItem.title}
+                  </Text>
+                  {typeof dataItem.data === "string" ? (
+                    <Text color="diamond.gray.4">{dataItem.data}</Text>
+                  ) : (
+                    dataItem.data
+                  )}
+                </Box>
+              );
+            })}
           </Box>
           <Divider mt="16px" />
         </DrawerBody>

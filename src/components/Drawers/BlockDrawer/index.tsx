@@ -32,7 +32,7 @@ import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
 import { generateDateString, truncateAddress } from "@/common/utils";
 import { bodyText } from "@/theme";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
-import * as styles from "./styles";
+import * as styles from "../styles";
 
 interface IBlockDrawer {
   isOpen: boolean;
@@ -102,11 +102,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
             <Text color="diamond.blue.3" fontWeight={500}>
               ACTIONS
             </Text>
-            <Box
-              display="flex"
-              flexWrap="wrap"
-              sx={{ rowGap: "4px", columnGap: "4px" }}
-            >
+            <Box sx={styles.TagsAndEntities}>
               {actions?.addBlockToWorkspace && (
                 <Menu>
                   <MenuButton

@@ -14,8 +14,8 @@ import {
   DrawerHeader,
   DrawerOverlay,
 } from "@chakra-ui/react";
-import React, { FC } from "react";
-
+import React, { FC, useMemo } from "react";
+import * as styles from "../styles";
 interface ITagDrawer {
   isOpen: boolean;
   onClose: () => void;
@@ -24,17 +24,32 @@ interface ITagDrawer {
 
 export const TagDrawer: FC<ITagDrawer> = ({ isOpen, onClose, nodeData }) => {
   const dateObj = generateDateString(new Date(nodeData?.createdAt));
+  const tagData = useMemo(
+    () => [
+      {
+        title: "DATE CREATED",
+        data: dateObj.month + "/" + dateObj.day + "/" + dateObj.year,
+      },
+      {
+        title: "BLOCKS CONNECTED",
+        data: nodeData?.blocksConnection.totalCount,
+      },
+    ],
+    [
+      dateObj.day,
+      dateObj.month,
+      dateObj.year,
+      nodeData?.blocksConnection.totalCount,
+    ]
+  );
+
   if (!nodeData) return null;
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
-      <DrawerContent
-        _focus={{ boxShadow: "-2px 0px 15px #C3C3C3 !important" }}
-        boxShadow={"-2px 0px 15px #C3C3C3"}
-        sx={{ top: "50px !important" }}
-      >
+      <DrawerContent sx={styles.DrawerContentStyles}>
         <DrawerCloseButton />
-        <DrawerHeader display="flex" alignItems="center">
+        <DrawerHeader sx={styles.DrawerHeader}>
           <Box bg="diamond.magenta" borderRadius="100%" padding="5px">
             <TagIcon variant={IconVariants.White} />
           </Box>
@@ -48,7 +63,7 @@ export const TagDrawer: FC<ITagDrawer> = ({ isOpen, onClose, nodeData }) => {
             <Text color="diamond.blue.3" fontWeight={500}>
               ACTIONS
             </Text>
-            <Box display="flex" sx={{ columnGap: "4px" }}>
+            <Box sx={styles.RowContainer}>
               <Button
                 leftIcon={<PlusIcon width="11px" height="11px" fill="white" />}
                 variant="primary"
@@ -65,21 +80,21 @@ export const TagDrawer: FC<ITagDrawer> = ({ isOpen, onClose, nodeData }) => {
             </Box>
           </Box>
           <Divider mt="16px" />
-          <Box mt="16px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              DATE CREATED
-            </Text>
-            <Text color="diamond.gray.4">
-              {dateObj.month + "/" + dateObj.day + "/" + dateObj.year}
-            </Text>
-          </Box>
-          <Box mt="3px" display="flex" justifyContent="space-between">
-            <Text color="diamond.blue.3" fontWeight={500}>
-              BLOCKS CONNECTED
-            </Text>
-            <Text color="diamond.gray.4">
-              {nodeData?.blocksConnection.totalCount}
-            </Text>
+          <Box mt="16px">
+            {tagData.map((dataItem, idx) => {
+              return (
+                <Box key={idx} sx={styles.DataContainer}>
+                  <Text color="diamond.blue.3" fontWeight={500}>
+                    {dataItem.title}
+                  </Text>
+                  {typeof dataItem.data === "string" ? (
+                    <Text color="diamond.gray.4">{dataItem.data}</Text>
+                  ) : (
+                    dataItem.data
+                  )}
+                </Box>
+              );
+            })}
           </Box>
           <Divider mt="16px" />
         </DrawerBody>
