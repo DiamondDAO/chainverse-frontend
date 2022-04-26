@@ -24,6 +24,7 @@ import { useLazyQuery } from "@apollo/client";
 import { AddWorkspaceType } from "@/common/types";
 import { useAccount } from "wagmi";
 import { useAddEntityHandler } from "./handlers";
+import * as styles from "../styles";
 
 export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -92,14 +93,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                     drawerOnOpen();
                     setSelectedRow(props.row);
                   }}
-                  sx={{ "& path": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
+                  sx={styles.DetailsTooltip}
                 >
                   <BiDetail size="14px" />
                 </Box>
@@ -107,42 +101,20 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
               <Popover isOpen={isOpen} onClose={close}>
                 <PopoverTrigger>
                   <Tooltip label="Add to workspace" placement="top">
-                    <Box
-                      onClick={open}
-                      sx={{ "& *": { fill: "diamond.gray.4" } }}
-                      _hover={{
-                        bg: "diamond.gray.0",
-                        "& path": { fill: "diamond.link" },
-                      }}
-                      display="flex"
-                      justifyContent="center"
-                      padding="4px"
-                    >
+                    <Box onClick={open} sx={styles.DetailsTooltip}>
                       <PlusIcon width="14px" />
                     </Box>
                   </Tooltip>
                 </PopoverTrigger>
                 <PopoverContent>
                   <Box p="12px">
-                    <Text
-                      fontSize="12px"
-                      fontWeight="500"
-                      color="diamond.blue.3"
-                      mb="8px"
-                    >
+                    <Text sx={styles.SelectWorkspaceText}>
                       SELECT A WORKSPACE
                     </Text>
-                    <Box
-                      borderTop="0.5px solid black"
-                      borderColor="diamond.gray.1"
-                    />
-                    <Box mt="4px" sx={{ "& > *": { py: "4px" } }}>
+                    <Box sx={styles.WorkspaceModalBodyBorder} />
+                    <Box sx={styles.WorkspaceContainer}>
                       <Box
-                        _hover={{
-                          bg: "diamond.gray.1",
-                        }}
-                        display="flex"
-                        justifyContent="space-between"
+                        sx={styles.SandboxStyle}
                         onClick={() => {
                           addEntityHandler(props.row, AddWorkspaceType.Sandbox);
                           close();
@@ -162,11 +134,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                               close();
                             }}
                             key={workspace.uuid}
-                            _hover={{
-                              bg: "diamond.gray.1",
-                            }}
-                            display="flex"
-                            justifyContent="space-between"
+                            sx={styles.WorkspaceStyle}
                           >
                             <Box>{workspace.name}</Box>
                           </Box>
@@ -177,19 +145,19 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                 </PopoverContent>
               </Popover>
               {/* <Tooltip label="Go to graph" placement="top">
-                <Box
-                  sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path:nth-of-type(2)": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
-                >
-                  <RiNodeTree size="14px" />
-                </Box>
-              </Tooltip> */}
+              <Box
+                sx={{ "& path:nth-of-type(2)": { fill: "diamond.gray.4" } }}
+                _hover={{
+                  bg: "diamond.gray.0",
+                  "& path:nth-of-type(2)": { fill: "diamond.link" },
+                }}
+                display="flex"
+                justifyContent="center"
+                padding="4px"
+              >
+                <RiNodeTree size="14px" />
+              </Box>
+            </Tooltip> */}
             </Box>
           );
         },
@@ -213,22 +181,15 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
       hasMore={hasMore}
       loader={hasMore ? <h4>Loading more items...</h4> : <></>}
     >
-      <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
+      <Box sx={styles.TableContainer}>
         {/* set to 99% so we can see left & right borders */}
-        <ChakraTable
-          sx={{ marginTop: ["24px", "32px", "48px", "84px"] }}
-          width="99%"
-          {...getTableProps()}
-        >
+        <ChakraTable sx={styles.TableStyles} {...getTableProps()}>
           <Thead>
             {headerGroups.map((headerGroup, idx) => (
               <Tr key={idx} {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column, idx) => (
                   <Th
-                    px="10px"
-                    borderBottom="0.5px solid black"
-                    borderColor="diamond.gray.4"
-                    sx={{ textAlign: "inherit" }}
+                    sx={styles.TableHead}
                     key={idx}
                     {...column.getHeaderProps()}
                   >
@@ -248,15 +209,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
               return (
                 <Tr
                   key={i}
-                  sx={{
-                    ...(i === (selectedRow as any).index && {
-                      bg: "rgba(149, 67, 141, 0.1)",
-                    }),
-                  }}
-                  bg="white"
-                  {...row.getRowProps()}
-                  _hover={{ bg: "diamond.gray.1" }}
-                  cursor="pointer"
+                  sx={styles.TableRow(i === (selectedRow as any).index)}
                 >
                   {row.cells.map((cell, idx) => {
                     return (
@@ -269,9 +222,7 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
                               }
                             : () => {}
                         }
-                        px="10px"
-                        borderBottom="0.5px solid black"
-                        borderColor="diamond.gray.4"
+                        sx={styles.TableCell}
                         key={idx}
                         {...cell.getCellProps([
                           {
