@@ -24,6 +24,7 @@ export const typeDefs = gql`
     avatar: String
     about: String
     proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
+    members: [Wallet] @relationship(type: "IS_MEMBER", direction: IN)
   }
 
   type Account {
@@ -50,6 +51,7 @@ export const typeDefs = gql`
     createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "CREATED", direction: OUT)
     sandbox: Sandbox! @relationship(type: "CREATED", direction: OUT)
+    entities: [Entity] @relationship(type: "IS_MEMBER", direction: OUT)
   }
 
   type Tag {
