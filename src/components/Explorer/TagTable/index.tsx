@@ -17,7 +17,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { generateDateString } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
-import { RiNodeTree } from "react-icons/ri";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { BiDetail } from "react-icons/bi";
 import { TagDrawer } from "../../Drawers/TagDrawer";
@@ -133,7 +132,11 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
       hasMore={hasMore}
       loader={hasMore ? <h4>Loading more items...</h4> : <></>}
     >
-      <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
+      <Box
+        maxWidth={["95vw", null, "unset"]}
+        display="flex"
+        alignItems="center"
+      >
         {/* set to 99% so we can see left & right borders */}
         <ChakraTable
           sx={{ marginTop: ["24px", "32px", "48px", "84px"] }}

@@ -16,6 +16,30 @@ import { FiLogOut } from "react-icons/fi";
 import { useAccount, useConnect } from "wagmi";
 import { useGetAccountName } from "@/common/hooks/use-get-account-name";
 import AccountIcon from "../Icons/AccountIcon";
+import * as styles from "./styles";
+
+const WalletImage = ({ name }) => {
+  return (
+    <>
+      {name === "MetaMask" && (
+        <Image
+          width="25px"
+          alt="wallet-connect-image"
+          mr="10px"
+          src="/img/metamask.svg"
+        />
+      )}
+      {name === "WalletConnect" && (
+        <Image
+          width="25px"
+          alt="metamask-image"
+          mr="10px"
+          src="/img/walletconnect.svg"
+        />
+      )}
+    </>
+  );
+};
 
 export const AccountMenu: FC = () => {
   const [
@@ -32,57 +56,29 @@ export const AccountMenu: FC = () => {
     <>
       {!connected && (
         <Menu gutter={15} offset={[15, 12]}>
-          <MenuButton cursor="pointer" width="100%" as={Box}>
+          <MenuButton sx={styles.MenuButton} as={Box}>
             Connect Wallet
           </MenuButton>
           <MenuList>
             {connectors.map((x) => {
-              if (!x.ready) {
-                return;
-              } else {
-                const WalletImage = () => {
-                  switch (x.name) {
-                    case "MetaMask":
-                      return (
-                        <Image
-                          width="25px"
-                          alt="wallet-connect-image"
-                          mr="10px"
-                          src="/img/metamask.svg"
-                        />
-                      );
-                    case "WalletConnect":
-                      return (
-                        <Image
-                          width="25px"
-                          alt="metamask-image"
-                          mr="10px"
-                          src="/img/walletconnect.svg"
-                        />
-                      );
-                    default:
-                      return <></>;
-                  }
-                };
-                return (
-                  <MenuItem
-                    disabled={!x.ready}
-                    key={x.name}
-                    onClick={() => connect(x)}
-                  >
-                    <WalletImage />
-                    {x.name}
-                  </MenuItem>
-                );
-              }
+              return (
+                <MenuItem
+                  disabled={!x.ready}
+                  key={x.name}
+                  onClick={() => connect(x)}
+                >
+                  <WalletImage name={x.name} />
+                  {x.name}
+                </MenuItem>
+              );
             })}
           </MenuList>
         </Menu>
       )}
       {connected && (
         <Menu gutter={15} offset={[15, 12]}>
-          <MenuButton cursor="pointer" width="100%" as={Box}>
-            <Box display="flex" alignItems="center">
+          <MenuButton sx={styles.MenuButton} as={Box}>
+            <Box sx={styles.MenuContents}>
               <AccountIcon />
               <Text ml="4px">{accountName}</Text>
             </Box>
@@ -99,7 +95,7 @@ export const AccountMenu: FC = () => {
             </MenuGroup>
             <MenuDivider />
             <MenuItem onClick={disconnect}>
-              <Box display="flex" alignItems="center">
+              <Box sx={styles.MenuContents}>
                 <FiLogOut />
                 <Text ml="5px">Logout</Text>
               </Box>

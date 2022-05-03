@@ -1,18 +1,9 @@
 import { Box, Image } from "@chakra-ui/react";
 import React, { FC } from "react";
-
+import * as styles from "./styles";
 export const Loader: FC = () => {
   return (
-    <Box
-      position="fixed"
-      left="0"
-      right="0"
-      top="0"
-      bottom="0"
-      display="flex"
-      justifyContent={"center"}
-      alignItems="center"
-    >
+    <Box sx={styles.Loader}>
       <Box>
         <Image
           alt="rotating-diamond"

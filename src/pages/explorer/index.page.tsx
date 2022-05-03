@@ -21,6 +21,7 @@ import Fuse from "fuse.js";
 import { filterUniqueObjects } from "@/common/utils";
 import Router from "next/router";
 import { bodyText } from "@/theme";
+import * as styles from "./styles";
 
 const Explorer: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
@@ -101,48 +102,24 @@ const Explorer: NextPage = () => {
   return (
     <>
       <Layout>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Text fontWeight="600" fontSize="2rem" zIndex={1}>
-            Explorer
-          </Text>
+        <Box sx={styles.ExplorerTitleContainer}>
+          <Text sx={styles.ExplorerTitle}>Explorer</Text>
         </Box>
-        <Box
-          mt="40px"
-          display="grid"
-          gridTemplateColumns={["1fr", null, null, "210px 1fr"]}
-        >
-          <Box
-            display={["none", null, null, "flex"]}
-            sx={{ columnGap: "50px" }}
-          >
-            <Box w="100%" maxWidth="210px" zIndex={3}>
+        <Box sx={styles.ExplorerBody}>
+          <Box sx={styles.ExplorerNavigatorContainer}>
+            <Box sx={styles.ExplorerNavigatorInner}>
               {/* <ExplorerNavigator /> */}
             </Box>
           </Box>
-          <Box display="flex" justifyContent="center">
+          <Box sx={styles.SearchStyle}>
             {!isAdvancedSearch && (
-              <Box
-                ref={searchBoxRef}
-                position={"relative"}
-                maxW="716px"
-                width="100%"
-              >
-                <InputGroup
-                  bg="white"
-                  alignItems={"center"}
-                  border="none"
-                  borderRadius="5px"
-                  height="66px"
-                  boxShadow="0px 2px 15px #C3C3C3"
-                >
-                  <InputLeftElement
-                    pl="25px"
-                    height="100%"
-                    pointerEvents="none"
-                  >
+              <Box ref={searchBoxRef} sx={styles.SearchContainer}>
+                <InputGroup sx={styles.SearchInputGroup}>
+                  <InputLeftElement sx={styles.SearchLeftElement}>
                     <SearchIcon w="12px" />
                   </InputLeftElement>
                   <Input
+                    sx={styles.SearchBoxStyle}
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     onKeyPress={(e) => {
@@ -150,48 +127,22 @@ const Explorer: NextPage = () => {
                         Router.push(`/explorer/search?term=${searchValue}`);
                     }}
                     onFocus={() => setDisplaySearchBox(true)}
-                    pl="45px"
-                    bg="white"
-                    width="100%"
-                    height="100%"
-                    border="1px solid black"
                     placeholder="Start with a search for any keyword, community name, or user"
                   />
                 </InputGroup>
                 <Box
-                  cursor="pointer"
-                  _hover={{ color: "diamond.blue.5" }}
-                  color="diamond.link"
                   onClick={() => setIsAdvancedSearch(true)}
-                  mt="8px"
-                  fontSize="14px"
-                  position={"absolute"}
-                  right="0"
+                  sx={styles.AdvanceSearchLink}
                 >
                   Advanced Search
                 </Box>
                 {displaySearchBox && (
-                  <AnimatedBox
-                    style={searchBoxStyle}
-                    p="0px"
-                    fontSize={bodyText}
-                    mt="10px"
-                    bg="white"
-                    boxShadow="0px 2px 15px #C3C3C3"
-                    width="100%"
-                    minH="70px"
-                    position="absolute"
-                    borderRadius="5px"
-                    border="1px solid black"
-                  >
+                  <AnimatedBox style={searchBoxStyle} sx={styles.SearchResult}>
                     <Box
-                      p="25px"
-                      borderRadius={"5px"}
-                      cursor="pointer"
+                      sx={styles.SearchResultText}
                       onClick={() =>
                         Router.push(`/explorer/search?term=${searchValue}`)
                       }
-                      _hover={{ bg: "diamond.blue.1" }}
                     >
                       <Text>
                         Search: {`"`} {searchValue} {`"`}
@@ -325,67 +276,34 @@ const Explorer: NextPage = () => {
               </Box>
             )}
             {isAdvancedSearch && (
-              <Box
-                ref={searchBoxRef}
-                position={"relative"}
-                maxW="716px"
-                width="100%"
-              >
-                <Box
-                  bg="white"
-                  p="20px"
-                  display="flex"
-                  flexWrap={["wrap", null, "unset"]}
-                  alignItems={"center"}
-                  border="none"
-                  borderRadius="5px"
-                  h={["200px", "100px", null, "66px"]}
-                  color="diamond.gray.4"
-                  whiteSpace="nowrap"
-                  boxShadow="0px 2px 15px #C3C3C3"
-                >
-                  <Text mr="8px" fontSize="20px" fontWeight="500">
-                    Find all
-                  </Text>
+              <Box ref={searchBoxRef} sx={styles.SearchContainer}>
+                <Box sx={styles.AdvancedSearchBody}>
+                  <Text sx={styles.AdvanceSearchText}>Find all</Text>
                   <Select
-                    fontSize="14px"
-                    h="42px"
-                    w="fit-content"
-                    bg="diamond.gray.0"
-                    border="1px solid black"
-                    borderColor="diamond.gray.1"
-                    placeholder="object type"
+                    placeholder={"object type"}
+                    sx={styles.AdvancedSearchSelect}
                   >
                     <option value="wallets">wallets</option>
                   </Select>
-                  <Text ml="8px" mr="8px" fontSize="20px" fontWeight="500">
-                    that
-                  </Text>
+                  <Text sx={styles.AdvancedSearchThat}>that</Text>
                   <Select
-                    fontSize="14px"
-                    h="42px"
-                    w="fit-content"
-                    bg="diamond.gray.0"
-                    border="1px solid black"
-                    borderColor="diamond.gray.1"
+                    sx={styles.AdvancedSearchSelect}
                     placeholder="has this relationship"
                   >
                     <option value="is_a_member_of">is a member of</option>
                   </Select>
-                  <Box ml="8px" h="42px">
-                    <Input placeholder="to this" />
+                  <Box sx={styles.AdvanceSearchToThisWrapper}>
+                    <Input
+                      sx={{
+                        ...styles.AdvancedSearchSelect,
+                        ...styles.AdvanceSearchToThis,
+                      }}
+                      placeholder="to this"
+                    />
                   </Box>
                 </Box>
                 <Box
-                  fontSize="14px"
-                  cursor="pointer"
-                  _hover={{ color: "diamond.blue.5" }}
-                  color="diamond.link"
-                  mt="8px"
-                  position={"absolute"}
-                  display="flex"
-                  alignItems="center"
-                  right="0"
+                  sx={styles.AdvanceSearchLink}
                   onClick={() => setIsAdvancedSearch(false)}
                 >
                   Return to simple search

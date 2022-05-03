@@ -1,4 +1,11 @@
-import { Box, Text, toast, useDisclosure, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  StylesProvider,
+  Text,
+  toast,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/Layout";
@@ -26,26 +33,11 @@ import {
 } from "@/services/Apollo/Mutations";
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import Router from "next/router";
-
+import * as styles from "./styles";
 const AddBlockCard = ({ onClick }) => (
-  <Box
-    as="button"
-    onClick={onClick}
-    display="flex"
-    flexDir="column"
-    justifyContent="center"
-    width="100%"
-    height="94px"
-    border="1px solid black"
-    borderColor="diamond.gray.3"
-    alignItems="center"
-    borderRadius="2px"
-    bg="diamond.gray.1"
-  >
+  <Box as="button" onClick={onClick} sx={styles.AddBlockCardStyles}>
     <PlusIcon width="22" height="22" />
-    <Text fontSize="12px" fontWeight="500" color="diamond.gray.3">
-      ADD NEW BLOCK
-    </Text>
+    <Text sx={styles.AddBlockStylesText}>ADD NEW BLOCK</Text>
   </Box>
 );
 
@@ -59,11 +51,7 @@ const AllBlocks: NextPage = () => {
   const filteredTagsState = useState<string[]>([]);
   const filteredEntitiesState = useState<string[]>([]);
 
-  const {
-    isOpen: drawerIsOpen,
-    onOpen: drawerOnOpen,
-    onClose: drawerOnClose,
-  } = useDisclosure();
+  const { isOpen: drawerIsOpen, onOpen: drawerOnOpen } = useDisclosure();
 
   const blockCount = useMemo(
     () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note").length,
@@ -196,29 +184,14 @@ const AllBlocks: NextPage = () => {
         isClosable: true,
         duration: 2000,
         render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.green"
-          >
+          <Box sx={styles.ToastHeader("success")}>
             <Text fontWeight="500">Added to workspace</Text>
             <Text mt="4px">
               Block added to{" "}
               {AddWorkspaceType.Sandbox === type ? "Sandbox" : "Workspace"}
             </Text>
             <Text
-              mt="12px"
-              borderRadius="2px"
-              p="2px"
-              ml="-2px"
-              width="fit-content"
-              _hover={{ bg: "diamond.gray.1" }}
-              color="black"
-              cursor="pointer"
+              sx={styles.ToastButton}
               onClick={() =>
                 AddWorkspaceType.Workspace === type
                   ? Router.push(`/workspace/${workspaceUuid}`)
@@ -236,15 +209,7 @@ const AllBlocks: NextPage = () => {
         isClosable: true,
         duration: 2000,
         render: () => (
-          <Box
-            maxW="300px"
-            mt="50px"
-            borderRadius={"5px"}
-            color="white"
-            p={"8px"}
-            fontSize="12px"
-            bg="diamond.red"
-          >
+          <Box sx={styles.ToastHeader("failure")}>
             <Text fontWeight="500">There was an error adding to workspace</Text>
           </Box>
         ),
@@ -255,22 +220,16 @@ const AllBlocks: NextPage = () => {
   return (
     <>
       <Layout>
-        <Box display="flex" width="100%" flexDir="column">
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text fontWeight="600" fontSize="2rem" zIndex={1}>
-              Your Blocks
-            </Text>
+        <Box sx={styles.Container}>
+          <Box sx={styles.HeaderContainer}>
+            <Text sx={styles.HeaderText}>Your Blocks</Text>
 
-            <Text color="diamond.gray.3" zIndex={1}>
+            <Text sx={styles.HeaderSubText}>
               You’ve created a total of {blockCount} blocks.
             </Text>
           </Box>
-          <Box mt="40px" display="flex" sx={{ columnGap: "50px" }}>
-            <Box maxWidth="210px" width="100%" zIndex={3}>
+          <Box sx={styles.WorkspaceBody}>
+            <Box sx={styles.WorkspaceSidebar}>
               <WorkspaceNavigator />
             </Box>
             <Box>
@@ -287,22 +246,8 @@ const AllBlocks: NextPage = () => {
                 />
               </Box>
               <Box>
-                <Box
-                  mt="18px"
-                  maxWidth={["260px", null, null, "900px", "1440px"]}
-                  sx={{
-                    columnCount: [1, null, 2, 3, 4],
-                    gap: "30px",
-                    columnWidth: "260px",
-                    "& > *": {
-                      display: "block",
-                      wordBreak: "break-word",
-                      mb: "16px",
-                      breakInside: "avoid",
-                    },
-                  }}
-                >
-                  <Box display="inline-flex" width="100%">
+                <Box sx={styles.BlockPageBody}>
+                  <Box>
                     <AddBlockCard onClick={onOpen} />
                   </Box>
                   {data?.wallets[0].blocks
@@ -341,20 +286,12 @@ const AllBlocks: NextPage = () => {
                     .map((block, idx) => {
                       return (
                         <Box
-                          cursor={"pointer"}
                           onClick={() => {
                             setCurrentNode(block);
                             drawerOnOpen();
                           }}
-                          p="8px"
-                          fontSize="12px"
-                          borderRadius="2px"
-                          minH="76px"
-                          border="1px solid #000000"
                           key={idx}
-                          bg="diamond.white"
-                          display="inline-block"
-                          width="100%"
+                          sx={styles.BlockItem}
                         >
                           <Box mr="4px">
                             <BlockIcon variant={IconVariants.White} />

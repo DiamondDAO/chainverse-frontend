@@ -75,7 +75,7 @@ export const useAddBlockHandler = (walletAddress: string) => {
         duration: 2000,
         render: () => (
           <Box
-            maxW="300px"
+            maxWidth="300px"
             mt="50px"
             borderRadius={"5px"}
             color="white"
@@ -115,7 +115,7 @@ export const useAddBlockHandler = (walletAddress: string) => {
         duration: 2000,
         render: () => (
           <Box
-            maxW="300px"
+            maxWidth="300px"
             mt="50px"
             borderRadius={"5px"}
             color="white"

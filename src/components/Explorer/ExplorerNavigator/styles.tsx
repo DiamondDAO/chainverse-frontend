@@ -4,7 +4,7 @@ export const NavigatorContainer = {
   border: "0.5px solid black",
   borderColor: "diamond.gray.2",
   display: "flex",
-  flexDir: "column",
+  flexDirection: "column",
   fontSize: subText,
   bg: "white",
   borderRadius: "5px",

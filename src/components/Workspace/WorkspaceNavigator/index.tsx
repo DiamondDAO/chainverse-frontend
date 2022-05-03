@@ -5,7 +5,7 @@ import { Box, ListItem, UnorderedList } from "@chakra-ui/react";
 import Router, { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
-
+import * as styles from "./styles";
 type Props = {};
 
 const enum WorkspacePaths {
@@ -30,48 +30,23 @@ export const WorkspaceNavigator = (props: Props) => {
   const workspaces = workspaceData?.workspaces;
 
   return (
-    <Box
-      border="0.5px solid black"
-      borderColor="diamond.gray.2"
-      display="flex"
-      flexDir="column"
-      cursor={"pointer"}
-      fontSize={"0.875rem"}
-      bg="white"
-      borderRadius="5px"
-      sx={{ "&> *": { padding: "10px" } }}
-    >
+    <Box sx={styles.NavigatorContainer}>
       <Box
-        borderTopLeftRadius="5px"
-        borderTopRightRadius="5px"
-        sx={{
-          ...(router.asPath === WorkspacePaths.Sandbox && {
-            bg: "diamond.blue.0",
-            fontWeight: "500",
-          }),
-        }}
+        sx={styles.SandboxStyle(router.asPath === WorkspacePaths.Sandbox)}
         onClick={() => Router.push("/workspace")}
       >
         Sandbox
       </Box>
       <Box>
         My Workspaces
-        <UnorderedList
-          color="diamond.gray.3"
-          styleType="none"
-          marginLeft={"2px"}
-          sx={{ "li:before": { content: '"> "', paddingRight: "5px" } }}
-        >
+        <UnorderedList sx={styles.WorkspaceContainer}>
           {workspaces?.map((workspace) => (
             <ListItem
               onClick={() => Router.push(`/workspace/${workspace.uuid}`)}
               key={workspace.uuid}
-              sx={{
-                ...(router.asPath === `/workspace/${workspace.uuid}` && {
-                  bg: "diamond.blue.0",
-                  fontWeight: "500",
-                }),
-              }}
+              sx={styles.SelectedStyle(
+                router.asPath === `/workspace/${workspace.uuid}`
+              )}
             >
               {workspace.name}
             </ListItem>
@@ -80,12 +55,7 @@ export const WorkspaceNavigator = (props: Props) => {
       </Box>
       <Box
         onClick={() => Router.push("/workspace/blocks")}
-        sx={{
-          ...(router.asPath === WorkspacePaths.Blocks && {
-            bg: "diamond.blue.0",
-            fontWeight: "500",
-          }),
-        }}
+        sx={styles.SelectedStyle(router.asPath === WorkspacePaths.Blocks)}
       >
         My Blocks
       </Box>

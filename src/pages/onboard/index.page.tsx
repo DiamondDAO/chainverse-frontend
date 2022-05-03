@@ -17,6 +17,8 @@ import { CompletedFormContent } from "@/components/FormComponents/CompletedFormC
 import Link from "next/link";
 import { useMutation } from "@apollo/client";
 import { CREATE_RESPONSES } from "@/services/Apollo/Mutations";
+import * as styles from "./styles";
+
 const Onboard: NextPage = () => {
   const [{ data }] = useAccount({ fetchEns: true });
   const toast = useToast();
@@ -121,12 +123,9 @@ const Onboard: NextPage = () => {
   };
   return (
     <>
-      <Box height="100vh" display="flex" justifyContent="center">
+      <Box sx={styles.OnboardContainer}>
         <Container
-          width="100%"
-          position="absolute"
-          maxW={"container.md"}
-          mt="40px"
+          sx={styles.OnboardContainerInner}
           display={["none", null, "unset"]}
         >
           <CompletionBar
@@ -134,34 +133,13 @@ const Onboard: NextPage = () => {
             currentStep={currentStep}
           />
         </Container>
-        <Container
-          position="absolute"
-          width="100%"
-          maxW={"container.md"}
-          height="100vh"
-        >
-          <Box
-            display="flex"
-            flexDir="column"
-            alignItems="center"
-            pt="100px"
-            minH="100%"
-          >
-            <Box
-              p="40px"
-              minH="400px"
-              height="100%"
-              width="100%"
-              mb="10px"
-              display="flex"
-              flexDir="column"
-              justifyContent="space-between"
-              {...borderStyles}
-            >
+        <Container sx={styles.OnboardContainerInner}>
+          <Box sx={styles.FormContainer}>
+            <Box sx={styles.FormBody}>
               {currentStep === steps.length ? (
                 <>
                   <CompletedFormContent />
-                  <Box mt="20px" display="flex" justifyContent="flex-end">
+                  <Box sx={styles.ButtonContainer}>
                     <Link href="/onboard" passHref>
                       <Button variant="neutral" mr="10px">
                         Re-submit
@@ -188,19 +166,9 @@ const Onboard: NextPage = () => {
                         style={{ height: "100%" }}
                         id={currentForm?.formTitle}
                       >
-                        <Box
-                          display="flex"
-                          flexDir="column"
-                          height="100%"
-                          justifyContent="space-between"
-                        >
+                        <Box sx={styles.FormItems}>
                           <Box>{currentForm.component}</Box>
-
-                          <Box
-                            display="flex"
-                            justifyContent="flex-end"
-                            mt="25px"
-                          >
+                          <Box sx={styles.ButtonContainer}>
                             {currentStep !== 0 && (
                               <Button
                                 onClick={backHandler}

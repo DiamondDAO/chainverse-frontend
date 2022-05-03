@@ -15,6 +15,8 @@ import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { bodyText, subText } from "@/theme";
+import * as styles from "./styles";
+
 type IFilterMenu = {
   data: string[];
   type: FilterTypes;
@@ -56,22 +58,9 @@ export const FilterMenu: FC<IFilterMenu> = ({
   return (
     <Menu>
       <MenuButton
-        bg="diamond.gray.0"
-        border="0.5px solid black"
-        borderColor="diamond.gray.1"
-        color="diamond.gray.4"
-        borderRadius="3px"
-        padding="8px"
-        fontSize={bodyText}
         as={Button}
         rightIcon={<ChevronDownIcon />}
-        sx={{
-          ...(filteredItem.length > 0 && {
-            borderColor: "diamond.link",
-            bg: "diamond.blue.0",
-            color: "diamond.link",
-          }),
-        }}
+        sx={styles.MenuButton(filteredItem.length > 0)}
       >
         Filter by {type}{" "}
         {filteredItem.length > 0 ? `(${filteredItem.length})` : ""}
@@ -90,12 +79,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
             <Text mt="4px" color="diamond.gray.3" fontSize={subText}>
               ADDED
             </Text>
-            <Box
-              display="flex"
-              flexWrap={"wrap"}
-              maxW="fit-content"
-              sx={{ rowGap: "4px", columnGap: "4px" }}
-            >
+            <Box sx={styles.SelectItemsStyle}>
               {filteredItem.map((fuseItem: string) => (
                 <Pill
                   asButton
@@ -116,12 +100,7 @@ export const FilterMenu: FC<IFilterMenu> = ({
             <Text mt="4px" color="diamond.gray.3" fontSize={subText}>
               {typeObjectInstance.text}
             </Text>
-            <Box
-              display="flex"
-              flexWrap={"wrap"}
-              maxW="fit-content"
-              sx={{ rowGap: "4px", columnGap: "4px" }}
-            >
+            <Box sx={styles.SelectItemsStyle}>
               {data &&
                 fuseSearch
                   ?.search(searchInput ?? "")

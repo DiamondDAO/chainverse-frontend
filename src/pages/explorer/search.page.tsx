@@ -175,11 +175,11 @@ const Search: NextPage = () => {
           <Box ml={["unset", null, null, "50px"]}>
             <Box
               display="flex"
-              flexDir={["column", null, "row"]}
+              flexDirection={["column", null, "row"]}
               justifyContent="space-between"
               alignItems={["unset", null, "center"]}
             >
-              <Box position={"relative"} w="100%" maxW="712px" mr="25px">
+              <Box position={"relative"} w="100%" maxWidth="712px" mr="25px">
                 <InputGroup
                   bg="white"
                   alignItems={"center"}
