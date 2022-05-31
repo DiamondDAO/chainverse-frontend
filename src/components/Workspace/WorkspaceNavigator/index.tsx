@@ -59,6 +59,7 @@ export const WorkspaceNavigator = (props: Props) => {
       >
         My Blocks
       </Box>
+      {/* Uncomment later */}
       {/* <Box
         onClick={() => setSelected("narratives")}
         sx={{
