@@ -17,11 +17,11 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { generateDateString } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
-import { RiNodeTree } from "react-icons/ri";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { BiDetail } from "react-icons/bi";
 import { TagDrawer } from "../../Drawers/TagDrawer";
 import { bodyText } from "@/theme";
+import * as styles from "../styles";
 
 export const TagTable = ({ data, update, hasMore, walletAddress }) => {
   const {
@@ -85,29 +85,13 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
                     drawerOnOpen();
                     setSelectedRow(props.row);
                   }}
-                  sx={{ "& path": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
+                  sx={styles.DetailsTooltip}
                 >
                   <BiDetail size="14px" />
                 </Box>
               </Tooltip>
               <Tooltip label="Add to workspace" placement="top">
-                <Box
-                  sx={{ "& *": { fill: "diamond.gray.4" } }}
-                  _hover={{
-                    bg: "diamond.gray.0",
-                    "& path": { fill: "diamond.link" },
-                  }}
-                  display="flex"
-                  justifyContent="center"
-                  padding="4px"
-                >
+                <Box sx={styles.DetailsTooltip}>
                   <PlusIcon width="14px" />
                 </Box>
               </Tooltip>
@@ -130,7 +114,7 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
         },
       },
     ],
-    []
+    [walletAddress]
   );
 
   // Use the state and functions returned from useTable to build your UI
@@ -148,7 +132,11 @@ export const TagTable = ({ data, update, hasMore, walletAddress }) => {
       hasMore={hasMore}
       loader={hasMore ? <h4>Loading more items...</h4> : <></>}
     >
-      <Box maxW={["95vw", null, "unset"]} display="flex" alignItems="center">
+      <Box
+        maxWidth={["95vw", null, "unset"]}
+        display="flex"
+        alignItems="center"
+      >
         {/* set to 99% so we can see left & right borders */}
         <ChakraTable
           sx={{ marginTop: ["24px", "32px", "48px", "84px"] }}

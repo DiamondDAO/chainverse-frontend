@@ -13,7 +13,7 @@ import {
 import React, { FC, useEffect, useRef, useState } from "react";
 import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
-
+import * as styles from "./styles";
 interface ILinkSource {
   textAreaValue: string;
   source: string;
@@ -49,25 +49,12 @@ export const LinkSourceModal: FC<ILinkSource> = ({
     }
   }, [inputRef, source]);
   return (
-    <AnimatedBox
-      display={textAreaValue ? "flex" : "none"}
-      style={linkStyle}
-      alignItems="center"
-    >
+    <AnimatedBox style={linkStyle} sx={styles.Container(textAreaValue)}>
       <Popover isOpen={isOpen} placement="bottom-start">
         <PopoverTrigger>
-          <Box display="flex" alignItems="center">
+          <Box sx={styles.TriggerStyle}>
             <FiLink color="#CECECE" />
-            <Box
-              cursor={"pointer"}
-              pl="3px"
-              border="none"
-              width="100%"
-              color={source ? "diamond.blue.5" : "diamond.gray.2"}
-              height="max-content"
-              _focus={{ border: "none" }}
-              fontSize="14px"
-            >
+            <Box sx={styles.SourceStyle(source)}>
               <Box as="span" onClick={open}>
                 {source ? "Source:" : "Link a source"}
               </Box>
@@ -89,39 +76,13 @@ export const LinkSourceModal: FC<ILinkSource> = ({
             </Box>
           </Box>
         </PopoverTrigger>
-        <PopoverContent
-          border="1px solid #C3C3C3"
-          borderRadius={"5px"}
-          boxShadow={"0px 4px 20px rgba(0, 0, 0, 0.25)"}
-          width="273px"
-          height="84px"
-          p="12px"
-        >
-          <Text
-            color={error ? "red" : "black"}
-            fontSize={subText}
-            lineHeight="12px"
-            fontWeight="500"
-          >
+        <PopoverContent sx={styles.PopoverContent}>
+          <Text sx={styles.URLText(error)}>
             {error ? "Error: Please enter a valid URL and try again." : "URL"}
           </Text>
-          <Input
-            ref={inputRef}
-            mt="2px"
-            borderRadius="2px"
-            fontSize={subText}
-            height="30px"
-            px="10px"
-            borderColor={error ? "red" : "black"}
-          />
+          <Input ref={inputRef} sx={styles.URLInput(error)} />
           <Button
-            mt="3px"
-            alignSelf={"end"}
-            fontSize={subText}
-            lineHeight="125%"
-            color="diamond.link"
-            variant="link"
-            fontWeight="400"
+            sx={styles.URLButton}
             onClick={() => {
               if (
                 inputRef.current.value == "" ||

@@ -62,7 +62,6 @@ const Search: NextPage = () => {
       setSearchValue(term as string);
     }
   }, [term]);
-
   useEffect(() => {
     // used to prevent types not in our defined set
     const typeHandler = () => {
@@ -102,6 +101,7 @@ const Search: NextPage = () => {
     tagFusSearchResult,
     getTagsData,
   });
+
   // Entities
   const entities = useMemo(
     () =>
@@ -145,7 +145,6 @@ const Search: NextPage = () => {
         : [],
     [blocks, term]
   );
-
   const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,
@@ -166,7 +165,7 @@ const Search: NextPage = () => {
         <Box
           mt="40px"
           display="grid"
-          gridTemplateColumns={["1fr", null, null, "210px 1fr"]}
+          gridTemplateColumns={["1fr", null, null, "1fr"]}
         >
           <Box sx={{ columnGap: "50px" }}>
             <Box w="100%" zIndex={3} display={["none", null, null, "flex"]}>
@@ -176,11 +175,11 @@ const Search: NextPage = () => {
           <Box ml={["unset", null, null, "50px"]}>
             <Box
               display="flex"
-              flexDir={["column", null, "row"]}
+              flexDirection={["column", null, "row"]}
               justifyContent="space-between"
               alignItems={["unset", null, "center"]}
             >
-              <Box position={"relative"} w="100%" maxW="712px" mr="25px">
+              <Box position={"relative"} w="100%" maxWidth="712px" mr="25px">
                 <InputGroup
                   bg="white"
                   alignItems={"center"}

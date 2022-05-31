@@ -1,56 +1,30 @@
-import { Box, Text, Image, useTheme, HStack } from "@chakra-ui/react";
+import { Box, Image, useTheme } from "@chakra-ui/react";
 import Router from "next/router";
 import React, { FC } from "react";
 import { borderStyles } from "@/theme";
 import { AccountMenu } from "./AccountMenu";
 import { NavPages } from "./NavPages";
-
-export interface INavbar {}
-
-export const NavBar: FC<INavbar> = ({}) => {
+import * as styles from "./styles";
+export const NavBar: FC = () => {
   const { space } = useTheme();
   const navigationPages = [
     { text: "Workspace", link: "/workspace" },
     { text: "Explorer", link: "/explorer" },
   ];
   return (
-    <Box position="relative" p="10px" width="100%" zIndex={3}>
-      <Box
-        sx={{
-          bg: "white",
-          fontSize: "xs",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          px: "7px",
-          color: "diamond.gray.5",
-          ...borderStyles,
-        }}
-        zIndex={1000}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={styles.NavbarContainer}>
+      <Box sx={styles.NavBarBody}>
+        <Box sx={styles.NavItemsContainer}>
           <Image
-            cursor="pointer"
+            sx={styles.NavLogo}
             onClick={() => Router.push("/")}
             alt="nav-logo"
-            mr="7px"
-            width="18px"
-            height="15px"
             src="/img/nav_diamond.png"
           />
           <NavPages pages={navigationPages} />
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            borderLeft={"0.5px solid"}
-            borderColor="diamond.gray.2"
-            sx={{
-              py: "7px",
-              height: "100%",
-              pr: "10px",
-              pl: space.medium,
-            }}
-          >
+        <Box sx={styles.NavAccountMenu}>
+          <Box sx={styles.AccountMenuWrapper}>
             <AccountMenu />
           </Box>
         </Box>

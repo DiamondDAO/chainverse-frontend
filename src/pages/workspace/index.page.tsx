@@ -28,10 +28,10 @@ import {
 } from "@/services/Apollo/Mutations";
 
 import { filterUniqueObjects } from "@/common/utils";
-import { bodyText } from "@/theme";
+import { bodyText, subText } from "@/theme";
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
-
+import * as styles from "./styles";
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
@@ -310,14 +310,7 @@ const Workspace: NextPage = () => {
     <>
       <Layout>
         {/* Graph */}
-        <Box
-          top="0"
-          left="0"
-          bottom="0"
-          right="0"
-          position="absolute"
-          zIndex={0}
-        >
+        <Box sx={styles.GraphContainer}>
           {nodeData && (
             <Flow
               currentNode={currentNode}
@@ -331,36 +324,29 @@ const Workspace: NextPage = () => {
             />
           )}
         </Box>
-        <Box display="flex" width="100%" flexDir="column">
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
+        <Box sx={styles.Container}>
+          <Box sx={styles.HeaderContainer}>
             <Text
               ref={workspaceNameRef}
               suppressContentEditableWarning={true}
               contentEditable
-              fontWeight="600"
-              fontSize="2rem"
-              zIndex={1}
+              sx={styles.HeaderText}
             >
               Your Sandbox
             </Text>
 
-            <Text color="diamond.gray.3" zIndex={1}>
+            <Text sx={styles.HeaderSubText} fontSize={subText}>
               Last updated: {date}
             </Text>
           </Box>
-          <Box mt="40px" display="flex" sx={{ columnGap: "50px" }}>
-            <Box maxWidth="210px" zIndex={3}>
+          <Box sx={styles.WorkspaceBody}>
+            <Box sx={styles.WorkspaceSidebar}>
               <WorkspaceNavigator />
-              <Box mt="24px">
+              <Box mt="20px">
                 <Button
                   isLoading={isSavingWorkspace}
                   isDisabled={isSavingWorkspace}
-                  p="8px 12px"
-                  fontSize={bodyText}
+                  sx={styles.ButtonStyle}
                   onClick={saveWorkspaceHandler}
                   leftIcon={<CreateSnapshotIcon />}
                   variant="primary"
@@ -368,8 +354,7 @@ const Workspace: NextPage = () => {
                   Save as workspace
                 </Button>
                 <Button
-                  mt="4px"
-                  p="8px 12px"
+                  sx={styles.ButtonStyle}
                   fontSize={bodyText}
                   leftIcon={<AddBlockIcon />}
                   onClick={onOpen}

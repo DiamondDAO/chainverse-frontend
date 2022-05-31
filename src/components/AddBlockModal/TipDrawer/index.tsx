@@ -7,6 +7,7 @@ import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { useMediaQuery } from "react-responsive";
 import { a, useSpring } from "react-spring";
+import * as styles from "./styles";
 interface ITipDrawer {
   clickedTip: boolean;
   setClickedTip: (clicked: boolean) => void;
@@ -19,37 +20,11 @@ export const TipDrawer: FC<ITipDrawer> = ({ clickedTip, setClickedTip }) => {
     transform: clickedTip ? `translate(-50%,-250px)` : `translate(-50%,1px)`,
   });
   return (
-    <AnimatedBox
-      display={isLargerThan736 ? "block" : "none"}
-      position="fixed"
-      zIndex={1400}
-      left="50%"
-      bottom={"-250px"}
-      width={["90vw", null, "600px"]}
-      height="300px"
-      bg="diamond.white"
-      border="1px solid #9B9B9B"
-      borderRadius="5px"
-      p="24px"
-      style={style}
-      sx={{
-        overflowY: clickedTip ? "scroll" : "hidden",
-        overflowX: "none",
-      }}
-    >
-      <Text
-        fontSize="18px"
-        fontWeight="500"
-        onClick={() => setClickedTip(!clickedTip)}
-        cursor="pointer"
-      >
+    <AnimatedBox style={style} sx={styles.TipBox(isLargerThan736, clickedTip)}>
+      <Text sx={styles.TipHeader} onClick={() => setClickedTip(!clickedTip)}>
         💡 Tips for creating a block:
       </Text>
-      <UnorderedList
-        sx={{ "& *": { verticalAlign: "middle" } }}
-        mt="20px"
-        fontSize={bodyText}
-      >
+      <UnorderedList sx={styles.TipList} fontSize={bodyText}>
         <ListItem>
           A {`"block"`} of information is an atomic unit of knowledge. A block
           can stand alone, but when several blocks are linked together, they

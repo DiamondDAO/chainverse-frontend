@@ -17,7 +17,7 @@ import { truncateAddress } from "@/common/utils";
 import Router from "next/router";
 import { useLazyQuery } from "@apollo/client";
 import { GET_PROMPT_INFO } from "@/services/Apollo/Queries";
-
+import * as styles from "./styles";
 const AccountInfoProperties = ({
   property,
   value,
@@ -25,15 +25,8 @@ const AccountInfoProperties = ({
   property: string;
   value: string;
 }) => (
-  <Box
-    display={"flex"}
-    width="100%"
-    justifyContent={"space-between"}
-    flexWrap={"wrap"}
-  >
-    <Text mr="5px" fontWeight="bold">
-      {property}
-    </Text>
+  <Box sx={styles.AccountInfoStyles}>
+    <Text sx={styles.AccountInfoText}>{property}</Text>
     <Text>{value}</Text>
   </Box>
 );
@@ -124,15 +117,9 @@ const Preferences: NextPage = () => {
           <Box display="flex">
             <Heading mb="20px">Preferences</Heading>
           </Box>
-          <Grid templateColumns={["1fr", null, "1fr 2fr"]} gap={6}>
-            <Box
-              display="flex"
-              flexDir="column"
-              alignItems={"center"}
-              p="20px"
-              {...borderStyles}
-            >
-              <Heading mb="10px" as="h1" size="md">
+          <Grid sx={styles.GridStyles}>
+            <Box sx={styles.AccountInfoBorder}>
+              <Heading sx={styles.HeadingStyle} as="h1">
                 Account Info
               </Heading>
               <Avatar size="xl" mb="20px" src="./img/logo-black.png" />
@@ -143,18 +130,14 @@ const Preferences: NextPage = () => {
               />
             </Box>
             <Box p="20px" {...borderStyles}>
-              <Heading mb="10px" size="md">
-                Skills
-              </Heading>
+              <Heading sx={styles.HeadingStyle}>Skills</Heading>
               <UnorderedList pl="10px">
                 {skills?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}
               </UnorderedList>
-              <Heading my="10px" size="md">
-                Interests
-              </Heading>
-              <UnorderedList pl="10px">
+              <Heading sx={styles.HeadingStyle}>Interests</Heading>
+              <UnorderedList sx={styles.listStyle}>
                 {interests?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}

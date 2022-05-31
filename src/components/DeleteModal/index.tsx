@@ -1,3 +1,5 @@
+import React, { FC } from "react";
+
 import {
   Button,
   Text,
@@ -9,13 +11,21 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import React from "react";
 
-export const DeleteModal = ({
+interface IDeleteModal {
+  isOpen: boolean;
+  onClose: () => void;
+  deleteFn: () => void;
+  isDeleting: boolean;
+  title: string;
+  subtitle: string;
+}
+
+export const DeleteModal: FC<IDeleteModal> = ({
   isOpen,
   onClose,
-  actionHandler,
-  deleting,
+  deleteFn,
+  isDeleting,
   title,
   subtitle,
 }) => {
@@ -34,11 +44,11 @@ export const DeleteModal = ({
             Close
           </Button>
           <Button
-            isDisabled={deleting}
-            isLoading={deleting}
+            isDisabled={isDeleting}
+            isLoading={isDeleting}
             variant="outline"
             colorScheme="red"
-            onClick={() => actionHandler()}
+            onClick={deleteFn}
           >
             Delete
           </Button>

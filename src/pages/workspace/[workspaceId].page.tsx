@@ -27,9 +27,10 @@ import {
 import { subText } from "@/theme";
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 
-import { DeleteModal } from "@/components/DeleteBlockModal";
+import { DeleteModal } from "@/components/DeleteModal";
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
+import * as styles from "./styles";
 
 const Workspace: NextPage = () => {
   const router = useRouter();
@@ -256,14 +257,7 @@ const Workspace: NextPage = () => {
         {/* Graph */}
         {workspaceData?.workspaces.length !== 0 && (
           <>
-            <Box
-              top="0"
-              left="0"
-              bottom="0"
-              right="0"
-              position="absolute"
-              zIndex={0}
-            >
+            <Box sx={styles.GraphContainer}>
               {nodeData && (
                 <Flow
                   currentNode={currentNode}
@@ -278,33 +272,27 @@ const Workspace: NextPage = () => {
                 />
               )}
             </Box>
-            <Box display="flex" width="100%" flexDir="column">
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-              >
+            <Box sx={styles.Container}>
+              <Box sx={styles.HeaderContainer}>
                 <Text
                   ref={workspaceNameRef}
                   suppressContentEditableWarning={true}
                   contentEditable
-                  fontWeight="600"
-                  fontSize="2rem"
-                  zIndex={1}
+                  sx={styles.HeaderText}
                 >
                   {workspace?.name ?? "Your Sandbox"}
                 </Text>
 
-                <Text color="diamond.gray.3" zIndex={1} fontSize={subText}>
+                <Text sx={styles.HeaderSubText} fontSize={subText}>
                   Last updated: {date}
                 </Text>
               </Box>
-              <Box mt="40px" display="flex" sx={{ columnGap: "50px" }}>
-                <Box maxWidth="210px" zIndex={3}>
+              <Box sx={styles.WorkspaceBody}>
+                <Box sx={styles.WorkspaceSidebar}>
                   <WorkspaceNavigator />
-                  <Box mt="24px">
+                  <Box mt="20px">
                     <Button
-                      p="8px 12px"
+                      sx={styles.ButtonStyle}
                       isLoading={isSavingWorkspace}
                       isDisabled={isSavingWorkspace}
                       onClick={saveWorkspaceHandler}
@@ -314,8 +302,7 @@ const Workspace: NextPage = () => {
                       Save workspace
                     </Button>
                     <Button
-                      mt="4px"
-                      p="8px 12px"
+                      sx={styles.ButtonStyle}
                       leftIcon={<AddBlockIcon />}
                       onClick={onDeleteModalOpen}
                       variant="error"
@@ -323,8 +310,7 @@ const Workspace: NextPage = () => {
                       Delete Workspace
                     </Button>
                     <Button
-                      mt="4px"
-                      p="8px 12px"
+                      sx={styles.ButtonStyle}
                       leftIcon={<AddBlockIcon />}
                       onClick={onOpen}
                       variant="primary"
@@ -361,11 +347,11 @@ const Workspace: NextPage = () => {
             </Box>
             <DeleteModal
               title={`Delete Workspace`}
-              subtitle={`Are you sure you want to delete the workspace?`}
+              subtitle={`Are you sure you want to delete the workspace? Deleting this workspace will not remove the nodes from the Chainverse graph.`}
               onClose={onDeleteModalClose}
               isOpen={isDeleteModalOpen}
-              deleting={deletingWorkspace}
-              actionHandler={deleteWorkspaceHandler}
+              isDeleting={deletingWorkspace}
+              deleteFn={deleteWorkspaceHandler}
             />
           </>
         )}
