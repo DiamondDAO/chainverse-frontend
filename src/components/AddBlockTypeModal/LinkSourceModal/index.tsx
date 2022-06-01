@@ -9,19 +9,16 @@ import {
   PopoverTrigger,
   Text,
   Tooltip,
-} from "@chakra-ui/react";
-import React, { FC, useEffect, useRef, useState } from "react";
+} from "@chakra-ui/react";import React, { FC, useEffect, useRef, useState } from "react";
 import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
-  textAreaValue: string;
   source: string;
   setSource: (value: string) => void;
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  textAreaValue,
   source,
   setSource,
 }) => {
@@ -29,13 +26,6 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   const [linkStyle, api] = useSpring(() => {
     opacity: 0;
   });
-  useEffect(() => {
-    if (textAreaValue) {
-      api.start({ opacity: 1 });
-    } else {
-      api.start({ opacity: 0 });
-    }
-  }, [api, textAreaValue]);
 
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
@@ -48,9 +38,10 @@ export const LinkSourceModal: FC<ILinkSource> = ({
       inputRef.current.value = source;
     }
   }, [inputRef, source]);
+
   return (
-    <AnimatedBox style={linkStyle} sx={styles.Container(textAreaValue)}>
-      <Popover isOpen={isOpen} placement="bottom-start" closeOnBlur={true}>
+    <AnimatedBox style={linkStyle} sx={styles.Container}>
+      <Popover isOpen={isOpen} closeOnBlur={true}>
         <PopoverTrigger>
           <Box sx={styles.TriggerStyle}>
             <FiLink color="#CECECE" />
