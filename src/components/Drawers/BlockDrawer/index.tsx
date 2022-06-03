@@ -86,8 +86,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
     return null;
   }
 
-  var obj = JSON.stringify(nodeData)
-  console.log("Drawer print ----- " + obj)
+  console.log("sources =====" + JSON.stringify(nodeData?.sources))
 
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
@@ -211,24 +210,29 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               {nodeData?.text && <AddPillsToText text={nodeData?.text} />}
             </Box>
           </Box>
-          {nodeData?.sources.length > 0 && (
-            <>
-              {"Source: "}
-              <Tooltip label={nodeData?.sources[0].url} fontSize="xs">
-                <span
-                  //@ts-ignore
-                  rel="noopener noreferrer"
-                  style={{ textDecoration: "underline" }}
-                  onClick={() => window.open(nodeData?.sources[0].url, "_blank")}
-                >
-                  {nodeData?.sources[0].url}
-                </span>
-              </Tooltip>
-            </>
-          )}
           {nodeData?.sources.length === 0 && (
             <>
               {"No source attributed"}
+            </>
+          )}
+          {nodeData?.sources.length > 0 && (
+            <>
+            <Divider mt="16px" />
+            <Box  mt="16px" color="diamond.blue.3" fontWeight={500}>
+              SOURCES
+            </Box>
+              {nodeData?.sources.map((s) => (
+                <Tooltip label={s.url} fontSize="xs">
+                  <span
+                    //@ts-ignore
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "underline" }}
+                    onClick={() => window.open(s.url, "_blank")}
+                  >
+                    {s.url + ", "}
+                  </span>
+                </Tooltip>
+              ))}
             </>
           )}
           {(nodeData?.entities.length > 0 || nodeData?.tags.length > 0) && (

@@ -105,9 +105,6 @@ const Workspace: NextPage = () => {
     [entityData, notesData]
   );
 
-  var obj = JSON.stringify(notesData)
-  console.log("Workspace print ----- " + obj)
-
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
   const saveWorkspaceHandler = async () => {

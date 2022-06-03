@@ -9,18 +9,18 @@ import {
   PopoverTrigger,
   Text,
   Tooltip,
+  FormControl,FormLabel,FormErrorMessage,FormHelperText,
+  Select,
 } from "@chakra-ui/react";import React, { FC, useEffect, useRef, useState } from "react";
 import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
-  source: string[];
-  setSource: (value: string) => void;
+  sources: string[];
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  source,
-  setSource,
+  sources,
 }) => {
   const AnimatedBox = a(Box);
   const [linkStyle, api] = useSpring(() => {
@@ -35,10 +35,9 @@ export const LinkSourceModal: FC<ILinkSource> = ({
 
   useEffect(() => {
     if (inputRef !== null) {
-      inputRef.current.value = source;
+      inputRef.current.value = sources;
     }
-  }, [inputRef, source]);
-
+  }, [inputRef, sources]);
 
 
   return (
@@ -46,26 +45,28 @@ export const LinkSourceModal: FC<ILinkSource> = ({
       <Popover isOpen={isOpen} closeOnBlur={true}>
         <PopoverTrigger>
           <Box sx={styles.TriggerStyle}>
-            <FiLink color="#CECECE" />
-            <Box sx={styles.SourceStyle(source)}>
-              <Box as="span" onClick={open}>
-                {source ? "Source:" : "Link a source"}
-              </Box>
-              {source && (
+            <Box sx={styles.SourceStyle("")}>
+              {sources && (
                 <>
-                  {" "}
-                  <Tooltip label={source} fontSize="xs">
-                    <span
-                      //@ts-ignore
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: "underline" }}
-                      onClick={() => window.open(source, "_blank")}
-                    >
-                      Link
-                    </span>
-                  </Tooltip>
+                  {sources.map((s) => (
+                    <Box sx={styles.SourceStyle(s)}>
+                      <Tooltip label={s} fontSize="xs">
+                        <span
+                          //@ts-ignore
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: "underline" }}
+                          onClick={() => window.open(s, "_blank")}
+                        >
+                          {s}
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  ))}
                 </>
               )}
+              <Box as="span" onClick={open}>
+                {sources.length > 0 ? "Link another source" : "Link a source"}
+              </Box>
             </Box>
           </Box>
         </PopoverTrigger>
@@ -81,8 +82,10 @@ export const LinkSourceModal: FC<ILinkSource> = ({
                 inputRef.current.value == "" ||
                 validURL(inputRef.current.value)
               ) {
-                setSource(inputRef.current.value);
+                sources.push(inputRef.current.value)
+                {/*setSources({sources: [...sources, inputRef.current.value]});*/}
                 setError(false);
+                inputRef.current.value = ""
                 close();
               } else {
                 setError(true);

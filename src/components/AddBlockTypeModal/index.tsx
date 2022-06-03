@@ -61,7 +61,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [visible, setVisible] = useState(false);
   const [dialogStartPosition, setDialogStartPosition] = useState(0);
   const [activationChar, setActivationChar] = useState("");
-  const [source, setSource] = useState("");
+  const [sources, setSources] = useState([]);
   const [addingBlock, setAddingBlock] = useState(false);
   const [pillText, setPillText] = useState("");
 
@@ -80,7 +80,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   useEffect(() => {
     if (nodeData?.sources) {
-      setSource(nodeData.sources?.[0]?.url);
+      setSources(nodeData.sources?.[0]?.url);
     }
   }, [nodeData?.sources]);
 
@@ -129,7 +129,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
   const closeHandler = () => {
     inputRef.current.innerText = "";
-    setSource("");
+    setSources([]);
     onClose();
   };
 
@@ -195,6 +195,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           where: { node: { name: i.slice(1) } },
           onCreate: { node: { name: i.slice(1) } },
         })) || [];
+    const sourceList =
+      sources.map((i) => ({
+          where: { node: { url: i} },
+          onCreate: { node: { url: i} },
+        })) || [];
     try {
       setAddingBlock(true);
       let blockResult = null;
@@ -221,14 +226,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 tags: {
                   connectOrCreate: tags,
                 },
-                ...(source && {
-                  sources: {
-                    connectOrCreate: {
-                      where: { node: { url: source } },
-                      onCreate: { node: { url: source } },
-                    },
-                  },
-                }),
+                sources: {
+                  connectOrCreate: sourceList,
+                },
               },
             ],
           },
@@ -284,14 +284,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               tags: {
                 connectOrCreate: tags,
               },
-              ...(source && {
-                sources: {
-                  connectOrCreate: {
-                    where: { node: { url: source } },
-                    onCreate: { node: { url: source } },
-                  },
-                },
-              }),
+              sources: {
+                connectOrCreate: sourceList,
+              },
             },
             where: { uuid: nodeData.uuid },
           },
@@ -306,7 +301,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
         var obj = JSON.stringify(blockResult)
         console.log("AddBlockTypeModal print ----- " + obj)
-        
+
       closeHandler();
 
       toast({
@@ -334,6 +329,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<Option[]>([]);
   const [partnerTagSelection, setPartnerTagSelection] = React.useState<Option[]>([]);
 
+  var obj = JSON.stringify(nodeData)
+  console.log("AddBlockTypeModal ----" + obj)
 
   return (
     <>
@@ -460,8 +457,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       <LinkSourceModal
-                        source={source}
-                        setSource={setSource}
+                        sources={sources}
                       />
                     </FormControl>
                   )}
@@ -565,8 +561,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       <LinkSourceModal
-                        source={source}
-                        setSource={setSource}
+                        sources={sources}
                       />
                     </FormControl>
                   )}
