@@ -160,6 +160,9 @@ export const GET_SANDBOX = gql`
           entities {
             name
           }
+          sources {
+            url
+          }
         }
       }
     }
@@ -236,6 +239,9 @@ export const GET_WORKSPACE = gql`
           }
           entities {
             name
+          }
+          sources {
+            url
           }
         }
       }

@@ -97,6 +97,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const keyUpListener = (e) => {
+
     if (
       (visible && e.key === " ") ||
       e.key === "Enter" ||
@@ -109,6 +110,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const onClickPillHandler = (e) => {
+
     const autoCompletedText = e.target.innerText;
     const currentTextLength = inputRef.current?.innerText
       .slice(dialogStartPosition)
@@ -301,7 +303,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           ...blockResult?.data?.createNotes?.notes?.[0],
           walletAddress: walletData?.address,
         });
+
+        var obj = JSON.stringify(blockResult)
+        console.log("AddBlockTypeModal print ----- " + obj)
+        
       closeHandler();
+
       toast({
         title: `Block ${nodeData ? "Saved" : "Created"}!`,
         status: "success",
@@ -326,6 +333,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [noteTagSelection, setNoteTagSelection] = React.useState<Option[]>([]);
   const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<Option[]>([]);
   const [partnerTagSelection, setPartnerTagSelection] = React.useState<Option[]>([]);
+
 
   return (
     <>

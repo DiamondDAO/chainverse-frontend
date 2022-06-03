@@ -15,6 +15,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useAccount, useEnsLookup } from "wagmi";
 
@@ -73,6 +74,7 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
     }
   }, [walletData?.address]);
 
+
   // Workspace data
   const [getWorkspaceOwned, { data: workspaceData }] =
     useLazyQuery(GET_WORKSPACE_OWNED);
@@ -83,6 +85,10 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
   if (!nodeData || Object.keys(nodeData).length === 0) {
     return null;
   }
+
+  var obj = JSON.stringify(nodeData)
+  console.log("Drawer print ----- " + obj)
+
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
@@ -205,10 +211,30 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               {nodeData?.text && <AddPillsToText text={nodeData?.text} />}
             </Box>
           </Box>
+          {nodeData?.sources.length > 0 && (
+            <>
+              {"Source: "}
+              <Tooltip label={nodeData?.sources[0].url} fontSize="xs">
+                <span
+                  //@ts-ignore
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: "underline" }}
+                  onClick={() => window.open(nodeData?.sources[0].url, "_blank")}
+                >
+                  {nodeData?.sources[0].url}
+                </span>
+              </Tooltip>
+            </>
+          )}
+          {nodeData?.sources.length === 0 && (
+            <>
+              {"No source attributed"}
+            </>
+          )}
           {(nodeData?.entities.length > 0 || nodeData?.tags.length > 0) && (
             <>
               <Divider mt="16px" />
-              <Box sx={styles.LinkedTo}>LINKED TO</Box>
+              <Box sx={styles.LinkedTo}>TAGS</Box>
               <Box sx={styles.TagsAndEntities}>
                 {nodeData?.tags.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
@@ -217,6 +243,10 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
                     </Text>
                   </Pill>
                 ))}
+              </Box>
+              <Divider mt="16px" />
+              <Box sx={styles.LinkedTo}>LINKED TO</Box>
+              <Box sx={styles.TagsAndEntities}>
                 {nodeData?.entities.map((entity: { name: string }, idx) => (
                   <Pill key={idx} asButton icon={<EntitiesIcon />}>
                     <Text color="diamond.blue.5" fontSize={bodyText}>

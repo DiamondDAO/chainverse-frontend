@@ -14,7 +14,7 @@ import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
-  source: string;
+  source: string[];
   setSource: (value: string) => void;
 }
 
@@ -38,6 +38,8 @@ export const LinkSourceModal: FC<ILinkSource> = ({
       inputRef.current.value = source;
     }
   }, [inputRef, source]);
+
+
 
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
