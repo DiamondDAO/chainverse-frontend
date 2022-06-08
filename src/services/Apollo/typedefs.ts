@@ -91,7 +91,7 @@ export const typeDefs = gql`
   type Note @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
     text: String!
-    createdAt: DateTime @timestamp #todo: should be non-nullable but db currently has null fields ingested
+    createdAt: DateTime! @timestamp #todo: should be non-nullable but db currently has null fields ingested
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
     tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
@@ -107,7 +107,7 @@ export const typeDefs = gql`
 
   type Partnership @node(additionalLabels: ["PartnershipBlock"]) {
     uuid: ID! @id(autogenerate: true)
-    text: String
+    text: String!
     createdAt: DateTime! @timestamp
     type: String
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
