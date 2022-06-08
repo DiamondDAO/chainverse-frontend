@@ -86,7 +86,7 @@ export const typeDefs = gql`
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
-  union Block = Note | Response | Partnership
+  union Block = Note | Partnership | Response
 
   type Note @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
@@ -98,14 +98,14 @@ export const typeDefs = gql`
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
-  type Response @node(additionalLabels: ["NoteBlock"]) {
+  type Response @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
     text: String!
     prompt: Prompt! @relationship(type: "RESPONDS_TO", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
-  type Partnership @node(additionalLabels: ["PartnershipBlock"]) {
+  type Partnership @node(additionalLabels: ["Block"]) {
     uuid: ID! @id(autogenerate: true)
     text: String!
     createdAt: DateTime! @timestamp

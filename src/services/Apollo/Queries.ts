@@ -214,6 +214,22 @@ export const GET_SANDBOX = gql`
             source
           }
         }
+        ... on Partnership {
+          text
+          type
+          wallet {
+            address
+          }
+          tags {
+            tag
+          }
+          entities {
+            name
+          }
+          sources {
+            source
+          }
+        }
       }
     }
   }
