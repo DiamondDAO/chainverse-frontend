@@ -162,9 +162,6 @@ export const AddBlockMenu: FC = () => {
     [entityData, notesData]
   );
 
-  /* var obj = JSON.stringify(nodeData)
-  console.log("BlockMenu print ----- " + obj)*/
-
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
 

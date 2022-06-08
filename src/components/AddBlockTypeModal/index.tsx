@@ -19,6 +19,7 @@ import { Pill } from "../Pill";
 import { TagIcon } from "../Icons/TagIcon";
 import { EntitiesIcon } from "../Icons/EntitiesIcon";
 import { LinkSourceModal } from "./LinkSourceModal";
+import { NoteBlockModal } from "./NoteBlockModal";
 import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
 import { CREATE_NOTES, UPDATE_NOTES } from "@/services/Apollo/Mutations";
@@ -53,6 +54,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   nodeData,
   saveToWorkspaceFn,
   blockType,
+  inputRef,
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
@@ -77,6 +79,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDialogStartPosition(0);
     }
   }, [isOpen]);
+
+  console.log("Do we know blockType here yet? --- " + blockType)
 
   useEffect(() => {
     if (nodeData?.sources) {
@@ -205,65 +209,69 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       let blockResult = null;
       if (action === submitBlockAction.Add) {
         // creating block in db
-        blockResult = await addBlock({
-          variables: {
-            input: [
-              {
-                text: inputRef.current?.innerText,
-                wallet: {
-                  connect: {
-                    where: {
-                      node: {
-                        address: walletData?.address,
+        if (blockType === "Note") {
+          blockResult = await addBlock({
+            variables: {
+              input: [
+                {
+                  text: inputRef.current?.innerText,
+                  wallet: {
+                    connect: {
+                      where: {
+                        node: {
+                          address: walletData?.address,
+                        },
                       },
                     },
                   },
-                },
-                entities: {
-                  connectOrCreate: entity,
-                },
+                  entities: {
+                    connectOrCreate: entity,
+                  },
 
-                tags: {
-                  connectOrCreate: tags,
-                },
-                sources: {
-                  connectOrCreate: sourceList,
-                },
-              },
-            ],
-          },
-        });
-      } else if (action === submitBlockAction.Update) {
-        // updating block in db
-        await updateBlock({
-          variables: {
-            update: {},
-            where: { uuid: nodeData.uuid },
-            disconnect: {
-              tags: [
-                {
-                  where: {
-                    node_NOT: { uuid: "0" },
+                  tags: {
+                    connectOrCreate: tags,
                   },
-                },
-              ],
-              entities: [
-                {
-                  where: {
-                    node_NOT: { name: "" },
-                  },
-                },
-              ],
-              sources: [
-                {
-                  where: {
-                    node_NOT: { uuid: "0" },
+                  sources: {
+                    connectOrCreate: sourceList,
                   },
                 },
               ],
             },
-          },
-        });
+          });
+        }
+      } else if (action === submitBlockAction.Update) {
+        // updating block in db
+        if (blockType === "Note") {
+          await updateBlock({
+            variables: {
+              update: {},
+              where: { uuid: nodeData.uuid },
+              disconnect: {
+                tags: [
+                  {
+                    where: {
+                      node_NOT: { uuid: "0" },
+                    },
+                  },
+                ],
+                entities: [
+                  {
+                    where: {
+                      node_NOT: { name: "" },
+                    },
+                  },
+                ],
+                sources: [
+                  {
+                    where: {
+                      node_NOT: { uuid: "0" },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+        }
         blockResult = await updateBlock({
           variables: {
             update: {
@@ -293,16 +301,14 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         });
       }
       // save block to workspace if fn exists
-      saveToWorkspaceFn &&
-        saveToWorkspaceFn({
-          ...blockResult?.data?.createNotes?.notes?.[0],
-          walletAddress: walletData?.address,
-        });
-
-        var obj = JSON.stringify(blockResult)
-        console.log("AddBlockTypeModal print ----- " + obj)
-
-      closeHandler();
+      if (blockType === "Note") {
+        saveToWorkspaceFn &&
+          saveToWorkspaceFn({
+            ...blockResult?.data?.createNotes?.notes?.[0],
+            walletAddress: walletData?.address,
+          });
+        closeHandler();
+      }
 
       toast({
         title: `Block ${nodeData ? "Saved" : "Created"}!`,
@@ -328,9 +334,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [noteTagSelection, setNoteTagSelection] = React.useState<Option[]>([]);
   const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<Option[]>([]);
   const [partnerTagSelection, setPartnerTagSelection] = React.useState<Option[]>([]);
-
-  var obj = JSON.stringify(nodeData)
-  console.log("AddBlockTypeModal ----" + obj)
 
   return (
     <>
@@ -402,7 +405,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                         key={idx}
                                         onClick={onClickPillHandler}
                                         asButton
-                                        icon={<EntitiesIcon />}
                                       >
                                         <Text
                                           color="diamond.blue.5"
@@ -428,7 +430,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                         key={idx}
                                         onClick={onClickPillHandler}
                                         asButton
-                                        icon={<TagIcon />}
                                       >
                                         <Text
                                           color="diamond.blue.5"

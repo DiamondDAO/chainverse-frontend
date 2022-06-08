@@ -226,7 +226,7 @@ export const GET_WORKSPACE = gql`
           count
         }
       }
-      blocks {
+      noteblocks {
         ... on Note {
           text
           createdAt

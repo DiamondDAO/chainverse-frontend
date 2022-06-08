@@ -16,7 +16,8 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
 } from "react-flow-renderer";
-import { BlockNode } from "../BlockNode";
+import { NoteBlockNode } from "../NoteBlockNode";
+import { PartnershipBlockNode } from "../PartnershipBlockNode";
 import { EntityNode } from "../EntityNode";
 
 const fitViewOptions: FitViewOptions = {
@@ -44,7 +45,7 @@ export const Inner: FC<IFlow> = ({
     [restoredFlow]
   );
   const nodeTypes = useMemo(
-    () => ({ block: BlockNode, entity: EntityNode }),
+    () => ({ block: NoteBlockNode, entity: EntityNode }),
     []
   );
   const initialEdges: Edge[] = useMemo(() => {
