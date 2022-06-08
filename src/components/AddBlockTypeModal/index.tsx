@@ -53,8 +53,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   onClose,
   nodeData,
   saveToWorkspaceFn,
-  blockType,
-  inputRef,
+  blockType, 
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
@@ -137,7 +136,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     onClose();
   };
 
-  const [addBlock, { error: addBlockError }] = useMutation(CREATE_NOTES, {
+  const [addNoteBlock, { error: addNoteBlockError }] = useMutation(CREATE_NOTES, {
     refetchQueries: [
       {
         query: GET_NOTES,
@@ -148,7 +147,29 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     ],
   });
 
-  const [updateBlock, { error: updateBlockError }] = useMutation(UPDATE_NOTES, {
+  const [updateNoteBlock, { error: updateNoteBlockError }] = useMutation(UPDATE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
+      { query: GET_TAGS_AND_ENTITIES },
+      { query: GET_ALL_NOTES },
+    ],
+  });
+
+  const [addPartnershipBlock, { error: addPartnershipBlockError }] = useMutation(CREATE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_NOTES,
+        variables: { where: { address: walletData?.address } },
+      },
+      { query: GET_TAGS_AND_ENTITIES },
+      { query: GET_ALL_NOTES },
+    ],
+  });
+
+  const [updatePartnershipBlock, { error: updatePartnershipBlockError }] = useMutation(UPDATE_NOTES, {
     refetchQueries: [
       {
         query: GET_NOTES,
@@ -178,6 +199,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     includeScore: false,
     threshold: 0.3,
   });
+
+  const [partnershipType, setPartnershipType] = useState("");
 
   const submitBlockHandler = async ({
     action,
@@ -210,7 +233,36 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       if (action === submitBlockAction.Add) {
         // creating block in db
         if (blockType === "Note") {
-          blockResult = await addBlock({
+          blockResult = await addNoteBlock({
+            variables: {
+              input: [
+                {
+                  text: inputRef.current?.innerText,
+                  wallet: {
+                    connect: {
+                      where: {
+                        node: {
+                          address: walletData?.address,
+                        },
+                      },
+                    },
+                  },
+                  entities: {
+                    connectOrCreate: entity,
+                  },
+
+                  tags: {
+                    connectOrCreate: tags,
+                  },
+                  sources: {
+                    connectOrCreate: sourceList,
+                  },
+                },
+              ],
+            },
+          });
+        } else if (blockType === "Partnership") {
+          blockResult = await addPartnershipBlock({
             variables: {
               input: [
                 {
@@ -242,7 +294,37 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       } else if (action === submitBlockAction.Update) {
         // updating block in db
         if (blockType === "Note") {
-          await updateBlock({
+          await updateNoteBlock({
+            variables: {
+              update: {},
+              where: { uuid: nodeData.uuid },
+              disconnect: {
+                tags: [
+                  {
+                    where: {
+                      node_NOT: { uuid: "0" },
+                    },
+                  },
+                ],
+                entities: [
+                  {
+                    where: {
+                      node_NOT: { name: "" },
+                    },
+                  },
+                ],
+                sources: [
+                  {
+                    where: {
+                      node_NOT: { uuid: "0" },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+        } else if (blockType === "Partnership") {
+          await updatePartnershipBlock({
             variables: {
               update: {},
               where: { uuid: nodeData.uuid },
@@ -272,7 +354,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
             },
           });
         }
-        blockResult = await updateBlock({
+        blockResult = await updatePartnershipBlock({
           variables: {
             update: {
               text: inputRef.current?.innerText,
@@ -302,6 +384,13 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       }
       // save block to workspace if fn exists
       if (blockType === "Note") {
+        saveToWorkspaceFn &&
+          saveToWorkspaceFn({
+            ...blockResult?.data?.createNotes?.notes?.[0],
+            walletAddress: walletData?.address,
+          });
+        closeHandler();
+      } else if (blockType === "Partnership") {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
             ...blockResult?.data?.createNotes?.notes?.[0],
@@ -465,11 +554,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   {blockType === "Partnership" && (
                     <FormControl>
                       <FormLabel htmlFor='partner-type'>Partnership Type</FormLabel>
-                      <Select placeholder='Select option' sx={styles.InputStyle}>
-                        <option value='option1'>Financial</option>
-                        <option value='option2'>Integration</option>
-                        <option value='option3'>Marketing</option>
-                        <option value='option3'>Technological</option>
+                      <Select
+                        value = {partnershipType}
+                        placeholder='Select option'
+                        sx={styles.InputStyle}
+                        onChange={e => setPartnershipType(e.target.value)}>
+                          <option value='Financial'>Financial</option>
+                          <option value='Integration'>Integration</option>
+                          <option value='Marketing'>Marketing</option>
+                          <option value='Technological'>Technological</option>
+                        >
                       </Select>
                       <Box sx={styles.EntityTagDialog(position.current, visible)}>
                         <Popover placement="bottom-start" isOpen>
