@@ -64,7 +64,7 @@ export const NoteBlockModal: FC<INoteBlockModal> = ({
 
   useEffect(() => {
     if (nodeData?.sources) {
-      setSources(nodeData.sources?.[0]?.url);
+      setSources(nodeData.sources?.[0]?.source);
     }
   }, [nodeData?.sources]);
 

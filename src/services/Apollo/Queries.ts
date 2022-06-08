@@ -8,7 +8,7 @@ export const GET_NOTES = gql`
           text
           uuid
           sources {
-            url
+            source
           }
           tags {
             tag
@@ -25,12 +25,62 @@ export const GET_NOTES = gql`
     }
   }
 `;
+
 export const GET_ALL_NOTES = gql`
   query Notes {
     notes {
       text
       sources {
-        url
+        source
+      }
+      tags {
+        tag
+      }
+      createdAt
+      wallet {
+        address
+      }
+      entities {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_PARTNERSHIPS = gql`
+  query Partnerships($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ALL_PARTNERSHIPS = gql`
+  query Partnerships {
+    partnerships {
+      text
+      type
+      sources {
+        source
       }
       tags {
         tag
@@ -53,7 +103,7 @@ export const GET_BLOCK_DATA = gql`
       uuid
       createdAt
       sources {
-        url
+        source
       }
       tags {
         tag
@@ -161,7 +211,7 @@ export const GET_SANDBOX = gql`
             name
           }
           sources {
-            url
+            source
           }
         }
       }
@@ -226,7 +276,7 @@ export const GET_WORKSPACE = gql`
           count
         }
       }
-      noteblocks {
+      blocks {
         ... on Note {
           text
           createdAt
@@ -241,7 +291,7 @@ export const GET_WORKSPACE = gql`
             name
           }
           sources {
-            url
+            source
           }
         }
       }

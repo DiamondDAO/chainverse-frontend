@@ -111,6 +111,7 @@ export const typeDefs = gql`
     createdAt: DateTime! @timestamp
     type: String
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
+    tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
@@ -118,7 +119,7 @@ export const typeDefs = gql`
   type Source {
     uuid: ID! @id(autogenerate: true)
     createdAt: DateTime! @timestamp
-    url: String! @unique
+    source: String! @unique
   }
 
   type Proposal {

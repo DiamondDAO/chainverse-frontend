@@ -16,12 +16,31 @@ export const CREATE_NOTES = gql`
           tag
         }
         sources {
-          url
+          source
         }
       }
     }
   }
 `;
+
+export const CREATE_PARTNERSHIPS = gql`
+  mutation CreatePartnerships($input: [PartnershipCreateInput!]!) {
+    createPartnerships(input: $input) {
+      partnerships {
+        uuid
+        text
+        entities {
+          uuid
+          name
+        }
+        sources {
+          source
+        }
+      }
+    }
+  }
+`;
+
 export const CREATE_RESPONSES = gql`
   mutation CreateResponses($input: [ResponseCreateInput!]!) {
     createResponses(input: $input) {
@@ -109,12 +128,38 @@ export const UPDATE_NOTES = gql`
           tag
         }
         sources {
-          url
+          source
         }
       }
     }
   }
 `;
+
+export const UPDATE_PARTNERSHIPS = gql`
+mutation UpdatePartnerships(
+  $update: PartnershipUpdateInput
+  $where: PartnershipWhere
+  $disconnect: PartnershipDisconnectInput
+) {
+  updatePartnerships(update: $update, where: $where, disconnect: $disconnect) {
+    partnerships {
+      uuid
+      text
+      entities {
+        uuid
+        name
+      }
+      sources {
+        uuid
+        source
+        sourceType
+      }
+    }
+  }
+}
+`;
+
+
 export const UPDATE_WORKSPACE = gql`
   mutation Mutation(
     $where: WorkspaceWhere

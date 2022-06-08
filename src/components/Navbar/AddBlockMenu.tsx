@@ -35,6 +35,8 @@ import { BlockIcon } from "../Icons/BlockIcon";
 import {
   GET_ALL_NOTES,
   GET_NOTES,
+  GET_PARTNERSHIPS,
+  GET_ALL_PARTNERSHIPS,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
@@ -154,13 +156,18 @@ export const AddBlockMenu: FC = () => {
   );
   const notesData = useMemo(
     () =>
-      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note"),
+      sandboxData?.sandboxes[0]?.blocks.filter((i) =>
+      i.__typename === "Note" || i.__typename === "Partnership" ),
     [sandboxData?.sandboxes[0]?.blocks]
   );
+
+  console.log("Sandbox data ----- " + JSON.stringify(sandboxData?.sandboxes[0]?.blocks))
+
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]
   );
+
 
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
@@ -323,6 +330,7 @@ export const AddBlockMenu: FC = () => {
     }
     onClose();
   };
+
   return (
     <>
       <Menu gutter={15} offset={[15, 12]}>

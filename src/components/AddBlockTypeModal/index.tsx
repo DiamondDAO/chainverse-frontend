@@ -5,15 +5,12 @@ import {
   Grid,
   Popover,PopoverTrigger,PopoverContent,PopoverHeader,PopoverBody,
   useToast,
-  Button,
+  Button,Input, Select,
   FormControl,FormLabel,FormErrorMessage,FormHelperText,
-  Input,
-  Select,
 } from "@chakra-ui/react";
 import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
 import React, { FC, useEffect, useRef, useState } from "react";
 import Fuse from "fuse.js";
-
 import { TipDrawer } from "./TipDrawer";
 import { Pill } from "../Pill";
 import { TagIcon } from "../Icons/TagIcon";
@@ -22,10 +19,13 @@ import { LinkSourceModal } from "./LinkSourceModal";
 import { NoteBlockModal } from "./NoteBlockModal";
 import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
-import { CREATE_NOTES, UPDATE_NOTES } from "@/services/Apollo/Mutations";
 import {
-  GET_ALL_NOTES,
-  GET_NOTES,
+  CREATE_NOTES, UPDATE_NOTES,
+  CREATE_PARTNERSHIPS, UPDATE_PARTNERSHIPS
+} from "@/services/Apollo/Mutations";
+import {
+  GET_ALL_NOTES,GET_NOTES,
+  GET_PARTNERSHIPS, GET_ALL_PARTNERSHIPS,
   GET_TAGS_AND_ENTITIES,
 } from "@/services/Apollo/Queries";
 import { bodyText, subText } from "@/theme";
@@ -53,7 +53,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   onClose,
   nodeData,
   saveToWorkspaceFn,
-  blockType, 
+  blockType,
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
@@ -79,11 +79,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [isOpen]);
 
-  console.log("Do we know blockType here yet? --- " + blockType)
-
   useEffect(() => {
     if (nodeData?.sources) {
-      setSources(nodeData.sources?.[0]?.url);
+      setSources(nodeData.sources?.[0]?.source);
     }
   }, [nodeData?.sources]);
 
@@ -158,25 +156,25 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     ],
   });
 
-  const [addPartnershipBlock, { error: addPartnershipBlockError }] = useMutation(CREATE_NOTES, {
+  const [addPartnershipBlock, { error: addPartnershipBlockError }] = useMutation(CREATE_PARTNERSHIPS, {
     refetchQueries: [
       {
-        query: GET_NOTES,
+        query: GET_PARTNERSHIPS,
         variables: { where: { address: walletData?.address } },
       },
       { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_NOTES },
+      { query: GET_ALL_PARTNERSHIPS },
     ],
   });
 
-  const [updatePartnershipBlock, { error: updatePartnershipBlockError }] = useMutation(UPDATE_NOTES, {
+  const [updatePartnershipBlock, { error: updatePartnershipBlockError }] = useMutation(UPDATE_PARTNERSHIPS, {
     refetchQueries: [
       {
-        query: GET_NOTES,
+        query: GET_PARTNERSHIPS,
         variables: { where: { address: walletData?.address } },
       },
       { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_NOTES },
+      { query: GET_ALL_PARTNERSHIPS },
     ],
   });
 
@@ -224,9 +222,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         })) || [];
     const sourceList =
       sources.map((i) => ({
-          where: { node: { url: i} },
-          onCreate: { node: { url: i} },
+          where: { node: { source: i} },
+          onCreate: { node: { source: i} },
         })) || [];
+    const partnershipTypeName =
+      {where: { node: { partnershipType} }}
     try {
       setAddingBlock(true);
       let blockResult = null;
@@ -261,12 +261,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
+          console.log("NOTE BlockResult ----- " + JSON.stringify(blockResult))
         } else if (blockType === "Partnership") {
+          console.log("STEPPED INTO THE FUNCTION CORRECTLY FOR PARTNERSHIP")
           blockResult = await addPartnershipBlock({
             variables: {
               input: [
                 {
                   text: inputRef.current?.innerText,
+                  type: partnershipType,
                   wallet: {
                     connect: {
                       where: {
@@ -279,7 +282,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   entities: {
                     connectOrCreate: entity,
                   },
-
                   tags: {
                     connectOrCreate: tags,
                   },
@@ -290,6 +292,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
+          console.log("PARNTERSHIP BlockResult ----- " + JSON.stringify(blockResult))
         }
       } else if (action === submitBlockAction.Update) {
         // updating block in db
@@ -358,6 +361,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           variables: {
             update: {
               text: inputRef.current?.innerText,
+              type: partnershipType,
               wallet: {
                 connect: {
                   where: {
@@ -383,6 +387,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         });
       }
       // save block to workspace if fn exists
+
       if (blockType === "Note") {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
@@ -393,7 +398,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       } else if (blockType === "Partnership") {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
-            ...blockResult?.data?.createNotes?.notes?.[0],
+            ...blockResult?.data?.createPartnerships?.partnerships?.[0],
             walletAddress: walletData?.address,
           });
         closeHandler();

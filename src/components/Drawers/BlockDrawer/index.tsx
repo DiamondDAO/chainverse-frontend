@@ -86,8 +86,6 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
     return null;
   }
 
-  console.log("sources =====" + JSON.stringify(nodeData?.sources))
-
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
@@ -222,14 +220,14 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               SOURCES
             </Box>
               {nodeData?.sources.map((s) => (
-                <Tooltip label={s.url} fontSize="xs">
+                <Tooltip label={s.source} fontSize="xs">
                   <span
                     //@ts-ignore
                     rel="noopener noreferrer"
                     style={{ textDecoration: "underline" }}
-                    onClick={() => window.open(s.url, "_blank")}
+                    onClick={() => window.open(s.source, "_blank")}
                   >
-                    {s.url + ", "}
+                    {s.source + ", "}
                   </span>
                 </Tooltip>
               ))}

@@ -83,7 +83,7 @@ export const AddBlockModal: FC<IAddBlockModal> = ({
 
   useEffect(() => {
     if (nodeData?.sources) {
-      setSource(nodeData.sources?.[0]?.url);
+      setSource(nodeData.sources?.[0]?.source);
     }
   }, [nodeData?.sources]);
 
@@ -225,8 +225,8 @@ export const AddBlockModal: FC<IAddBlockModal> = ({
                 ...(source && {
                   sources: {
                     connectOrCreate: {
-                      where: { node: { url: source } },
-                      onCreate: { node: { url: source } },
+                      where: { node: { source: source } },
+                      onCreate: { node: { source: source } },
                     },
                   },
                 }),
@@ -288,8 +288,8 @@ export const AddBlockModal: FC<IAddBlockModal> = ({
               ...(source && {
                 sources: {
                   connectOrCreate: {
-                    where: { node: { url: source } },
-                    onCreate: { node: { url: source } },
+                    where: { node: { source: source } },
+                    onCreate: { node: { source: source } },
                   },
                 },
               }),
