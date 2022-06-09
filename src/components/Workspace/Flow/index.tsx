@@ -44,6 +44,7 @@ export const Inner: FC<IFlow> = ({
     () => (typeof restoredFlow === "string" ? JSON.parse(restoredFlow) : {}),
     [restoredFlow]
   );
+
   const nodeTypes = useMemo(
     () => ({ block: NoteBlockNode, entity: EntityNode }),
     []

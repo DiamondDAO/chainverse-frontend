@@ -161,8 +161,6 @@ export const AddBlockMenu: FC = () => {
     [sandboxData?.sandboxes[0]?.blocks]
   );
 
-  console.log("Sandbox data ----- " + JSON.stringify(sandboxData?.sandboxes[0]?.blocks))
-
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]

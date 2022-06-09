@@ -88,6 +88,15 @@ export const ADD_SANDBOX_TO_WALLET = gql`
                 name
               }
             }
+            ... on Partnership {
+              tags {
+                tag
+              }
+              text
+              entities {
+                name
+              }
+            }
           }
         }
       }

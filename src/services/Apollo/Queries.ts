@@ -21,6 +21,23 @@ export const GET_NOTES = gql`
             name
           }
         }
+        ... on Partnership {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
       }
     }
   }
@@ -245,6 +262,11 @@ export const GET_WORKSPACES = gql`
           text
           uuid
         }
+        ... on Partnership {
+          text
+          type
+          uuid
+        }
       }
       entities {
         name
@@ -262,6 +284,11 @@ export const GET_WORKSPACE_OWNED = gql`
       blocks {
         ... on Note {
           text
+          uuid
+        }
+        ... on Partnership {
+          text
+          type
           uuid
         }
       }
@@ -295,6 +322,24 @@ export const GET_WORKSPACE = gql`
       blocks {
         ... on Note {
           text
+          createdAt
+          uuid
+          wallet {
+            address
+          }
+          tags {
+            tag
+          }
+          entities {
+            name
+          }
+          sources {
+            source
+          }
+        }
+        ... on Partnership {
+          text
+          type
           createdAt
           uuid
           wallet {

@@ -261,9 +261,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
-          console.log("NOTE BlockResult ----- " + JSON.stringify(blockResult))
         } else if (blockType === "Partnership") {
-          console.log("STEPPED INTO THE FUNCTION CORRECTLY FOR PARTNERSHIP")
           blockResult = await addPartnershipBlock({
             variables: {
               input: [
