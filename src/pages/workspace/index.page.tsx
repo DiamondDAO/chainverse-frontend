@@ -141,6 +141,8 @@ const Workspace: NextPage = () => {
     () => sandboxData?.sandboxes[0]?.entities,
     [sandboxData?.sandboxes[0]?.entities]
   );
+
+  //If I add an or statement for Partnership type, I get an error that "node is undefined"
   const notesData = useMemo(
     () =>
       sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note" ),
