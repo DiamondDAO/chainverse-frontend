@@ -143,9 +143,12 @@ const Workspace: NextPage = () => {
   );
   const notesData = useMemo(
     () =>
-      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note"),
+      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note" ),
     [sandboxData?.sandboxes[0]?.blocks]
   );
+
+  console.log("What's in the sandbox? ---- " + JSON.stringify(sandboxData?.sandboxes[0]?.blocks))
+
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]
@@ -165,6 +168,13 @@ const Workspace: NextPage = () => {
               rfObject: JSON.stringify(rfInstance?.toObject()),
               blocks: {
                 Note: {
+                  connect: {
+                    where: {
+                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
+                    },
+                  },
+                },
+                Partnership: {
                   connect: {
                     where: {
                       node: { uuid_IN: nodeData.map((node) => node.uuid) },
@@ -217,6 +227,15 @@ const Workspace: NextPage = () => {
                   },
                 },
               ],
+              Partnership: [
+                {
+                  where: {
+                    node: {
+                      uuid_NOT: 0,
+                    },
+                  },
+                },
+              ],
             },
             entities: [
               {
@@ -251,28 +270,53 @@ const Workspace: NextPage = () => {
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
-      await addBlockToSandbox({
-        variables: {
-          where: {
-            wallet: {
-              address: data?.walletAddress,
+      if (data.__typename == "Note") {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: data?.walletAddress,
+              },
             },
-          },
-          connect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid: data?.uuid,
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: data?.uuid,
+                      },
                     },
                   },
-                },
-              ],
+                ],
+              },
             },
           },
-        },
-      });
+        });
+      } else if (data.__typename == "Partnership") {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: data?.walletAddress,
+              },
+            },
+            connect: {
+              blocks: {
+                Partnership: [
+                  {
+                    where: {
+                      node: {
+                        uuid: data?.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      }
     } catch (e) {
       throw e;
     }
