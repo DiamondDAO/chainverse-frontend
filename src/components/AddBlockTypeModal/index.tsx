@@ -225,8 +225,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           where: { node: { source: i} },
           onCreate: { node: { source: i} },
         })) || [];
-    const partnershipTypeName =
-      {where: { node: { partnershipType} }}
     try {
       setAddingBlock(true);
       let blockResult = null;

@@ -5,6 +5,7 @@ import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { IconVariants } from "@/common/types";
 import * as styles from "./styles";
+import { bodyText, subText } from "@/theme";
 interface IPartnershipBlockNode {
   data: { label: string; dim: boolean };
 }
