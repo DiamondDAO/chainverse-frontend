@@ -1,8 +1,13 @@
-import { Box, Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Text,
+  Menu,MenuButton,MenuDivider,MenuGroup,MenuItem,MenuList,
+  useDisclosure, useToast } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { AddBlockModal } from "@/components/AddBlockModal";
+import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
@@ -105,6 +110,10 @@ const Workspace: NextPage = () => {
     () => entityData?.concat(notesData),
     [entityData, notesData]
   );
+
+  const blockTypes = ['Entity', 'Note', 'Partnership'];
+  const [blockType, setBlockType] = useState("")
+
 
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
@@ -291,6 +300,28 @@ const Workspace: NextPage = () => {
               <Box sx={styles.WorkspaceBody}>
                 <Box sx={styles.WorkspaceSidebar}>
                   <WorkspaceNavigator />
+                  <Menu gutter={15} offset={[15, 12]}>
+                    <MenuButton sx={styles.MenuButton} as={Box}>
+                      <Box sx={styles.MenuContents}>
+                        <AddBlockIcon/>
+                        <Text ml="4px">Add block</Text>
+                      </Box>
+                    </MenuButton>
+                    <MenuList>
+                      <MenuGroup ml="12.8" title="Block types">
+                        {blockTypes.map(type => (
+                          <MenuItem onClick={() => {
+                              setBlockType(type)
+                              onOpen()
+                            }}>
+                            <Box sx={styles.MenuContents}>
+                              <Text ml="5px">{type}</Text>
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </MenuGroup>
+                    </MenuList>
+                  </Menu>
                   <Box mt="20px">
                     <Button
                       sx={styles.ButtonStyle}
@@ -309,14 +340,6 @@ const Workspace: NextPage = () => {
                       variant="error"
                     >
                       Delete Workspace
-                    </Button>
-                    <Button
-                      sx={styles.ButtonStyle}
-                      leftIcon={<AddBlockIcon />}
-                      onClick={onOpen}
-                      variant="primary"
-                    >
-                      Add block
                     </Button>
                   </Box>
                 </Box>
@@ -338,12 +361,13 @@ const Workspace: NextPage = () => {
                   entityDrawerOnClose();
                 }}
               />
-              <AddBlockModal
+              <AddBlockTypeModal
                 tags={tags}
                 entities={entities}
                 isOpen={isOpen}
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
                 onClose={onClose}
+                blockType={blockType}
               />
             </Box>
             <DeleteModal

@@ -2,14 +2,16 @@ import {
   Box,
   StylesProvider,
   Text,
+  Button,
   toast,
   useDisclosure,
   useToast,
+  Menu,MenuButton,MenuDivider,MenuGroup,MenuItem,MenuList,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { AddBlockModal } from "@/components/AddBlockModal";
+import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
@@ -27,6 +29,7 @@ import { FilterMenu, FilterTypes } from "@/components/Workspace/FilterMenu";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { BlockIcon } from "@/components/Icons/BlockIcon";
+import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
 import {
   DELETE_NOTES,
@@ -36,12 +39,6 @@ import {
 import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import Router from "next/router";
 import * as styles from "./styles";
-const AddBlockCard = ({ onClick }) => (
-  <Box as="button" onClick={onClick} sx={styles.AddBlockCardStyles}>
-    <PlusIcon width="22" height="22" />
-    <Text sx={styles.AddBlockStylesText}>ADD NEW BLOCK</Text>
-  </Box>
-);
 
 const AllBlocks: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -53,7 +50,8 @@ const AllBlocks: NextPage = () => {
   const filteredTagsState = useState<string[]>([]);
   const filteredEntitiesState = useState<string[]>([]);
 
-  console.log("Get notes gives us --------- " + JSON.stringify(getNotes))
+  const blockTypes = ['Entity', 'Note', 'Partnership'];
+  const [blockType, setBlockType] = useState("")
 
   const { isOpen: drawerIsOpen, onOpen: drawerOnOpen } = useDisclosure();
 
@@ -274,7 +272,6 @@ const AllBlocks: NextPage = () => {
         <Box sx={styles.Container}>
           <Box sx={styles.HeaderContainer}>
             <Text sx={styles.HeaderText}>Your Blocks</Text>
-
             <Text sx={styles.HeaderSubText}>
               You’ve created a total of {blockCount} blocks.
             </Text>
@@ -282,6 +279,28 @@ const AllBlocks: NextPage = () => {
           <Box sx={styles.WorkspaceBody}>
             <Box sx={styles.WorkspaceSidebar}>
               <WorkspaceNavigator />
+              <Menu gutter={15} offset={[15, 12]}>
+                <MenuButton sx={styles.MenuButton} as={Box}>
+                  <Box sx={styles.MenuContents}>
+                    <AddBlockIcon/>
+                    <Text ml="4px">Add block</Text>
+                  </Box>
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup ml="12.8" title="Block types">
+                    {blockTypes.map(type => (
+                      <MenuItem onClick={() => {
+                          setBlockType(type)
+                          onOpen()
+                        }}>
+                        <Box sx={styles.MenuContents}>
+                          <Text ml="5px">{type}</Text>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
             </Box>
             <Box>
               <Box display="flex" sx={{ columnGap: "4px" }}>
@@ -298,9 +317,6 @@ const AllBlocks: NextPage = () => {
               </Box>
               <Box>
                 <Box sx={styles.BlockPageBody}>
-                  <Box>
-                    <AddBlockCard onClick={onOpen} />
-                  </Box>
                   {data?.wallets[0].blocks
                     .filter((nodeData) => nodeData.__typename === "Note" || nodeData.__typename === "Partnership")
                     .filter((noteData) => {
@@ -370,12 +386,13 @@ const AllBlocks: NextPage = () => {
               deleteBlock: deleteBlockHandler,
             }}
           />
-          <AddBlockModal
+          <AddBlockTypeModal
             tags={tags}
             nodeData={drawerIsOpen && currentNode}
             entities={entities}
             isOpen={isOpen}
             onClose={onClose}
+            blockType={blockType}
           />
         </Box>
       </Layout>
