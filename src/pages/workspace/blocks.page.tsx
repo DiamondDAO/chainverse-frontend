@@ -20,6 +20,7 @@ import {
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
+import { bodyText, subText } from "@/theme";
 import { filterUniqueObjects } from "@/common/utils";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { FilterMenu, FilterTypes } from "@/components/Workspace/FilterMenu";
@@ -57,7 +58,7 @@ const AllBlocks: NextPage = () => {
   const { isOpen: drawerIsOpen, onOpen: drawerOnOpen } = useDisclosure();
 
   const blockCount = useMemo(
-    () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note" || i.__typename === "Parntership").length,
+    () => data?.wallets[0].blocks.length,
     [data]
   );
 
@@ -343,8 +344,8 @@ const AllBlocks: NextPage = () => {
                           key={idx}
                           sx={styles.BlockItem}
                         >
-                          <Box mr="4px">
-                            <BlockIcon variant={IconVariants.White} />
+                          <Box fontSize={bodyText} fontWeight="500" mr="4px">
+                            {block.__typename} Block
                           </Box>
                           <Box>
                             <AddPillsToText text={block.text} />
