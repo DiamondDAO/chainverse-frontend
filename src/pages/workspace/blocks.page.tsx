@@ -15,6 +15,7 @@ import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
   GET_NOTES,
+  GET_ALL_BLOCKS,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
@@ -44,17 +45,19 @@ const AddBlockCard = ({ onClick }) => (
 const AllBlocks: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toast = useToast();
-  const [getNotes, { data }] = useLazyQuery(GET_NOTES);
+  const [getNotes, { data }] = useLazyQuery(GET_ALL_BLOCKS);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
   const [currentNode, setCurrentNode] = useState(null);
   const filteredTagsState = useState<string[]>([]);
   const filteredEntitiesState = useState<string[]>([]);
 
+  console.log("Get notes gives us --------- " + JSON.stringify(getNotes))
+
   const { isOpen: drawerIsOpen, onOpen: drawerOnOpen } = useDisclosure();
 
   const blockCount = useMemo(
-    () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note").length,
+    () => data?.wallets[0].blocks.filter((i) => i.__typename === "Note" || i.__typename === "Parntership").length,
     [data]
   );
 
@@ -81,11 +84,11 @@ const AllBlocks: NextPage = () => {
   const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
-        query: GET_NOTES,
+        query: GET_ALL_BLOCKS,
         variables: { where: { address: walletData?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_NOTES },
+      { query: GET_ALL_BLOCKS },
     ],
   });
   const deleteBlockHandler = async (block: Block) => {
@@ -136,48 +139,95 @@ const AllBlocks: NextPage = () => {
     workspaceUuid?: string
   ) => {
     try {
+      console.log("Block type is = " + block.__typename)
       if (type === AddWorkspaceType.Sandbox) {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: walletData.address,
+        if (block.__typename === "Note") {
+          await addBlockToSandbox({
+            variables: {
+              where: {
+                wallet: {
+                  address: walletData.address,
+                },
               },
-            },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: block.uuid,
+              connect: {
+                blocks: {
+                  Note: [
+                    {
+                      where: {
+                        node: {
+                          uuid: block.uuid,
+                        },
                       },
                     },
-                  },
-                ],
+                  ],
+                },
               },
             },
-          },
-        });
+          });
+        } else if (block.__typename === "Partnership") {
+          await addBlockToSandbox({
+            variables: {
+              where: {
+                wallet: {
+                  address: walletData.address,
+                },
+              },
+              connect: {
+                blocks: {
+                  Partnership: [
+                    {
+                      where: {
+                        node: {
+                          uuid: block.uuid,
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          });
+        }
       } else {
-        await addBlockToWorkspace({
-          variables: {
-            where: { uuid: workspaceUuid },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: block.uuid,
+        if (block.__typename === "Note") {
+          await addBlockToWorkspace({
+            variables: {
+              where: { uuid: workspaceUuid },
+              connect: {
+                blocks: {
+                  Note: [
+                    {
+                      where: {
+                        node: {
+                          uuid: block.uuid,
+                        },
                       },
                     },
-                  },
-                ],
+                  ],
+                },
               },
             },
-          },
-        });
+          });
+        } else if (block.__typename === "Partnership") {
+          await addBlockToWorkspace({
+            variables: {
+              where: { uuid: workspaceUuid },
+              connect: {
+                blocks: {
+                  Partnership: [
+                    {
+                      where: {
+                        node: {
+                          uuid: block.uuid,
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          });
+        }
       }
       toast({
         position: "top-right",
@@ -251,7 +301,7 @@ const AllBlocks: NextPage = () => {
                     <AddBlockCard onClick={onOpen} />
                   </Box>
                   {data?.wallets[0].blocks
-                    .filter((nodeData) => nodeData.__typename === "Note")
+                    .filter((nodeData) => nodeData.__typename === "Note" || nodeData.__typename === "Partnership")
                     .filter((noteData) => {
                       let tagFlag = true;
                       let entitiyFlag = true;

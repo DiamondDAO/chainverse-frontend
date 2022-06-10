@@ -21,23 +21,6 @@ export const GET_NOTES = gql`
             name
           }
         }
-        ... on Partnership {
-          text
-          uuid
-          sources {
-            source
-          }
-          tags {
-            tag
-          }
-          createdAt
-          wallet {
-            address
-          }
-          entities {
-            name
-          }
-        }
       }
     }
   }
@@ -112,6 +95,50 @@ export const GET_ALL_PARTNERSHIPS = gql`
     }
   }
 `;
+
+export const GET_ALL_BLOCKS = gql`
+  query Notes($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Note {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+        ... on Partnership {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 
 export const GET_BLOCK_DATA = gql`
   query Notes($where: NoteWhere) {

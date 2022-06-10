@@ -15,6 +15,7 @@ import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import {
   GET_ALL_NOTES,
   GET_NOTES,
+  GET_ALL_BLOCKS,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
@@ -273,11 +274,11 @@ const Workspace: NextPage = () => {
   const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
-        query: GET_NOTES,
+        query: GET_ALL_BLOCKS,
         variables: { where: { address: nodeData?.wallet?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_NOTES },
+      { query: GET_ALL_BLOCKS },
     ],
   });
   const deleteBlockHandler = async (block: Block) => {

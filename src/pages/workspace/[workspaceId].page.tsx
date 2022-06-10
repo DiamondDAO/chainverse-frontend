@@ -8,6 +8,7 @@ import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
   GET_NOTES,
+  GET_ALL_BLOCKS,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
   GET_WORKSPACE_OWNED,
@@ -166,11 +167,11 @@ const Workspace: NextPage = () => {
   const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
-        query: GET_NOTES,
+        query: GET_ALL_BLOCKS,
         variables: { where: { address: nodeData?.wallet?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_NOTES },
+      { query: GET_ALL_BLOCKS },
     ],
   });
   const deleteBlockHandler = async (block: Block) => {

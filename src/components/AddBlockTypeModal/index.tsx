@@ -290,7 +290,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
-          console.log("PARNTERSHIP BlockResult ----- " + JSON.stringify(blockResult))
         }
       } else if (action === submitBlockAction.Update) {
         // updating block in db
