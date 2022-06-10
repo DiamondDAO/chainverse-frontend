@@ -11,12 +11,12 @@ import {
 import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
 import React, { FC, useEffect, useRef, useState } from "react";
 import Fuse from "fuse.js";
-import { TipDrawer } from "./TipDrawer";
+// import { TipDrawer } from "./TipDrawer";
 import { Pill } from "../Pill";
 import { TagIcon } from "../Icons/TagIcon";
 import { EntitiesIcon } from "../Icons/EntitiesIcon";
 import { LinkSourceModal } from "./LinkSourceModal";
-import { NoteBlockModal } from "./NoteBlockModal";
+// import { NoteBlockModal } from "./NoteBlockModal";
 import { useAccount } from "wagmi";
 import { useMutation } from "@apollo/client";
 import {
@@ -44,7 +44,7 @@ interface IAddBlockTypeModal {
   onClose: () => void;
   nodeData?: any;
   saveToWorkspaceFn?: (data: any) => Promise<void>;
-  blockType: string[];
+  blockType: string;
 }
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   tags,
@@ -565,7 +565,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                           <option value='Integration'>Integration</option>
                           <option value='Marketing'>Marketing</option>
                           <option value='Technological'>Technological</option>
-                        >
                       </Select>
                       <Box sx={styles.EntityTagDialog(position.current, visible)}>
                         <Popover placement="bottom-start" isOpen>
