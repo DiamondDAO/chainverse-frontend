@@ -56,7 +56,7 @@ export const typeDefs = gql`
     uuid: ID! @id(autogenerate: true)
     tag: String @unique #todo: should be non-nullable but db currently has null fields ingested
     createdAt: DateTime! @timestamp
-    blocks: [Block!]! @relationship(type: "IS_TAGGED", direction: IN)
+    blocks: [Block!]! @relationship(type: "HAS_TAG", direction: IN)
   }
 
   type Narrative {
@@ -93,7 +93,7 @@ export const typeDefs = gql`
     text: String!
     createdAt: DateTime! @timestamp #todo: should be non-nullable but db currently has null fields ingested
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
-    tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
+    tags: [Tag!]! @relationship(type: "HAS_TAG", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
@@ -111,7 +111,7 @@ export const typeDefs = gql`
     createdAt: DateTime! @timestamp
     type: String
     entities: [Entity!]! @relationship(type: "REFERENCES", direction: OUT)
-    tags: [Tag!]! @relationship(type: "IS_TAGGED", direction: OUT)
+    tags: [Tag!]! @relationship(type: "HAS_TAG", direction: OUT)
     sources: [Source!]! @relationship(type: "HAS_SOURCE", direction: OUT)
     wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
