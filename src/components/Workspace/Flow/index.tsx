@@ -46,7 +46,9 @@ export const Inner: FC<IFlow> = ({
   );
 
   const nodeTypes = useMemo(
-    () => ({ block: NoteBlockNode, entity: EntityNode }),
+    () => ({ noteBlock: NoteBlockNode,
+      partnershipBlock: PartnershipBlockNode,
+      entity: EntityNode }),
     []
   );
   const initialEdges: Edge[] = useMemo(() => {
@@ -55,6 +57,7 @@ export const Inner: FC<IFlow> = ({
   const initialNodes: Node[] = useMemo(
     () =>
       nodeData?.map((node, idx) => {
+        console.log("NODE IN FLOW INDEX IS --- " + JSON.stringify(node))
         if (node?.__typename === "Entity") {
           const selectedNode = restoredFlowJSON?.nodes?.find((selectNode) =>
             node?.id
@@ -88,7 +91,23 @@ export const Inner: FC<IFlow> = ({
               dim: false,
               label: node.text,
             },
-            type: "block",
+            type: "noteBlock",
+            position: selectedNode
+              ? { x: selectedNode.position.x, y: selectedNode.position.y }
+              : { x: 100, y: idx * 150 + 100 },
+          };
+        } else if (node?.__typename === "Partnership") {
+          const selectedNode = restoredFlowJSON?.nodes?.find(
+            (selectNode) => node.uuid === selectNode.id
+          );
+          return {
+            id: node.uuid,
+            data: {
+              node,
+              dim: false,
+              label: node.text,
+            },
+            type: "partnershipBlock",
             position: selectedNode
               ? { x: selectedNode.position.x, y: selectedNode.position.y }
               : { x: 100, y: idx * 150 + 100 },

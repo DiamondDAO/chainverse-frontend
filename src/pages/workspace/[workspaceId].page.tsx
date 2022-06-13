@@ -235,6 +235,15 @@ const Workspace: NextPage = () => {
                   },
                 },
               ],
+              Partnership: [
+                {
+                  where: {
+                    node: {
+                      uuid: data.uuid,
+                    },
+                  },
+                },
+              ],
             },
           },
         },
@@ -277,6 +286,7 @@ const Workspace: NextPage = () => {
                   setCurrentNode={(value) => {
                     setCurrentNode(value);
                     value.__typename === "Note" && blockDrawerOnOpen();
+                    value.__typename === "Partnership" && blockDrawerOnOpen();
                     value.__typename === "Entity" && entityDrawerOnOpen();
                   }}
                 />
