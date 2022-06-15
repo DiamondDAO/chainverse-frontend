@@ -24,9 +24,7 @@ export const NavBar: FC = () => {
           <NavPages pages={navigationPages} />
         </Box>
         <Box sx={styles.NavAccountMenu}>
-          <Box sx={styles.AccountMenuWrapper}>
-            <AccountMenu />
-          </Box>
+          <Box sx={styles.AccountMenuWrapper}>{/* <AccountMenu /> */}</Box>
         </Box>
       </Box>
     </Box>
