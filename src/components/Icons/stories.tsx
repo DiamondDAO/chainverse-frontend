@@ -1,7 +1,9 @@
 import React, { useRef } from "react";
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 
+import { AccountIcon } from "./AccountIcon";
 import { ExpandableIcon } from "./ExpandableIcon";
+
 import { Box, Text } from "@chakra-ui/react";
 
 export default {
@@ -25,6 +27,10 @@ const IconContainer = ({ children }: { children: React.ReactNode }) => {
 const Template: ComponentStory<React.FC> = () => {
   return (
     <Box display={"inline-block"}>
+      <IconContainer>
+        <AccountIcon />
+        <Text>Account Icon</Text>
+      </IconContainer>
       <IconContainer>
         <ExpandableIcon />
         <Text>Expandable Icon</Text>

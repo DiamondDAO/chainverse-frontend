@@ -1,4 +1,4 @@
-const AccountIcon = () => (
+export const AccountIcon = () => (
   <svg
     width="12"
     height="12"
@@ -18,4 +18,4 @@ const AccountIcon = () => (
     />
   </svg>
 );
-export default AccountIcon;
+
