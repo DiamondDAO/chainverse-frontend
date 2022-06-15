@@ -1,5 +1,4 @@
 import { borderStyles } from "@/theme";
-import { space } from "@chakra-ui/react";
 
 export const MenuButton = {
   cursor: "pointer",

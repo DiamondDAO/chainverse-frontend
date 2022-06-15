@@ -1,24 +1,21 @@
-import "../styles/globals.css";
-import { ChakraProvider } from "@chakra-ui/react";
-import { theme } from "../theme/index";
-import { RouterContext } from "next/dist/shared/lib/router-context";
+import { theme } from "../src/theme/index";
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
+  chakra: {
+    theme: theme,
+  },
   controls: {
     matchers: {
       color: /(background|color)$/i,
       date: /Date$/,
     },
   },
-  nextRouter: {
-    Provider: RouterContext.Provider,
-  },
 };
 
 export const decorators = [
   (Story) => (
-    <ChakraProvider theme={theme}>
+    <>
       <Story />
-    </ChakraProvider>
+    </>
   ),
 ];
