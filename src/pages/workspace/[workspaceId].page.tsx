@@ -31,10 +31,10 @@ import {
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
 import { subText } from "@/theme";
-import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
-
 import { DeleteModal } from "@/components/DeleteModal";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
+import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
+import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
 
@@ -43,9 +43,14 @@ const Workspace: NextPage = () => {
   const { workspaceId } = router.query;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
-    isOpen: blockDrawerIsOpen,
-    onOpen: blockDrawerOnOpen,
-    onClose: blockDrawerOnClose,
+    isOpen: noteBlockDrawerIsOpen,
+    onOpen: noteBlockDrawerOnOpen,
+    onClose: noteBlockDrawerOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: partnershipBlockDrawerIsOpen,
+    onOpen: partnershipBlockDrawerOnOpen,
+    onClose: partnershipBlockDrawerOnClose,
   } = useDisclosure();
   const {
     isOpen: entityDrawerIsOpen,
@@ -102,7 +107,13 @@ const Workspace: NextPage = () => {
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-  const notesData = useMemo(() => workspace?.blocks, [workspace?.blocks]);
+
+  console.log("WHAT'S IN THIS WORKSPACE?? --- " + JSON.stringify(workspace?.blocks))
+
+  const notesData = useMemo(() => workspace?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership" ),
+  [workspace?.blocks]);
+
+  console.log("NOTES DATA IN WORKSPACE -- " + JSON.stringify(notesData))
 
   const entityData = useMemo(() => workspace?.entities, [workspace?.entities]);
 
@@ -285,9 +296,9 @@ const Workspace: NextPage = () => {
                   onInit={setRfInstance}
                   setCurrentNode={(value) => {
                     setCurrentNode(value);
-                    value.__typename === "Note" && blockDrawerOnOpen();
-                    value.__typename === "Partnership" && blockDrawerOnOpen();
-                    value.__typename === "Entity" && entityDrawerOnOpen();
+                    if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
+                    else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
+                    else if (value.__typename === "Entity") {entityDrawerOnOpen()}
                   }}
                 />
               )}
@@ -354,12 +365,21 @@ const Workspace: NextPage = () => {
                   </Box>
                 </Box>
               </Box>
-              <BlockDrawer
+              <NoteBlockDrawer
                 nodeData={currentNode?.__typename == "Note" && currentNode}
-                isOpen={blockDrawerIsOpen}
+                isOpen={noteBlockDrawerIsOpen}
                 onClose={() => {
                   setCurrentNode(null);
-                  blockDrawerOnClose();
+                  noteBlockDrawerOnClose();
+                }}
+                actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
+              />
+              <PartnershipBlockDrawer
+                nodeData={currentNode?.__typename == "Partnership" && currentNode}
+                isOpen={partnershipBlockDrawerIsOpen}
+                onClose={() => {
+                  setCurrentNode(null);
+                  partnershipBlockDrawerOnClose();
                 }}
                 actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
               />

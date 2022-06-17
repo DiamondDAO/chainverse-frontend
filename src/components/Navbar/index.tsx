@@ -37,9 +37,9 @@ export const NavBar: FC = () => {
           <NavPages pages={navigationPages} />
         </Box>
         <Box sx={styles.NavAccountMenu}>
-          <Box sx={styles.AccountMenuWrapper}>
+          {/*}<Box sx={styles.AccountMenuWrapper}>
             <AddBlockMenu />
-          </Box>
+          </Box>*/}
           <Box sx={styles.AccountMenuWrapper}>
             <AccountMenu />
           </Box>

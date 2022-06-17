@@ -119,6 +119,7 @@ export const GET_ALL_BLOCKS = gql`
         }
         ... on Partnership {
           text
+          type
           uuid
           sources {
             source
@@ -261,6 +262,7 @@ export const GET_SANDBOX = gql`
         ... on Partnership {
           text
           type
+          uuid
           wallet {
             address
           }
