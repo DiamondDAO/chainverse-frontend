@@ -35,7 +35,7 @@ import { bodyText } from "@/theme";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import * as styles from "../styles";
 
-interface IBlockDrawer {
+interface IPartnershipBlockDrawer {
   isOpen: boolean;
   onClose: () => void;
   nodeData: any;
@@ -46,11 +46,11 @@ interface IBlockDrawer {
       workspaceUuid?: string
     ) => Promise<void>;
     editBlock?: () => void;
-    deleteBlock?: (block: Block) => Promise<void>;
+    deleteBlock?: (block: PartnershipBlockNode) => Promise<void>;
   };
 }
 
-export const BlockDrawer: FC<IBlockDrawer> = ({
+export const PartnershipBlockDrawer: FC<IPartnershipBlockDrawer> = ({
   isOpen,
   onClose,
   nodeData,
@@ -198,6 +198,15 @@ export const BlockDrawer: FC<IBlockDrawer> = ({
               {ENS ||
                 "0x" + truncateAddress(nodeData?.wallet?.address.slice(2), 4)}
             </Text>
+          </Box>
+          <Divider mt="16px" />
+          <Box mt="16px">
+            <Box color="diamond.blue.3" fontWeight={500}>
+              PARTNERSHIP TYPE
+            </Box>
+            <Box>
+              {nodeData?.type}
+            </Box>
           </Box>
           <Divider mt="16px" />
           <Box mt="16px">

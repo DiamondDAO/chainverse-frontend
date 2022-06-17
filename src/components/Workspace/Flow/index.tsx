@@ -57,7 +57,6 @@ export const Inner: FC<IFlow> = ({
   const initialNodes: Node[] = useMemo(
     () =>
       nodeData?.map((node, idx) => {
-        console.log("NODE IN FLOW INDEX IS --- " + JSON.stringify(node))
         if (node?.__typename === "Entity") {
           const selectedNode = restoredFlowJSON?.nodes?.find((selectNode) =>
             node?.id

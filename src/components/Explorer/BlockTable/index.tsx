@@ -23,7 +23,7 @@ import { generateDateString, truncateAddress } from "@/common/utils";
 import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
 import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { useLazyQuery } from "@apollo/client";
 import { bodyText } from "@/theme";

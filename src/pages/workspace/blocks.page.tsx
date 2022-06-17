@@ -36,12 +36,13 @@ import {
   UPDATE_SANDBOX,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
+import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
+import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import Router from "next/router";
 import * as styles from "./styles";
 
 const AllBlocks: NextPage = () => {
-  const { isOpen, onClose, onOpen } = useDisclosure();
   const toast = useToast();
   const [getNotes, { data }] = useLazyQuery(GET_ALL_BLOCKS);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
@@ -53,7 +54,22 @@ const AllBlocks: NextPage = () => {
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState("")
 
-  const { isOpen: drawerIsOpen, onOpen: drawerOnOpen } = useDisclosure();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const {
+    isOpen: noteBlockDrawerIsOpen,
+    onOpen: noteBlockDrawerOnOpen,
+    onClose: noteBlockDrawerOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: partnershipBlockDrawerIsOpen,
+    onOpen: partnershipBlockDrawerOnOpen,
+    onClose: partnershipBlockDrawerOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: entityDrawerIsOpen,
+    onOpen: entityDrawerOnOpen,
+    onClose: entityDrawerOnClose,
+  } = useDisclosure();
 
   const blockCount = useMemo(
     () => data?.wallets[0].blocks.length,
@@ -90,7 +106,8 @@ const AllBlocks: NextPage = () => {
       { query: GET_ALL_BLOCKS },
     ],
   });
-  const deleteBlockHandler = async (block: Block) => {
+  const deleteBlockHandler = async (block: PartnershipBlockNode) => {
+    console.log("BLOCK TO DELETE IS -- " + JSON.stringify(block))
     try {
       await deleteBlock({
         variables: {
@@ -355,7 +372,9 @@ const AllBlocks: NextPage = () => {
                         <Box
                           onClick={() => {
                             setCurrentNode(block);
-                            drawerOnOpen();
+                            if (block.__typename === "Note") {noteBlockDrawerOnOpen()}
+                            else if (block.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
+                            else if (block.__typename === "Entity") {entityDrawerOnOpen()}
                           }}
                           key={idx}
                           sx={styles.BlockItem}
@@ -373,22 +392,33 @@ const AllBlocks: NextPage = () => {
               </Box>
             </Box>
           </Box>
-          <BlockDrawer
+          <NoteBlockDrawer
             nodeData={currentNode?.__typename == "Note" && currentNode}
-            isOpen={drawerIsOpen}
+            isOpen={noteBlockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
-              drawerOnOpen();
+              noteBlockDrawerOnClose();
             }}
             actions={{
               addBlockToWorkspace: addBlockHandler,
               editBlock: onOpen,
-              deleteBlock: deleteBlockHandler,
+              deleteBlock: deleteBlockHandler }}
+          />
+          <PartnershipBlockDrawer
+            nodeData={currentNode?.__typename == "Partnership" && currentNode}
+            isOpen={partnershipBlockDrawerIsOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              partnershipBlockDrawerOnClose();
             }}
+            actions={{
+              addBlockToWorkspace: addBlockHandler,
+              editBlock: onOpen,
+              deleteBlock: deleteBlockHandler }}
           />
           <AddBlockTypeModal
             tags={tags}
-            nodeData={drawerIsOpen && currentNode}
+            nodeData={isOpen && currentNode}
             entities={entities}
             isOpen={isOpen}
             onClose={onClose}

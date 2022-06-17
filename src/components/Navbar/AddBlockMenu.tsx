@@ -16,9 +16,12 @@ import * as styles from "./styles";
 import { Layout } from "@/components/Layout";
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+
+import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
+import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
+import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 
 import { borderStyles } from "@/theme";
 import { AccountMenu } from "./AccountMenu";
@@ -49,17 +52,6 @@ export const AddBlockMenu: FC = () => {
   const { space } = useTheme();
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState("")
-  const { isOpen, onClose, onOpen } = useDisclosure();
-  const {
-    isOpen: blockDrawerIsOpen,
-    onOpen: blockDrawerOnOpen,
-    onClose: blockDrawerOnClose,
-  } = useDisclosure();
-  const {
-    isOpen: entityDrawerIsOpen,
-    onOpen: entityDrawerOnOpen,
-    onClose: entityDrawerOnClose,
-  } = useDisclosure();
 
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState("");
@@ -162,7 +154,6 @@ export const AddBlockMenu: FC = () => {
     [entityData, notesData]
   );
 
-
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
 
@@ -179,7 +170,20 @@ export const AddBlockMenu: FC = () => {
                 Note: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
+                      node: { uuid_IN: nodeData
+                        .filter((node) => node.__typename === "Note")
+                        .map((node) => node.uuid),
+                      },
+                    },
+                  },
+                },
+                Partnership: {
+                  connect: {
+                    where: {
+                      node: { uuid_IN: nodeData
+                        .filter((node) => node.__typename === "Partnership")
+                        .map((node) => node.uuid),
+                      },
                     },
                   },
                 },

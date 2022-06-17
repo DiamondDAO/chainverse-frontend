@@ -13,7 +13,10 @@ import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { Flow } from "@/components/Workspace/Flow";
+import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
+import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
+import { Block } from "@/common/types";
 
 import {
   GET_ALL_NOTES,
@@ -33,15 +36,19 @@ import {
 
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
-    isOpen: blockDrawerIsOpen,
-    onOpen: blockDrawerOnOpen,
-    onClose: blockDrawerOnClose,
+    isOpen: noteBlockDrawerIsOpen,
+    onOpen: noteBlockDrawerOnOpen,
+    onClose: noteBlockDrawerOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: partnershipBlockDrawerIsOpen,
+    onOpen: partnershipBlockDrawerOnOpen,
+    onClose: partnershipBlockDrawerOnClose,
   } = useDisclosure();
   const {
     isOpen: entityDrawerIsOpen,
@@ -148,8 +155,6 @@ const Workspace: NextPage = () => {
     [sandboxData?.sandboxes[0]?.blocks]
   );
 
-  console.log("What's in the sandbox? ---- " + JSON.stringify(sandboxData?.sandboxes[0]?.blocks))
-
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]
@@ -171,14 +176,20 @@ const Workspace: NextPage = () => {
                 Note: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
+                      node: { uuid_IN: nodeData
+                        .filter((node) => node.__typename === "Note")
+                        .map((node) => node.uuid),
+                      },
                     },
                   },
                 },
                 Partnership: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
+                      node: { uuid_IN: nodeData
+                        .filter((node) => node.__typename === "Partnership")
+                        .map((node) => node.uuid),
+                      },
                     },
                   },
                 },
@@ -370,8 +381,10 @@ const Workspace: NextPage = () => {
               onInit={setRfInstance}
               setCurrentNode={(value) => {
                 setCurrentNode(value);
-                value.__typename === "Note" && blockDrawerOnOpen();
-                value.__typename === "Entity" && entityDrawerOnOpen();
+                console.log("VALUE OBJECT --- " + JSON.stringify(value))
+                if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
+                else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
+                else if (value.__typename === "Entity") {entityDrawerOnOpen()}
               }}
             />
           )}
@@ -430,12 +443,21 @@ const Workspace: NextPage = () => {
               </Box>
             </Box>
           </Box>
-          <BlockDrawer
+          <NoteBlockDrawer
             nodeData={currentNode?.__typename == "Note" && currentNode}
-            isOpen={blockDrawerIsOpen}
+            isOpen={noteBlockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
-              blockDrawerOnClose();
+              noteBlockDrawerOnClose();
+            }}
+            actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
+          />
+          <PartnershipBlockDrawer
+            nodeData={currentNode?.__typename == "Partnership" && currentNode}
+            isOpen={partnershipBlockDrawerIsOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              partnershipBlockDrawerOnClose();
             }}
             actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
           />
