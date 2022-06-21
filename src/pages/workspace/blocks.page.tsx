@@ -33,6 +33,7 @@ import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
 import {
   DELETE_NOTES,
+  DELETE_PARTNERSHIPS,
   UPDATE_SANDBOX,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
@@ -96,30 +97,55 @@ const AllBlocks: NextPage = () => {
       ) || [],
     [tagAndEntitiesData?.entities]
   );
-  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
         query: GET_ALL_BLOCKS,
-        variables: { where: { address: walletData?.address } },
+        variables: { where: { address: walletData?.wallet?.address } },
       },
       GET_TAGS_AND_ENTITIES,
       { query: GET_ALL_BLOCKS },
     ],
   });
-  const deleteBlockHandler = async (block: PartnershipBlockNode) => {
+
+  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
+    refetchQueries: [
+      {
+        query: GET_ALL_BLOCKS,
+        variables: { where: { address: walletData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_BLOCKS },
+    ],
+  });
+  const deleteBlockHandler = async (block: Block) => {
     console.log("BLOCK TO DELETE IS -- " + JSON.stringify(block))
     try {
-      await deleteBlock({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: "Block Deleted!",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
+      if (block.__typename === "Note") {
+        await deleteNoteBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Note Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      } else if (block.__typename === "Partnership") {
+        await deletePartnershipBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Partnership Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
     } catch (e) {
       toast({
         title: "Error",
@@ -155,7 +181,6 @@ const AllBlocks: NextPage = () => {
     workspaceUuid?: string
   ) => {
     try {
-      console.log("Block type is = " + block.__typename)
       if (type === AddWorkspaceType.Sandbox) {
         if (block.__typename === "Note") {
           await addBlockToSandbox({

@@ -192,6 +192,15 @@ export const DELETE_NOTES = gql`
   }
 `;
 
+export const DELETE_PARTNERSHIPS = gql`
+  mutation DeletePartnerships($where: PartnershipWhere) {
+    deletePartnerships(where: $where) {
+      nodesDeleted
+      relationshipsDeleted
+    }
+  }
+`;
+
 export const DELETE_WORKSPACE = gql`
   mutation DeleteWorkspaces($where: WorkspaceWhere) {
     deleteWorkspaces(where: $where) {

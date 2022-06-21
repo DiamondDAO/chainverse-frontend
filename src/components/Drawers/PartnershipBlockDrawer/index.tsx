@@ -45,8 +45,8 @@ interface IPartnershipBlockDrawer {
       type: AddWorkspaceType,
       workspaceUuid?: string
     ) => Promise<void>;
-    editBlock?: () => void;
-    deleteBlock?: (block: PartnershipBlockNode) => Promise<void>;
+    editBlock?: (block: Block) => Promise<void>;
+    deleteBlock?: (block: Block) => Promise<void>;
   };
 }
 
