@@ -45,7 +45,7 @@ interface INoteBlockDrawer {
       type: AddWorkspaceType,
       workspaceUuid?: string
     ) => Promise<void>;
-    editBlock?: () => void;
+    editBlock?: (block: Block) => Promise<void>;
     deleteBlock?: (block: Block) => Promise<void>;
   };
 }

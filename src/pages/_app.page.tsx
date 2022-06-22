@@ -16,6 +16,7 @@ import { ApolloProvider } from "@apollo/client";
 import client from "@/services/Apollo/apolloClient";
 import { CheckIfOnboarded } from "@/components/UtilityComponents/CheckIfOnboarded";
 import Script from "next/script";
+import Router, { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const chains = [...defaultChains, ...defaultL2Chains, ...developmentChains];
@@ -29,6 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       },
     }),
   ];
+  const router = useRouter();
 
   return (
     <>

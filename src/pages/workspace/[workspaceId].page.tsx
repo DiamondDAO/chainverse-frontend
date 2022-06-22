@@ -27,6 +27,7 @@ import Router, { useRouter } from "next/router";
 import { Loader } from "@/components/Loader";
 import {
   DELETE_NOTES,
+  DELETE_PARTNERSHIPS,
   DELETE_WORKSPACE,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
@@ -184,7 +185,7 @@ const Workspace: NextPage = () => {
     onClose();
     setDeletingWorkspace(false);
   };
-  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
         query: GET_ALL_BLOCKS,
@@ -194,19 +195,45 @@ const Workspace: NextPage = () => {
       { query: GET_ALL_BLOCKS },
     ],
   });
+
+  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
+    refetchQueries: [
+      {
+        query: GET_ALL_BLOCKS,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_BLOCKS },
+    ],
+  });
+
   const deleteBlockHandler = async (block: Block) => {
     try {
-      await deleteBlock({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: "Block Deleted!",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
+      if (block.__typename === "Note") {
+        await deleteNoteBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Note Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      } else if (block.__typename === "Partnership") {
+        await deletePartnershipBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Partnership Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
     } catch (e) {
       toast({
         title: "Error",

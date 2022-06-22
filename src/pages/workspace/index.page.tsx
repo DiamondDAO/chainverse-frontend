@@ -30,6 +30,7 @@ import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
   DELETE_NOTES,
+  DELETE_PARTNERSHIPS,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from "@/services/Apollo/Mutations";
@@ -333,7 +334,18 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
-  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
+  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
+    refetchQueries: [
+      {
+        query: GET_ALL_BLOCKS,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+      { query: GET_ALL_BLOCKS },
+    ],
+  });
+
+  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
     refetchQueries: [
       {
         query: GET_ALL_BLOCKS,
@@ -345,17 +357,31 @@ const Workspace: NextPage = () => {
   });
   const deleteBlockHandler = async (block: Block) => {
     try {
-      await deleteBlock({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: "Block Deleted!",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
+      if (block.__typename === "Note") {
+        await deleteNoteBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Note Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      } else if (block.__typename === "Partnership") {
+        await deletePartnershipBlock({
+          variables: {
+            where: { uuid: block.uuid },
+          },
+        });
+        toast({
+          title: "Partnership Block Deleted!",
+          status: "info",
+          duration: 2000,
+          isClosable: true,
+        });
+      }
     } catch (e) {
       toast({
         title: "Error",
@@ -381,7 +407,6 @@ const Workspace: NextPage = () => {
               onInit={setRfInstance}
               setCurrentNode={(value) => {
                 setCurrentNode(value);
-                console.log("VALUE OBJECT --- " + JSON.stringify(value))
                 if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
                 else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
                 else if (value.__typename === "Entity") {entityDrawerOnOpen()}

@@ -39,7 +39,6 @@ export const LinkSourceModal: FC<ILinkSource> = ({
     }
   }, [inputRef, sources]);
 
-
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
       <Popover isOpen={isOpen} closeOnBlur={true}>
@@ -83,7 +82,6 @@ export const LinkSourceModal: FC<ILinkSource> = ({
                 validURL(inputRef.current.value)
               ) {
                 sources.push(inputRef.current.value)
-                {/*setSources({sources: [...sources, inputRef.current.value]});*/}
                 setError(false);
                 inputRef.current.value = ""
                 close();

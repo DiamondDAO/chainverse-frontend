@@ -19,7 +19,7 @@ export const CheckIfOnboarded = ({ children }) => {
     } = await getWalletCount({
       variables: { where: { address: walletData?.address } },
     });
-    if (walletsCount < 1) {
+    if (walletsCount < 0) {
       Router.push("/onboard");
     }
   };
