@@ -37,7 +37,6 @@ import {
 
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
-import { Block } from "@/common/types";
 import * as styles from "./styles";
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
