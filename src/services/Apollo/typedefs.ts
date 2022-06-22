@@ -9,23 +9,6 @@ export const typeDefs = gql`
     SURVEY
   }
 
-  type Entity {
-    """
-    TODO: Should this be restricted
-    """
-    uuid: ID @id(autogenerate: true)
-    name: String @unique #under assumption name for entities are unique
-    id: String @unique
-    minScore: Float
-    network: Float
-    onlyMembers: String
-    symbol: String
-    address: String @unique
-    avatar: String
-    about: String
-    proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
-  }
-
   type Account {
     """
     TODO: Should this be restricted
@@ -40,6 +23,27 @@ export const typeDefs = gql`
     type: PromptType!
     createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "RESPONDS_TO", direction: IN)
+  }
+
+  type Narrative {
+    uuid: ID! @id(autogenerate: true)
+    createdAt: DateTime! @timestamp
+    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
+  }
+
+  type Proposal {
+    body: String
+    choices: [String]
+    createdAt: DateTime! @timestamp
+    id: String
+    ipfs: String
+    link: String
+    network: Int
+    start: DateTime! @timestamp
+    state: String
+    title: String
+    type: String
+    entity: Entity @relationship(type: "HAS_PROPOSAL", direction: IN)
   }
 
   type Wallet {
@@ -57,12 +61,6 @@ export const typeDefs = gql`
     tag: String @unique #todo: should be non-nullable but db currently has null fields ingested
     createdAt: DateTime! @timestamp
     blocks: [Block!]! @relationship(type: "HAS_TAG", direction: IN)
-  }
-
-  type Narrative {
-    uuid: ID! @id(autogenerate: true)
-    createdAt: DateTime! @timestamp
-    blocks: [Block!]! @relationship(type: "CONTAINS", direction: IN)
   }
 
   type Workspace {
@@ -122,18 +120,70 @@ export const typeDefs = gql`
     source: String! @unique
   }
 
-  type Proposal {
-    body: String
-    choices: [String]
-    createdAt: DateTime! @timestamp
-    id: String
-    ipfs: String
-    link: String
-    network: Int
-    start: DateTime! @timestamp
-    state: String
-    title: String
-    type: String
-    entity: Entity @relationship(type: "HAS_PROPOSAL", direction: IN)
-  }
+  enum blockchainNetwork {
+   EthereumMainnet
+   GnosisChain
+   Optimism
+   Other
+   Polygon
+ }
+
+ type Entity {
+  """
+  TODO: Should this be restricted
+  """
+  uuid: ID @id(autogenerate: true)
+  name: String @unique #under assumption name for entities are unique
+  id: String @unique
+  minScore: Float
+  network: Float
+  onlyMembers: String
+  symbol: String
+  address: String @unique
+  avatar: String
+  about: String
+  proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
+}
+
+type EntityBlock @node(additionalLabels: ["Block"]) {
+  """
+  TODO: Should this be restricted.
+  Angela notes/changes: network should be blockchainNetwork enum.
+  removed many ! for required fields for now
+  """
+  uuid: ID! @id(autogenerate: true)
+  name: String @unique
+  id: String @unique
+  avatar: String
+  onChain: Boolean
+  network: Float
+  address: Wallet @relationship(type: "HAS_WALLET", direction: OUT)
+  addressSource: Source @relationship(type: "HAS_SOURCE", direction: OUT)
+  twitter: AccountTwitter @relationship(type: "HAS_ACCOUNT", direction: OUT)
+  discord: String
+  github: String
+  website: String
+  tags: [Tag!] @relationship(type: "HAS_TAG", direction: OUT)
+  createdAt: DateTime! @timestamp
+  createdBy: Wallet! @relationship(type: "CREATED", direction: IN)
+}
+
+ interface AccountBlock {
+   """
+   TODO: Should this be restricted.
+   NOTE: this is duplicate of above Account
+   """
+   uuid: ID! @id(autogenerate: true)
+   profileUrl: String!
+ }
+
+ type AccountTwitter implements Account @node(additionalLabels: ["Twitter"]){
+   """
+   Node type of a Twitter Account
+   """
+   uuid: ID! @id(autogenerate: true)
+   profileUrl: String! @unique
+   twitterID: Int
+ }
+
 `;
