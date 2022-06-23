@@ -11,6 +11,7 @@ import { Layout } from "@/components/Layout";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
+  GET_ALL_BLOCKS,
   GET_BLOCK_DATA,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
@@ -47,10 +48,10 @@ const Search: NextPage = () => {
   const { term, type } = router.query;
 
   // graphql data
-  const { data: notesData } = useQuery(GET_ALL_NOTES);
+  const { data: blocksData } = useQuery(GET_ALL_BLOCKS);
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
-  const [getnodeData] = useLazyQuery(GET_BLOCK_DATA);
+  const { data: getNodeData} = useQuery(GET_ALL_BLOCKS);
   const [getTagsData] = useLazyQuery(GET_TAG_DATA);
   const [{ data: walletData }] = useAccount();
   // search state
@@ -131,8 +132,8 @@ const Search: NextPage = () => {
   // Blocks
   const blocks = useMemo(
     () =>
-      filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
-    [notesData]
+      filterUniqueObjects(blocksData?.wallets[0].blocks, "text")?.map((i) => i.text) || [],
+    [blocksData]
   );
 
   const blocksFuseSearchResult = useMemo(
@@ -145,13 +146,15 @@ const Search: NextPage = () => {
         : [],
     [blocks, term]
   );
-  const { getnodeDataHandler, nodeData, hasMorenodeData } =
+
+  const { getNodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,
       blocksFuseSearchResult,
-      getnodeData,
+      getNodeData,
     });
 
+  console.log("WHAT'S GETNODE SEARCH PAGE RECEIVING ---- " + JSON.stringify(getNodeData))
   if (loading) return <Loader />;
 
   return (
@@ -335,7 +338,7 @@ const Search: NextPage = () => {
               <BlockTable
                 data={nodeData}
                 walletAddress={walletData?.address}
-                update={() => getnodeDataHandler({ reset: false })}
+                update={() => getNodeDataHandler({ reset: false })}
                 hasMore={hasMorenodeData}
               />
             )}

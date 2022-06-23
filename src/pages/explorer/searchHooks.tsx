@@ -3,29 +3,26 @@ import { useEffect, useMemo, useState } from "react";
 export const useGetBlockTableData = ({
   term,
   blocksFuseSearchResult,
-  getnodeData,
+  getNodeData,
 }) => {
   const [blockTableData, setBlockTableData] = useState([]);
 
   useEffect(() => {
-    getnodeDataHandler({ reset: true });
+    getNodeDataHandler({ reset: true });
   }, [term, blocksFuseSearchResult]);
 
-  const getnodeDataHandler = async ({ reset = false }: { reset: boolean }) => {
+  console.log("WHAT'S BLOCKFUSERESULT ---- " + JSON.stringify(blocksFuseSearchResult))
+
+  const getNodeDataHandler = async ({ reset = false }: { reset: boolean }) => {
     if (blocksFuseSearchResult.length > 0) {
       const length = reset ? 0 : blockTableData.length;
       const lengthAdd = reset ? 15 : blockTableData.length + 15;
       const t = blocksFuseSearchResult
         .slice(length, lengthAdd)
         .map((i) => i.item);
-      const data = await getnodeData({
-        variables: {
-          where: {
-            text_IN: t,
-          },
-        },
-      });
-      const notes = (data as any).data.notes;
+      const data = blocksFuseSearchResult.filter((i) => i.item.includes(term))
+      console.log("WHAT IS DATA FORMAT --- " + JSON.stringify(data))
+      const notes = (data as any)[0];
       setBlockTableData(reset ? notes : blockTableData.concat(notes));
     } else {
       setBlockTableData([]);
@@ -36,7 +33,7 @@ export const useGetBlockTableData = ({
     () => blockTableData.length < blocksFuseSearchResult.length,
     [blockTableData, blocksFuseSearchResult]
   );
-  return { getnodeDataHandler, nodeData, hasMorenodeData };
+  return { getNodeDataHandler, nodeData, hasMorenodeData };
 };
 
 export const useGetEntityTableData = ({
