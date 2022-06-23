@@ -61,10 +61,25 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
   }, [partnershipBlockDrawerIsOpen]);
 
   const columns = useMemo(
+
     () => [
       {
         Header: "Text",
         accessor: "text",
+        Cell: ({ value }) => {
+          return (
+            <Tooltip label={value} placement="top">
+              <Box fontSize="12px">
+                {value.slice(0, 30)}
+                {value.length > 30 && "..."}
+              </Box>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        Header: "Type",
+        accessor: "__typename",
         Cell: ({ value }) => {
           return (
             <Tooltip label={value} placement="top">
