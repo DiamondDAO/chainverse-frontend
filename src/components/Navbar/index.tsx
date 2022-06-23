@@ -20,7 +20,7 @@ import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 export const NavBar: FC = () => {
   const { space } = useTheme();
   const navigationPages = [
-    { text: "Home", link: "/home" },
+    {/*{ text: "Home", link: "/home" },*/},
     { text: "Explorer", link: "/explorer" },
     { text: "Workspace", link: "/workspace" }
   ];

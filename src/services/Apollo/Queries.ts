@@ -97,7 +97,7 @@ export const GET_ALL_PARTNERSHIPS = gql`
 `;
 
 export const GET_ALL_BLOCKS = gql`
-  query Notes($where: WalletWhere) {
+  query Wallets($where: WalletWhere) {
     wallets(where: $where) {
       blocks {
         ... on Note {

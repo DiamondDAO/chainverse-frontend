@@ -24,6 +24,7 @@ import { Pill } from "@/components/Pill";
 import { TagIcon } from "@/components/Icons/TagIcon";
 import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
+import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
 import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { useLazyQuery } from "@apollo/client";
 import { bodyText } from "@/theme";
@@ -32,19 +33,32 @@ import { useAddBlockHandler } from "./handlers";
 import * as styles from "../styles";
 
 export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const {
-    isOpen: drawerIsOpen,
-    onOpen: drawerOnOpen,
-    onClose: drawerOnClose,
+    isOpen: noteBlockDrawerIsOpen,
+    onOpen: noteBlockDrawerOnOpen,
+    onClose: noteBlockDrawerOnClose,
   } = useDisclosure();
+  const {
+    isOpen: partnershipBlockDrawerIsOpen,
+    onOpen: partnershipBlockDrawerOnOpen,
+    onClose: partnershipBlockDrawerOnClose,
+  } = useDisclosure();
+
   const [selectedRow, setSelectedRow] = useState({});
   const addBlockHandler = useAddBlockHandler(walletAddress);
 
   useEffect(() => {
-    if (!drawerIsOpen) {
+    if (!noteBlockDrawerIsOpen) {
       setSelectedRow({});
     }
-  }, [drawerIsOpen]);
+  }, [noteBlockDrawerIsOpen]);
+
+  useEffect(() => {
+    if (!partnershipBlockDrawerIsOpen) {
+      setSelectedRow({});
+    }
+  }, [partnershipBlockDrawerIsOpen]);
 
   const columns = useMemo(
     () => [
@@ -178,8 +192,13 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
               <Tooltip label="View details" placement="top">
                 <Box
                   onClick={() => {
-                    drawerOnOpen();
-                    setSelectedRow(props.row);
+                    if (props.row?.original.__typename == "Note") {
+                      noteBlockDrawerOnOpen();
+                      setSelectedRow(props.row);
+                    } else if (props.row?.original.__typename == "Partnership") {
+                      partnershipBlockDrawerOnOpen();
+                      setSelectedRow(props.row);
+                    }
                   }}
                   sx={styles.DetailsTooltip}
                 >
@@ -303,8 +322,13 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
                           onClick={
                             row.cells.length - 1 !== idx
                               ? () => {
-                                  drawerOnOpen();
-                                  setSelectedRow(row);
+                                  if (row?.original.__typename == "Note") {
+                                    noteBlockDrawerOnOpen();
+                                    setSelectedRow(row);
+                                  } else if (row?.original.__typename == "Partnership") {
+                                    partnershipBlockDrawerOnOpen();
+                                    setSelectedRow(row);
+                                  }
                                 }
                               : () => {}
                           }
@@ -326,10 +350,16 @@ export const BlockTable = ({ data, update, hasMore, walletAddress }) => {
             </Tbody>
           </ChakraTable>
         </Box>
-        <BlockDrawer
+        <NoteBlockDrawer
           nodeData={selectedRow as any}
-          isOpen={drawerIsOpen}
-          onClose={drawerOnClose}
+          isOpen={noteBlockDrawerIsOpen}
+          onClose={noteBlockDrawerOnClose}
+          actions={{ addBlockToWorkspace: addBlockHandler }}
+        />
+        <PartnershipBlockDrawer
+          nodeData={selectedRow as any}
+          isOpen={partnershipBlockDrawerIsOpen}
+          onClose={partnershipBlockDrawerOnClose}
           actions={{ addBlockToWorkspace: addBlockHandler }}
         />
       </InfiniteScroll>

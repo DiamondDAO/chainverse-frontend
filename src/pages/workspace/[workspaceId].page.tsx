@@ -109,12 +109,8 @@ const Workspace: NextPage = () => {
     setDate(new Date().toLocaleString());
   }, []);
 
-  console.log("WHAT'S IN THIS WORKSPACE?? --- " + JSON.stringify(workspace?.blocks))
-
   const notesData = useMemo(() => workspace?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership" ),
   [workspace?.blocks]);
-
-  console.log("NOTES DATA IN WORKSPACE -- " + JSON.stringify(notesData))
 
   const entityData = useMemo(() => workspace?.entities, [workspace?.entities]);
 

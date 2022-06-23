@@ -57,6 +57,16 @@ export const CREATE_RESPONSES = gql`
   }
 `;
 
+export const CREATE_WALLETS = gql`
+  mutation CreateWallets($input: [WalletCreateInput!]!) {
+    createWallets(input: $input) {
+      wallets {
+        address
+      }
+    }
+  }
+`;
+
 export const CREATE_WORKSPACES = gql`
   mutation CreateWorkspaces($input: [WorkspaceCreateInput!]!) {
     createWorkspaces(input: $input) {
@@ -195,15 +205,6 @@ export const DELETE_NOTES = gql`
 export const DELETE_PARTNERSHIPS = gql`
   mutation DeletePartnerships($where: PartnershipWhere) {
     deletePartnerships(where: $where) {
-      nodesDeleted
-      relationshipsDeleted
-    }
-  }
-`;
-
-export const DELETE_ENTITIES = gql`
-  mutation DeleteEntities($where: EntityWhere) {
-    deleteEntities(where: $where) {
       nodesDeleted
       relationshipsDeleted
     }
