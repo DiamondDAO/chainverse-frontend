@@ -25,6 +25,7 @@ import {
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
+  GET_WALLET_COUNT
 } from "@/services/Apollo/Queries";
 import {
   ADD_SANDBOX_TO_WALLET,
@@ -33,12 +34,47 @@ import {
   DELETE_PARTNERSHIPS,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
+  CREATE_WALLET
 } from "@/services/Apollo/Mutations";
 
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
 import * as styles from "./styles";
 const Workspace: NextPage = () => {
+  // Check if this user has already logged in with this wallet.
+  // If not, create their initial Wallet node
+
+  const SetUserWalletNode = async () => {
+    // ERRORS - NEED TO FIX THIS SECTION
+    // Load the query to count how many of these wallet nodes already exist.
+
+    // Function that will write a new Wallet node for the connected
+    // wallet address if it doesn't already exist.
+    const [createWalletNode, { error: createWalletsError }] = useMutation(CREATE_WALLET);
+    
+    const {
+      data: walletsCount,
+    } = await useQuery(GET_WALLET_COUNT, {
+      variables: { where: { address: walletData?.address } },
+    });
+    console.log("Wallet address: ", walletData?.address);
+    console.log("Wallets count: ", walletsCount);
+
+    if (walletsCount.walletsCount < 1) {
+      useEffect(() => {
+        console.log("Creating Wallet node")
+        createWalletNode({
+          variables: {
+            input: [
+              { address: walletData?.address }
+            ]
+          }}
+        );
+        }, []);
+      }      
+    return null
+  };
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
     isOpen: noteBlockDrawerIsOpen,
@@ -397,6 +433,9 @@ const Workspace: NextPage = () => {
   return (
     <>
       <Layout>
+        <SetUserWalletNode>
+          
+        </SetUserWalletNode>
         {/* Graph */}
         <Box sx={styles.GraphContainer}>
           {nodeData && (
