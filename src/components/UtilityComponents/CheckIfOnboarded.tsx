@@ -27,10 +27,6 @@ export const CheckIfOnboarded = ({ children }) => {
       variables: { where: { address: walletData?.address } },
     });
     if (walletsCount < 1) {
-<<<<<<< HEAD
-      Router.push("/onboard");
-    }
-=======
       {/* Router.push("/onboard");*/}
       try {
         await createWallet({
@@ -52,7 +48,6 @@ export const CheckIfOnboarded = ({ children }) => {
         });
       }
     };
->>>>>>> 1fd21c91b507786b722a6301279df0a19824389f
   };
   const router = useRouter();
   useEffect(() => {
