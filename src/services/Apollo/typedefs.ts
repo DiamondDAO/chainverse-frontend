@@ -48,8 +48,8 @@ export const typeDefs = gql`
     """
     address: String! @unique
     createdAt: DateTime! @timestamp
-    blocks: [Block!]! @relationship(type: "CREATED", direction: OUT)
-    sandbox: Sandbox! @relationship(type: "CREATED", direction: OUT)
+    blocks: [Block!] @relationship(type: "CREATED", direction: OUT)
+    sandbox: Sandbox @relationship(type: "CREATED", direction: OUT)
   }
 
   type Tag {
