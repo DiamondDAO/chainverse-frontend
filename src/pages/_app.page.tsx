@@ -75,9 +75,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         >
           <ApolloProvider client={client}>
             <Provider autoConnect connectors={connectors}>
-              <CheckIfOnboarded>
+              {/* <CheckIfOnboarded> */}
                 <Component {...pageProps} />
-              </CheckIfOnboarded>
+              {/* </CheckIfOnboarded> */}
             </Provider>
           </ApolloProvider>
         </SWRConfig>

@@ -177,7 +177,7 @@ type EntityBlock @node(additionalLabels: ["Block"]) {
    profileUrl: String!
  }
 
- type AccountTwitter implements Account @node(additionalLabels: ["Twitter"]){
+ type AccountTwitter implements AccountBlock @node(additionalLabels: ["Twitter"]){
    """
    Node type of a Twitter Account
    """

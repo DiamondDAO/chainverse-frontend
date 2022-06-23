@@ -57,6 +57,16 @@ export const CREATE_RESPONSES = gql`
   }
 `;
 
+export const CREATE_WALLET = gql`
+  mutation CreateWallets($input: [WalletCreateInput!]!) {
+    createWallets(input: $input) {
+      info {
+        nodesCreated
+      }
+    }
+  }
+`;
+
 export const CREATE_WORKSPACES = gql`
   mutation CreateWorkspaces($input: [WorkspaceCreateInput!]!) {
     createWorkspaces(input: $input) {
