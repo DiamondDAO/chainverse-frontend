@@ -24,7 +24,7 @@ const Onboard: NextPage = () => {
   const toast = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
-  const steps = [];
+  const steps = [Intro];
   const currentForm = steps[currentStep];
   const currentValidationSchema = currentForm?.validation;
   const initialValues = steps.reduce((accValues, currStep) => {
