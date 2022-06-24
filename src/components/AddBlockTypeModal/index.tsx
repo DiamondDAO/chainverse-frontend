@@ -66,6 +66,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [addingBlock, setAddingBlock] = useState(false);
   const [pillText, setPillText] = useState("");
 
+  const [partnershipType, setPartnershipType] = useState("");
+  const [entityNetwork, setEntityNetwork] = useState("");
+  const [entityOnChain, setEntityOnChain] = useState(true);
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState("");
 
@@ -198,8 +201,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     threshold: 0.3,
   });
 
-  const [partnershipType, setPartnershipType] = useState("");
-
   const submitBlockHandler = async ({
     action,
   }: {
@@ -307,7 +308,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 entities: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { name: "" },
                     },
                   },
                 ],
@@ -319,6 +320,33 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   },
                 ],
               },
+            },
+          });
+          blockResult = await updateNoteBlock({
+            variables: {
+              update: {
+                text: inputRef.current?.innerText,
+                wallet: {
+                  connect: {
+                    where: {
+                      node: {
+                        address: walletData?.address,
+                      },
+                    },
+                  },
+                },
+                entities: {
+                  connectOrCreate: entity,
+                },
+
+                tags: {
+                  connectOrCreate: tags,
+                },
+                sources: {
+                  connectOrCreate: sourceList,
+                },
+              },
+              where: { uuid: nodeData.uuid },
             },
           });
         } else if (blockType === "Partnership") {
@@ -337,7 +365,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 entities: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { name: "" },
                     },
                   },
                 ],
@@ -351,38 +379,37 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               },
             },
           });
-        }
-        blockResult = await updatePartnershipBlock({
-          variables: {
-            update: {
-              text: inputRef.current?.innerText,
-              type: partnershipType,
-              wallet: {
-                connect: {
-                  where: {
-                    node: {
-                      address: walletData?.address,
+          blockResult = await updatePartnershipBlock({
+            variables: {
+              update: {
+                text: inputRef.current?.innerText,
+                type: partnershipType,
+                wallet: {
+                  connect: {
+                    where: {
+                      node: {
+                        address: walletData?.address,
+                      },
                     },
                   },
                 },
-              },
-              entities: {
-                connectOrCreate: entity,
-              },
+                entities: {
+                  connectOrCreate: entity,
+                },
 
-              tags: {
-                connectOrCreate: tags,
+                tags: {
+                  connectOrCreate: tags,
+                },
+                sources: {
+                  connectOrCreate: sourceList,
+                },
               },
-              sources: {
-                connectOrCreate: sourceList,
-              },
+              where: { uuid: nodeData.uuid },
             },
-            where: { uuid: nodeData.uuid },
-          },
-        });
+          });
+        }
       }
       // save block to workspace if fn exists
-
       if (blockType === "Note") {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
@@ -450,8 +477,135 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                     <FormControl>
                       <FormLabel htmlFor='entity-name'>Entity name</FormLabel>
                       <Input id='entity-name' sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-location'>Entity location</FormLabel>
-                      <Input id='entity-location' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-onChain'>Is this entity onChain?</FormLabel>
+                      <Select
+                        value = {entityOnChain}
+                        placeholder='Select option'
+                        sx={styles.InputStyle}
+                        onChange={e => setEntityOnChain(e.target.value)}>
+                          <option value='true'>Yes</option>
+                          <option value='false'>No</option>
+                      </Select>
+                      <FormLabel htmlFor='entity-network'>Entity network</FormLabel>
+                      <Select
+                        value = {entityNetwork}
+                        placeholder='Select option'
+                        sx={styles.InputStyle}
+                        onChange={e => setEntityNetwork(e.target.value)}>
+                          <option value='Arbitrum'>Arbitrum</option>
+                          <option value='Avalanche'>Avalanche</option>
+                          <option value='Cosmos'>Cosmos</option>
+                          <option value='EthereumMainnet'>Ethereum Mainnet</option>
+                          <option value='GnosisChain'>Gnosis Chain</option>
+                          <option value='Optimism'>Optimism</option>
+                          <option value='Polygon'>Polygon</option>
+                          <option value='Solana'>Solana</option>
+                          <option value='Other'>Other</option>
+                          <option value='NotApplicable'>Not Applicable</option>
+                      </Select>
+                      <FormLabel htmlFor='entity-address'>Entity address</FormLabel>
+                      <Input id='entity-address' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-address-source'>Entity address source</FormLabel>
+                      <Input id='entity-address-source' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-twitter'>Entity twitter</FormLabel>
+                      <Input id='entity-twitter' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-discord'>Entity discord</FormLabel>
+                      <Input id='entity-discord' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-website'>Entity website</FormLabel>
+                      <Input id='entity-website' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-github'>Entity github</FormLabel>
+                      <Input id='entity-github' sx={styles.InputStyle}/>
+                      <FormLabel htmlFor='entity-tags'>Entity tags</FormLabel>
+                      <Box sx={styles.EntityTagDialog(position.current, visible)}>
+                        <Popover placement="bottom-start" isOpen>
+                          <PopoverTrigger>
+                            <Box sx={styles.PopoverTrigger(visible)} />
+                          </PopoverTrigger>
+                          <PopoverContent sx={styles.PopoverContent}>
+                            <PopoverHeader border="0">
+                              <Box sx={styles.PopoverHeader}>
+                                <Box mr="4px">+ Create</Box>
+                                <Pill
+                                  onClick={onClickPillHandler}
+                                  asButton
+                                  icon={
+                                    (activationChar === "@" && <EntitiesIcon />) ||
+                                    (activationChar === "#" && <TagIcon />)
+                                  }
+                                >
+                                  <Text fontSize={bodyText} fontWeight="400">
+                                    {pillText}
+                                  </Text>
+                                </Pill>
+                              </Box>
+                            </PopoverHeader>
+                            <PopoverBody>
+                              {activationChar == "@" && (
+                                <Box fontWeight="400">
+                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                    ENTITIES
+                                  </Text>
+                                  {entityFuse
+                                    ?.search(pillText ?? "")
+                                    .slice(0, 5)
+                                    .map((i) => i.item)
+                                    .map((tag: string, idx) => (
+                                      <Pill
+                                        key={idx}
+                                        onClick={onClickPillHandler}
+                                        asButton
+                                      >
+                                        <Text
+                                          color="diamond.blue.5"
+                                          fontSize={bodyText}
+                                        >
+                                          {tag}
+                                        </Text>
+                                      </Pill>
+                                    ))}
+                                </Box>
+                              )}
+                              {activationChar === "#" && (
+                                <Box fontWeight="400" mt="15px">
+                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                    TAGS
+                                  </Text>
+                                  {tagFuse
+                                    ?.search(pillText ?? "")
+                                    .slice(0, 5)
+                                    .map((i) => i.item)
+                                    .map((tag: string, idx) => (
+                                      <Pill
+                                        key={idx}
+                                        onClick={onClickPillHandler}
+                                        asButton
+                                      >
+                                        <Text
+                                          color="diamond.blue.5"
+                                          fontSize={bodyText}
+                                        >
+                                          {tag}
+                                        </Text>
+                                      </Pill>
+                                    ))}
+                                </Box>
+                              )}
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
+                      </Box>
+                      <Box
+                        ref={inputRef}
+                        onKeyPress={hashTagListener}
+                        onKeyUp={keyUpListener}
+                        onInput={inputHandler}
+                        suppressContentEditableWarning={true}
+                        contentEditable
+                        data-placeholder="Type # to insert a tag"
+                        sx={styles.TextboxStyles}
+                      >
+                        {nodeData?.text}
+                      </Box>
                     </FormControl>
                   )}
                   {blockType === "Note" && (
@@ -546,9 +700,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal
-                        sources={sources}
-                      />
                     </FormControl>
                   )}
                   {blockType === "Partnership" && (
