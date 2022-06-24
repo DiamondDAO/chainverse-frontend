@@ -307,7 +307,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 entities: [
                   {
                     where: {
-                      node_NOT: { name: "" },
+                      node_NOT: { uuid: "0" },
                     },
                   },
                 ],
@@ -337,7 +337,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 entities: [
                   {
                     where: {
-                      node_NOT: { name: "" },
+                      node_NOT: { uuid: "0" },
                     },
                   },
                 ],

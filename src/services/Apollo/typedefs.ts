@@ -13,25 +13,38 @@ export const typeDefs = gql`
     """
     TODO: Should this be restricted
     """
-    uuid: ID @id(autogenerate: true)
-    name: String @unique #under assumption name for entities are unique
+    uuid: ID! @id(autogenerate: true)
+    name: String! @unique #under assumption name for entities are unique
     id: String @unique
-    minScore: Float
-    network: Float
-    onlyMembers: String
-    symbol: String
+    network: String
     address: String @unique
     avatar: String
-    about: String
-    proposals: [Proposal] @relationship(type: "HAS_PROPOSAL", direction: OUT)
+    onChain: Boolean
+    addressSource: Source @relationship(type: "HAS_SOURCE", direction: OUT)
+    twitter: AccountTwitter @relationship(type: "HAS_ACCOUNT", direction: OUT)
+    discord: String
+    github: String
+    website: String
+    tags: [Tag!] @relationship(type: "HAS_TAG", direction: OUT)
+    createdAt: DateTime! @timestamp
+    createdBy: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
-  type Account {
+  interface Account {
     """
     TODO: Should this be restricted
     """
     uuid: ID! @id(autogenerate: true)
     profileUrl: String!
+  }
+
+  type AccountTwitter implements Account @node(additionalLabels: ["Twitter"]){
+    """
+    Node type of a Twitter Account
+    """
+    uuid: ID! @id(autogenerate: true)
+    profileUrl: String! @unique
+    twitterID: Int
   }
 
   type Prompt {

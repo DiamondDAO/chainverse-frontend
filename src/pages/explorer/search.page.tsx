@@ -136,7 +136,7 @@ const Search: NextPage = () => {
     [notesData]
   );
   /*const blocks = [notesData?.wallets[0].blocks];*/
-  
+
   /*const blocksFuseSearchResult = useMemo(
     () =>
       blocks.length > 0
@@ -153,8 +153,6 @@ const Search: NextPage = () => {
     blocks.length > 0
     ? blocks.filter((i) => String(i.text).includes(term)) : [],
   [blocks, term]);
-
-  console.log("WHAT BLOCKS DATA NOW ---- " + JSON.stringify(blocksFuseSearchResult))
 
   const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({

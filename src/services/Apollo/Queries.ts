@@ -178,17 +178,10 @@ export const GET_ENTITIES_DATA = gql`
   query Entities($where: EntityWhere) {
     entities(where: $where) {
       id
-      minScore
       name
       network
-      onlyMembers
-      symbol
       avatar
       address
-      about
-      proposalsAggregate {
-        count
-      }
     }
   }
 `;
@@ -236,10 +229,6 @@ export const GET_SANDBOX = gql`
         name
         address
         avatar
-        about
-        proposalsAggregate {
-          count
-        }
       }
       blocks {
         ... on Note {
@@ -325,10 +314,6 @@ export const GET_WORKSPACE_OWNED = gql`
         name
         address
         avatar
-        about
-        proposalsAggregate {
-          count
-        }
       }
     }
   }
@@ -343,10 +328,6 @@ export const GET_WORKSPACE = gql`
         name
         id
         avatar
-        about
-        proposalsAggregate {
-          count
-        }
       }
       blocks {
         ... on Note {
