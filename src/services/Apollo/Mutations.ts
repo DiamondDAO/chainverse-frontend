@@ -84,13 +84,38 @@ export const CREATE_ENTITIES = gql`
   mutation CreateEntities($input: [EntityCreateInput!]!) {
     createEntities(input: $input) {
       entities {
+        name
+        onChain
+        network
+        address
+        addressSource {
+          source
+        }
+        twitter {
+          profileUrl
+        }
+        discord
+        github
+        website
+        wallet {
+          address
+        }
+      }
+    }
+  }
+`;
+
+/*export const CREATE_ENTITIES = gql`
+  mutation CreateEntities($input: [EntityCreateInput!]!) {
+    createEntities(input: $input) {
+      entities {
         createdByAggregate {
           count
         }
       }
     }
   }
-`;
+`;*/
 
 export const ADD_SANDBOX_TO_WALLET = gql`
   mutation UpdateWallets(
@@ -185,6 +210,35 @@ mutation UpdatePartnerships(
         source
         sourceType
       }
+    }
+  }
+}
+`;
+
+export const UPDATE_ENTITIES = gql`
+mutation UpdateEntities(
+  $update: EntitypUpdateInput
+  $where: EntityWhere
+  $disconnect: EntityDisconnectInput
+) {
+  updateEntities(update: $update, where: $where, disconnect: $disconnect) {
+    entities {
+      uuid
+      name
+      id
+      avatar
+      onChain
+      network
+      address
+      addressSource {
+        source
+      }
+      twitter {
+        profileUrl
+      }
+      discord
+      github
+      website
     }
   }
 }

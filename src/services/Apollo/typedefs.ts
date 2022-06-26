@@ -16,18 +16,17 @@ export const typeDefs = gql`
     uuid: ID! @id(autogenerate: true)
     name: String! @unique #under assumption name for entities are unique
     id: String @unique
-    network: String
-    address: String @unique
     avatar: String
     onChain: Boolean
-    addressSource: Source @relationship(type: "HAS_SOURCE", direction: OUT)
+    network: String @unique
+    address: String @unique
+    addressSource: Source! @relationship(type: "HAS_SOURCE", direction: OUT)
     twitter: AccountTwitter @relationship(type: "HAS_ACCOUNT", direction: OUT)
-    discord: String
-    github: String
-    website: String
-    tags: [Tag!] @relationship(type: "HAS_TAG", direction: OUT)
+    discord: String @unique
+    github: String @unique
+    website: String @unique
     createdAt: DateTime! @timestamp
-    createdBy: Wallet! @relationship(type: "CREATED", direction: IN)
+    wallet: Wallet! @relationship(type: "CREATED", direction: IN)
   }
 
   interface Account {

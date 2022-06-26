@@ -179,9 +179,19 @@ export const GET_ENTITIES_DATA = gql`
     entities(where: $where) {
       id
       name
-      network
       avatar
+      onChain
+      network
       address
+      addressSource {
+        source
+      }
+      twitter {
+        profileUrl
+      }
+      discord
+      github
+      website
     }
   }
 `;
