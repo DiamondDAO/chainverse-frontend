@@ -87,7 +87,9 @@ export const CREATE_ENTITIES = gql`
         name
         onChain
         network
-        address
+        address {
+          address
+        }
         addressSource {
           source
         }
@@ -104,18 +106,6 @@ export const CREATE_ENTITIES = gql`
     }
   }
 `;
-
-/*export const CREATE_ENTITIES = gql`
-  mutation CreateEntities($input: [EntityCreateInput!]!) {
-    createEntities(input: $input) {
-      entities {
-        createdByAggregate {
-          count
-        }
-      }
-    }
-  }
-`;*/
 
 export const ADD_SANDBOX_TO_WALLET = gql`
   mutation UpdateWallets(
@@ -229,7 +219,9 @@ mutation UpdateEntities(
       avatar
       onChain
       network
-      address
+      address {
+        address
+      }
       addressSource {
         source
       }

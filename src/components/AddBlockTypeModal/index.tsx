@@ -500,6 +500,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         where: { node: { source: entityAddressSource} },
         onCreate: { node: { source: entityAddressSource} },
       })
+      const entAddress = ({
+        where: { node: { address: entityAddress} },
+        onCreate: { node: { address: entityAddress} },
+      })
 
       setAddingBlock(true);
       let blockResult = null;
@@ -512,7 +516,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 name: entityName,
                 onChain: entityOnChainBool,
                 network: entityNetwork,
-                address: entityAddress,
+                address: {
+                  connectOrCreate: entAddress,
+                },
                 addressSource: {
                   connectOrCreate: sourceList,
                 },
@@ -556,14 +562,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
             input: [
               {
                 name: entityName,
-                onChain: entityOnChain,
+                onChain: entityOnChainBool,
                 network: entityNetwork,
-                address: entityAddress,
+                address: {
+                  connectOrCreate: entAddress,
+                },
                 addressSource: {
-                  source: entityAddressSource,
+                  connectOrCreate: sourceList,
                 },
                 twitter: {
-                  profileUrl: entityTwitter,
+                  connectOrCreate: twitter,
                 },
                 discord: entityDiscord,
                 github: entityGithub,

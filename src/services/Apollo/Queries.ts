@@ -182,7 +182,9 @@ export const GET_ENTITIES_DATA = gql`
       avatar
       onChain
       network
-      address
+      address {
+        address
+      }
       addressSource {
         source
       }
@@ -237,7 +239,9 @@ export const GET_SANDBOX = gql`
       name
       entities {
         name
-        address
+        address {
+          address
+        }
         avatar
       }
       blocks {
@@ -322,7 +326,9 @@ export const GET_WORKSPACE_OWNED = gql`
       }
       entities {
         name
-        address
+        address {
+          address
+        }
         avatar
       }
     }
