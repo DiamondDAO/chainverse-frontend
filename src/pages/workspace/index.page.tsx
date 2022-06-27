@@ -152,7 +152,8 @@ const Workspace: NextPage = () => {
 
   const notesData = useMemo(
     () =>
-      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership"),
+      sandboxData?.sandboxes[0]?.blocks.filter((i) =>
+      i.__typename === "Note" || i.__typename === "Partnership"),
     [sandboxData?.sandboxes[0]?.blocks]
   );
 
@@ -198,24 +199,9 @@ const Workspace: NextPage = () => {
               entities: {
                 connect: {
                   where: {
-                    node: {
-                      OR: [
-                        {
-                          id_IN: nodeData
-                            .filter((node) => node.__typename === "Entity")
-                            .map((node) => node.id),
-                        },
-                        {
-                          address_IN: nodeData
-                            .filter((node) => node.__typename === "Entity")
-                            .map((node) => node.address),
-                        },
-                        {
-                          name_IN: nodeData
-                            .filter((node) => node.__typename === "Entity")
-                            .map((node) => node.name),
-                        },
-                      ],
+                    node: { uuid_IN: nodeData
+                      .filter((node) => node.__typename === "Entity")
+                      .map((node) => node.uuid),
                     },
                   },
                 },
@@ -283,6 +269,7 @@ const Workspace: NextPage = () => {
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
+      console.log("INDEX - WHAT IS IN NODE DATA ------ " + JSON.stringify(data))
       if (data.__typename == "Note") {
         await addBlockToSandbox({
           variables: {
@@ -326,6 +313,27 @@ const Workspace: NextPage = () => {
                   },
                 ],
               },
+            },
+          },
+        });
+      } else if (data.__typename == "Entity") {
+        await addBlockToSandbox({
+          variables: {
+            where: {
+              wallet: {
+                address: data?.walletAddress,
+              },
+            },
+            connect: {
+              entities: [
+                {
+                  where: {
+                    node: {
+                      uuid: data?.uuid,
+                    },
+                  },
+                },
+              ],
             },
           },
         });

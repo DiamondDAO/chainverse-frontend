@@ -84,6 +84,7 @@ export const CREATE_ENTITIES = gql`
   mutation CreateEntities($input: [EntityCreateInput!]!) {
     createEntities(input: $input) {
       entities {
+        uuid
         name
         onChain
         network

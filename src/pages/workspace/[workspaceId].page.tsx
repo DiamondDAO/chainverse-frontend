@@ -279,6 +279,15 @@ const Workspace: NextPage = () => {
                 },
               ],
             },
+            entities: [
+              {
+                where: {
+                  node: {
+                    uuid: data.uuid,
+                  }
+                }
+              }
+            ],
           },
         },
       });

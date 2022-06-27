@@ -133,6 +133,7 @@ export const GET_ALL_BLOCKS = gql`
           }
           entities {
             name
+            uuid
           }
         }
       }
@@ -178,6 +179,7 @@ export const GET_ENTITIES_DATA = gql`
   query Entities($where: EntityWhere) {
     entities(where: $where) {
       id
+      uuid
       name
       avatar
       onChain
@@ -239,6 +241,7 @@ export const GET_SANDBOX = gql`
       name
       entities {
         name
+        uuid
         address {
           address
         }
@@ -302,7 +305,7 @@ export const GET_WORKSPACES = gql`
       }
       entities {
         name
-        id
+        uuid
       }
     }
   }
@@ -326,6 +329,7 @@ export const GET_WORKSPACE_OWNED = gql`
       }
       entities {
         name
+        uuid
         address {
           address
         }
@@ -342,7 +346,7 @@ export const GET_WORKSPACE = gql`
       rfObject
       entities {
         name
-        id
+        uuid
         avatar
       }
       blocks {

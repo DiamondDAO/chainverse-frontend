@@ -326,8 +326,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
-        } else if (blockType === "Entity") {
-          console.log("THIS IS AN ENTITY")
         }
       } else if (action === submitBlockAction.Update) {
         // updating block in db
@@ -587,6 +585,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 },
               },
             ],
+            where: { uuid: nodeData.uuid },
           },
         });
       }
@@ -669,9 +668,13 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                           <option value='Cosmos'>Cosmos</option>
                           <option value='EthereumMainnet'>Ethereum Mainnet</option>
                           <option value='GnosisChain'>Gnosis Chain</option>
+                          <option value='ImmutableX'>Immutable X</option>
+                          <option value='Loopring'>Loopring</option>
+                          <option value='MetisAndromeda'>Metis Andromeda</option>
                           <option value='Optimism'>Optimism</option>
                           <option value='Polygon'>Polygon</option>
                           <option value='Solana'>Solana</option>
+                          <option value='zkSync'>zkSync</option>
                           <option value='Other'>Other</option>
                           <option value='NotApplicable'>Not Applicable</option>
                       </Select>
@@ -904,7 +907,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               <Button
                 isLoading={addingBlock}
                 onClick={() =>
-                  {if (blockType === ("Note" || "Partnership")) {
+                  {if (blockType !== "Entity") {
                     submitBlockHandler({
                       action: nodeData
                         ? submitBlockAction.Update
