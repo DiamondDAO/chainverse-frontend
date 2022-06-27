@@ -15,7 +15,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Tooltip,
 } from "@chakra-ui/react";
 import { useAccount, useEnsLookup } from "wagmi";
 
@@ -35,7 +34,7 @@ import { bodyText } from "@/theme";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import * as styles from "../styles";
 
-interface INoteBlockDrawer {
+interface IBlockDrawer {
   isOpen: boolean;
   onClose: () => void;
   nodeData: any;
@@ -50,7 +49,7 @@ interface INoteBlockDrawer {
   };
 }
 
-export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
+export const BlockDrawer: FC<IBlockDrawer> = ({
   isOpen,
   onClose,
   nodeData,
@@ -74,7 +73,6 @@ export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
     }
   }, [walletData?.address]);
 
-
   // Workspace data
   const [getWorkspaceOwned, { data: workspaceData }] =
     useLazyQuery(GET_WORKSPACE_OWNED);
@@ -85,7 +83,6 @@ export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
   if (!nodeData || Object.keys(nodeData).length === 0) {
     return null;
   }
-
   return (
     <Drawer isOpen={isOpen} placement="right" size="xs" onClose={onClose}>
       <DrawerOverlay bg="transparent" />
@@ -208,35 +205,10 @@ export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
               {nodeData?.text && <AddPillsToText text={nodeData?.text} />}
             </Box>
           </Box>
-          {nodeData?.sources.length === 0 && (
-            <>
-              {"No source attributed"}
-            </>
-          )}
-          {nodeData?.sources.length > 0 && (
-            <>
-            <Divider mt="16px" />
-            <Box  mt="16px" color="diamond.blue.3" fontWeight={500}>
-              SOURCES
-            </Box>
-              {nodeData?.sources.map((s) => (
-                <Tooltip label={s.source} fontSize="xs">
-                  <span
-                    //@ts-ignore
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: "underline" }}
-                    onClick={() => window.open(s.source, "_blank")}
-                  >
-                    {s.source + ", "}
-                  </span>
-                </Tooltip>
-              ))}
-            </>
-          )}
           {(nodeData?.entities.length > 0 || nodeData?.tags.length > 0) && (
             <>
               <Divider mt="16px" />
-              <Box sx={styles.LinkedTo}>TAGS</Box>
+              <Box sx={styles.LinkedTo}>LINKED TO</Box>
               <Box sx={styles.TagsAndEntities}>
                 {nodeData?.tags.map((tag: { tag: string }, idx) => (
                   <Pill key={idx} asButton icon={<TagIcon />}>
@@ -245,10 +217,6 @@ export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
                     </Text>
                   </Pill>
                 ))}
-              </Box>
-              <Divider mt="16px" />
-              <Box sx={styles.LinkedTo}>LINKED TO</Box>
-              <Box sx={styles.TagsAndEntities}>
                 {nodeData?.entities.map((entity: { name: string }, idx) => (
                   <Pill key={idx} asButton icon={<EntitiesIcon />}>
                     <Text color="diamond.blue.5" fontSize={bodyText}>

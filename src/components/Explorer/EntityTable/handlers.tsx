@@ -30,6 +30,8 @@ export const useAddEntityHandler = (walletAddress: string) => {
       if (row.original) row = row.original;
       const nodeObject = row?.id
         ? { id: row?.id }
+        : row?.address
+        ? { address: row?.address }
         : row?.name
         ? { name: row?.name }
         : null;

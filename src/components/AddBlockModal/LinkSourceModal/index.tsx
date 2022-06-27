@@ -9,23 +9,33 @@ import {
   PopoverTrigger,
   Text,
   Tooltip,
-  FormControl,FormLabel,FormErrorMessage,FormHelperText,
-  Select,
-} from "@chakra-ui/react";import React, { FC, useEffect, useRef, useState } from "react";
+} from "@chakra-ui/react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
-  sources: string[];
+  textAreaValue: string;
+  source: string;
+  setSource: (value: string) => void;
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  sources,
+  textAreaValue,
+  source,
+  setSource,
 }) => {
   const AnimatedBox = a(Box);
   const [linkStyle, api] = useSpring(() => {
     opacity: 0;
   });
+  useEffect(() => {
+    if (textAreaValue) {
+      api.start({ opacity: 1 });
+    } else {
+      api.start({ opacity: 0 });
+    }
+  }, [api, textAreaValue]);
 
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
@@ -35,37 +45,34 @@ export const LinkSourceModal: FC<ILinkSource> = ({
 
   useEffect(() => {
     if (inputRef !== null) {
-      inputRef.current.value = sources;
+      inputRef.current.value = source;
     }
-  }, [inputRef, sources]);
-
+  }, [inputRef, source]);
   return (
-    <AnimatedBox style={linkStyle} sx={styles.Container}>
-      <Popover isOpen={isOpen} closeOnBlur={true}>
+    <AnimatedBox style={linkStyle} sx={styles.Container(textAreaValue)}>
+      <Popover isOpen={isOpen} placement="bottom-start">
         <PopoverTrigger>
           <Box sx={styles.TriggerStyle}>
-            <Box sx={styles.SourceStyle("")}>
-              {sources && (
+            <FiLink color="#CECECE" />
+            <Box sx={styles.SourceStyle(source)}>
+              <Box as="span" onClick={open}>
+                {source ? "Source:" : "Link a source"}
+              </Box>
+              {source && (
                 <>
-                  {sources.map((s) => (
-                    <Box sx={styles.SourceStyle(s)}>
-                      <Tooltip label={s} fontSize="xs">
-                        <span
-                          //@ts-ignore
-                          rel="noopener noreferrer"
-                          style={{ textDecoration: "underline" }}
-                          onClick={() => window.open(s, "_blank")}
-                        >
-                          {s}
-                        </span>
-                      </Tooltip>
-                    </Box>
-                  ))}
+                  {" "}
+                  <Tooltip label={source} fontSize="xs">
+                    <span
+                      //@ts-ignore
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "underline" }}
+                      onClick={() => window.open(source, "_blank")}
+                    >
+                      Link
+                    </span>
+                  </Tooltip>
                 </>
               )}
-              <Box as="span" onClick={open}>
-                {sources.length > 0 ? "Link another source" : "Link a source"}
-              </Box>
             </Box>
           </Box>
         </PopoverTrigger>
@@ -81,9 +88,8 @@ export const LinkSourceModal: FC<ILinkSource> = ({
                 inputRef.current.value == "" ||
                 validURL(inputRef.current.value)
               ) {
-                sources.push(inputRef.current.value)
+                setSource(inputRef.current.value);
                 setError(false);
-                inputRef.current.value = ""
                 close();
               } else {
                 setError(true);

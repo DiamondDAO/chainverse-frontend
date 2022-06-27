@@ -1,4 +1,4 @@
-export const NoteBlockNodeContainer = (dim) => ({
+export const BlockNodeContainer = (dim) => ({
   cursor: "pointer",
   p: "8px",
   fontSize: "10px",
@@ -6,6 +6,7 @@ export const NoteBlockNodeContainer = (dim) => ({
   borderRadius: "8px",
   border: "1px solid #000000",
   bg: "rgba(0, 0, 0, 0.05)",
+  display: "flex",
   ...(dim && { opacity: 0.2, bg: "rgba(0, 0, 0, 0.05)" }),
 });
 

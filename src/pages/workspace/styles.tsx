@@ -1,22 +1,5 @@
 import { subText } from "@/theme";
 
-export const MenuButton = {
-  cursor: "pointer",
-  width: "100%",
-  backgroundColor: "diamond.blue.5",
-  p: "2",
-  mt: "2",
-  border: "1px solid rgba(195, 195, 195, 1)",
-  borderRadius: "8",
-  alignItems: "left",
-  color: "diamond.white"
-};
-
-export const MenuContents = {
-  display: "flex",
-  alignItems: "center",
-};
-
 export const GraphContainer = {
   top: "0",
   left: "0",

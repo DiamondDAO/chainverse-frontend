@@ -13,7 +13,19 @@ export const useGetBlockTableData = ({
 
   const getnodeDataHandler = async ({ reset = false }: { reset: boolean }) => {
     if (blocksFuseSearchResult.length > 0) {
-      const notes = blocksFuseSearchResult;
+      const length = reset ? 0 : blockTableData.length;
+      const lengthAdd = reset ? 15 : blockTableData.length + 15;
+      const t = blocksFuseSearchResult
+        .slice(length, lengthAdd)
+        .map((i) => i.item);
+      const data = await getnodeData({
+        variables: {
+          where: {
+            text_IN: t,
+          },
+        },
+      });
+      const notes = (data as any).data.notes;
       setBlockTableData(reset ? notes : blockTableData.concat(notes));
     } else {
       setBlockTableData([]);

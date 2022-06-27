@@ -1,9 +1,9 @@
 import { bodyText, subText } from "@/theme";
 
-export const Container = {
-  display: "flex",
+export const Container = (textAreaValue) => ({
+  display: textAreaValue ? "flex" : "none",
   alignItems: "center",
-};
+});
 
 export const TriggerStyle = {
   display: "flex",
@@ -34,7 +34,7 @@ export const PopoverContent = {
 
 export const URLText = (error) => ({
   color: error ? "red" : "black",
-  fontSize: bodyText,
+  fontSize: subText,
   lineHeight: "12px",
   fontWeight: 500,
 });
@@ -42,7 +42,7 @@ export const URLText = (error) => ({
 export const URLInput = (error) => ({
   mt: "2px",
   borderRadius: "2px",
-  fontSize: bodyText,
+  fontSize: subText,
   height: "30px",
   px: "10px",
   borderColor: error ? "red" : "black",
@@ -51,7 +51,7 @@ export const URLInput = (error) => ({
 export const URLButton = {
   mt: "3px",
   alignSelf: "end",
-  fontSize: bodyText,
+  fontSize: subText,
   lineHeight: "125%",
   color: "diamond.link",
   variant: "link",

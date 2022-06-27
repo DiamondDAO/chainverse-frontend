@@ -1,27 +1,20 @@
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Box, Button, Text,
-  Menu,MenuButton,MenuDivider,MenuGroup,MenuItem,MenuList,
-  useDisclosure, useToast } from "@chakra-ui/react";
+import { Box, Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 
 import { Layout } from "@/components/Layout";
-import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
+import { AddBlockModal } from "@/components/AddBlockModal";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { Flow } from "@/components/Workspace/Flow";
-import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
-import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
-import { Block } from "@/common/types";
 
 import {
   GET_ALL_NOTES,
   GET_NOTES,
-  GET_ALL_BLOCKS,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
@@ -30,26 +23,21 @@ import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
   DELETE_NOTES,
-  DELETE_PARTNERSHIPS,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from "@/services/Apollo/Mutations";
 
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
+import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
-    isOpen: noteBlockDrawerIsOpen,
-    onOpen: noteBlockDrawerOnOpen,
-    onClose: noteBlockDrawerOnClose,
-  } = useDisclosure();
-  const {
-    isOpen: partnershipBlockDrawerIsOpen,
-    onOpen: partnershipBlockDrawerOnOpen,
-    onClose: partnershipBlockDrawerOnClose,
+    isOpen: blockDrawerIsOpen,
+    onOpen: blockDrawerOnOpen,
+    onClose: blockDrawerOnClose,
   } = useDisclosure();
   const {
     isOpen: entityDrawerIsOpen,
@@ -104,9 +92,6 @@ const Workspace: NextPage = () => {
     }
   );
 
-  const blockTypes = ['Entity', 'Note', 'Partnership'];
-  const [blockType, setBlockType] = useState("")
-
   const [rfInstance, setRfInstance] = useState(null);
   const toast = useToast();
   useEffect(() => {
@@ -149,14 +134,11 @@ const Workspace: NextPage = () => {
     () => sandboxData?.sandboxes[0]?.entities,
     [sandboxData?.sandboxes[0]?.entities]
   );
-
   const notesData = useMemo(
     () =>
-      sandboxData?.sandboxes[0]?.blocks.filter((i) =>
-      i.__typename === "Note" || i.__typename === "Partnership"),
+      sandboxData?.sandboxes[0]?.blocks.filter((i) => i.__typename === "Note"),
     [sandboxData?.sandboxes[0]?.blocks]
   );
-
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]
@@ -178,20 +160,7 @@ const Workspace: NextPage = () => {
                 Note: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData
-                        .filter((node) => node.__typename === "Note")
-                        .map((node) => node.uuid),
-                      },
-                    },
-                  },
-                },
-                Partnership: {
-                  connect: {
-                    where: {
-                      node: { uuid_IN: nodeData
-                        .filter((node) => node.__typename === "Partnership")
-                        .map((node) => node.uuid),
-                      },
+                      node: { uuid_IN: nodeData.map((node) => node.uuid) },
                     },
                   },
                 },
@@ -199,9 +168,24 @@ const Workspace: NextPage = () => {
               entities: {
                 connect: {
                   where: {
-                    node: { uuid_IN: nodeData
-                      .filter((node) => node.__typename === "Entity")
-                      .map((node) => node.uuid),
+                    node: {
+                      OR: [
+                        {
+                          id_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.id),
+                        },
+                        {
+                          address_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.address),
+                        },
+                        {
+                          name_IN: nodeData
+                            .filter((node) => node.__typename === "Entity")
+                            .map((node) => node.name),
+                        },
+                      ],
                     },
                   },
                 },
@@ -218,15 +202,6 @@ const Workspace: NextPage = () => {
           disconnect: {
             blocks: {
               Note: [
-                {
-                  where: {
-                    node: {
-                      uuid_NOT: 0,
-                    },
-                  },
-                },
-              ],
-              Partnership: [
                 {
                   where: {
                     node: {
@@ -269,63 +244,16 @@ const Workspace: NextPage = () => {
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
-      console.log("INDEX - WHAT IS IN NODE DATA ------ " + JSON.stringify(data))
-      if (data.__typename == "Note") {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
+      await addBlockToSandbox({
+        variables: {
+          where: {
+            wallet: {
+              address: data?.walletAddress,
             },
           },
-        });
-      } else if (data.__typename == "Partnership") {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Partnership: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else if (data.__typename == "Entity") {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              entities: [
+          connect: {
+            blocks: {
+              Note: [
                 {
                   where: {
                     node: {
@@ -336,60 +264,35 @@ const Workspace: NextPage = () => {
               ],
             },
           },
-        });
-      }
+        },
+      });
     } catch (e) {
       throw e;
     }
   };
-  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
+  const [deleteBlock, { error: deleteBlockError }] = useMutation(DELETE_NOTES, {
     refetchQueries: [
       {
-        query: GET_ALL_BLOCKS,
+        query: GET_NOTES,
         variables: { where: { address: nodeData?.wallet?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
-    ],
-  });
-
-  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
-    refetchQueries: [
-      {
-        query: GET_ALL_BLOCKS,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
+      { query: GET_ALL_NOTES },
     ],
   });
   const deleteBlockHandler = async (block: Block) => {
     try {
-      if (block.__typename === "Note") {
-        await deleteNoteBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: "Note Block Deleted!",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-      } else if (block.__typename === "Partnership") {
-        await deletePartnershipBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: "Partnership Block Deleted!",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-      }
+      await deleteBlock({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
     } catch (e) {
       toast({
         title: "Error",
@@ -415,9 +318,8 @@ const Workspace: NextPage = () => {
               onInit={setRfInstance}
               setCurrentNode={(value) => {
                 setCurrentNode(value);
-                if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
-                else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
-                else if (value.__typename === "Entity") {entityDrawerOnOpen()}
+                value.__typename === "Note" && blockDrawerOnOpen();
+                value.__typename === "Entity" && entityDrawerOnOpen();
               }}
             />
           )}
@@ -440,28 +342,6 @@ const Workspace: NextPage = () => {
           <Box sx={styles.WorkspaceBody}>
             <Box sx={styles.WorkspaceSidebar}>
               <WorkspaceNavigator />
-              <Menu gutter={15} offset={[15, 12]}>
-                <MenuButton sx={styles.MenuButton} as={Box}>
-                  <Box sx={styles.MenuContents}>
-                    <AddBlockIcon/>
-                    <Text ml="4px">Add block</Text>
-                  </Box>
-                </MenuButton>
-                <MenuList>
-                  <MenuGroup ml="12.8" title="Block types">
-                    {blockTypes.map(type => (
-                      <MenuItem onClick={() => {
-                          setBlockType(type)
-                          onOpen()
-                        }}>
-                        <Box sx={styles.MenuContents}>
-                          <Text ml="5px">{type}</Text>
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </MenuGroup>
-                </MenuList>
-              </Menu>
               <Box mt="20px">
                 <Button
                   isLoading={isSavingWorkspace}
@@ -473,24 +353,24 @@ const Workspace: NextPage = () => {
                 >
                   Save as workspace
                 </Button>
+                <Button
+                  sx={styles.ButtonStyle}
+                  fontSize={bodyText}
+                  leftIcon={<AddBlockIcon />}
+                  onClick={onOpen}
+                  variant="primary"
+                >
+                  Add block
+                </Button>
               </Box>
             </Box>
           </Box>
-          <NoteBlockDrawer
+          <BlockDrawer
             nodeData={currentNode?.__typename == "Note" && currentNode}
-            isOpen={noteBlockDrawerIsOpen}
+            isOpen={blockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
-              noteBlockDrawerOnClose();
-            }}
-            actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
-          />
-          <PartnershipBlockDrawer
-            nodeData={currentNode?.__typename == "Partnership" && currentNode}
-            isOpen={partnershipBlockDrawerIsOpen}
-            onClose={() => {
-              setCurrentNode(null);
-              partnershipBlockDrawerOnClose();
+              blockDrawerOnClose();
             }}
             actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
           />
@@ -502,7 +382,7 @@ const Workspace: NextPage = () => {
               entityDrawerOnClose();
             }}
           />
-          <AddBlockTypeModal
+          <AddBlockModal
             tags={
               filterUniqueObjects(tagAndEntitiesData?.tags, "text")?.map(
                 (i) => i.text
@@ -516,7 +396,6 @@ const Workspace: NextPage = () => {
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
             onClose={onClose}
-            blockType={blockType}
           />
         </Box>
       </Layout>

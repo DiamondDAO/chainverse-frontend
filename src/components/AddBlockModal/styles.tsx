@@ -1,7 +1,7 @@
 export const ModalBodyStyle = {
   position: "relative",
   width: ["90vw", null, "600px"],
-  height: "auto",
+  height: "300px",
   bg: "diamond.white",
   border: "1px solid black",
   borderRadius: "5px",
@@ -36,23 +36,17 @@ export const PopoverHeader = {
   color: "diamond.blue.5",
 };
 
-export const InputStyle = {
-  width: "100%",
-  height: "3em",
-  margin: "0px 0px 24px 0px",
-}
-
 export const TextboxStyles = {
   p: "0",
   pb: "4px",
   resize: "none",
-  border: "1px solid #C3C3C3",
+  border: "none",
   width: "100%",
-  height: "200px",
-  padding: "0px 10px 0px 10px",
-  margin: "0px 0px 24px 0px",
+  height: "100%",
+  maxH: "250px",
   overflow: "scroll",
   fontSize: ".875rem",
+  "&:focus": { border: "none", outline: "none" },
   "&:empty:before": {
     color: "diamond.gray.3",
     content: "attr(data-placeholder)",

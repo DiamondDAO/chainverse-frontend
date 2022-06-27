@@ -59,6 +59,10 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
     () => [
       { title: "ID", data: nodeData?.id },
       { title: "NETWORK", data: nodeData?.network },
+      { title: "ONLY MEMBER?", data: nodeData?.onlyMembers },
+      { title: "SYMBOL", data: nodeData?.symbol },
+      { title: "YTD PROPOSALS", data: nodeData?.proposalsAggregate?.count },
+      { title: "WEBSITE", data: "" },
       {
         title: "SOCIALS",
         data: (
@@ -165,6 +169,21 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
             </>
           )}
 
+          {nodeData?.about && (
+            <>
+              <Box mt="16px">
+                <Text color="diamond.blue.3" fontWeight={500}>
+                  ABOUT
+                </Text>
+                <Box sx={styles.RowContainer}>
+                  <Text mt="4px" color="diamond.gray.4">
+                    {nodeData?.about}
+                  </Text>
+                </Box>
+              </Box>
+              <Divider mt="16px" />
+            </>
+          )}
           <Box mt="16px">
             {entityData.map((dataItem, idx) => {
               return (

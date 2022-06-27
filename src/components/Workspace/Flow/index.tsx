@@ -16,8 +16,7 @@ import ReactFlow, {
   useReactFlow,
   ReactFlowProvider,
 } from "react-flow-renderer";
-import { NoteBlockNode } from "../NoteBlockNode";
-import { PartnershipBlockNode } from "../PartnershipBlockNode";
+import { BlockNode } from "../BlockNode";
 import { EntityNode } from "../EntityNode";
 
 const fitViewOptions: FitViewOptions = {
@@ -44,11 +43,8 @@ export const Inner: FC<IFlow> = ({
     () => (typeof restoredFlow === "string" ? JSON.parse(restoredFlow) : {}),
     [restoredFlow]
   );
-
   const nodeTypes = useMemo(
-    () => ({ noteBlock: NoteBlockNode,
-      partnershipBlock: PartnershipBlockNode,
-      entity: EntityNode }),
+    () => ({ block: BlockNode, entity: EntityNode }),
     []
   );
   const initialEdges: Edge[] = useMemo(() => {
@@ -61,6 +57,8 @@ export const Inner: FC<IFlow> = ({
           const selectedNode = restoredFlowJSON?.nodes?.find((selectNode) =>
             node?.id
               ? node.id === selectNode.id
+              : node?.address
+              ? node?.address === selectNode.address
               : node.name === selectNode.name
           );
           return {
@@ -68,6 +66,7 @@ export const Inner: FC<IFlow> = ({
             data: {
               node,
               title: node.name,
+              about: node.about,
               avatar: node.avatar,
               dim: false,
             },
@@ -87,23 +86,7 @@ export const Inner: FC<IFlow> = ({
               dim: false,
               label: node.text,
             },
-            type: "noteBlock",
-            position: selectedNode
-              ? { x: selectedNode.position.x, y: selectedNode.position.y }
-              : { x: 100, y: idx * 150 + 100 },
-          };
-        } else if (node?.__typename === "Partnership") {
-          const selectedNode = restoredFlowJSON?.nodes?.find(
-            (selectNode) => node.uuid === selectNode.id
-          );
-          return {
-            id: node.uuid,
-            data: {
-              node,
-              dim: false,
-              label: node.text,
-            },
-            type: "partnershipBlock",
+            type: "block",
             position: selectedNode
               ? { x: selectedNode.position.x, y: selectedNode.position.y }
               : { x: 100, y: idx * 150 + 100 },
