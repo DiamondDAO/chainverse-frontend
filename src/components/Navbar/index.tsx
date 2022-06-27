@@ -3,7 +3,7 @@ import {Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { Layout } from "@/components/Layout";
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
-import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+// import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
 import { Block } from "@/common/types";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
@@ -12,7 +12,7 @@ import Router from "next/router";
 import React, { FC } from "react";
 import { borderStyles } from "@/theme";
 import { AccountMenu } from "./AccountMenu";
-import { AddBlockMenu } from "./AddBlockMenu";
+// import { AddBlockMenu } from "./AddBlockMenu";
 import { NavPages } from "./NavPages";
 import * as styles from "./styles";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
@@ -20,7 +20,6 @@ import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 export const NavBar: FC = () => {
   const { space } = useTheme();
   const navigationPages = [
-    {/*{ text: "Home", link: "/home" },*/},
     { text: "Explorer", link: "/explorer" },
     { text: "Workspace", link: "/workspace" }
   ];

@@ -24,8 +24,10 @@ import { getCaretPosition, getCaretCoordinates } from "../utils";
 interface INoteBlockModal {
   tags: string[];
   entities: string[];
+  isOpen: boolean;
   onClose: () => void;
   nodeData?: any;
+  saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string[];
 }
 
