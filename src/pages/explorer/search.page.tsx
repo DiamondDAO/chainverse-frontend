@@ -12,6 +12,7 @@ import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   GET_ALL_NOTES,
   GET_ALL_BLOCKS,
+  GET_ALL_CREATED,
   GET_BLOCK_DATA,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
@@ -48,7 +49,7 @@ const Search: NextPage = () => {
   const { term, type } = router.query;
 
   // graphql data
-  const { data: notesData } = useQuery(GET_ALL_BLOCKS);
+  const { data: notesData } = useQuery(GET_ALL_CREATED);
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
   const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
   const [getnodeData] = useLazyQuery(GET_BLOCK_DATA);
@@ -135,6 +136,8 @@ const Search: NextPage = () => {
       filterUniqueObjects(notesData?.wallets[0].blocks, "text" )?.map((i) => i) || [],
     [notesData]
   );
+
+  console.log("WHAT IS BLOCKS --- " + JSON.stringify(blocks))
   /*const blocks = [notesData?.wallets[0].blocks];*/
 
   /*const blocksFuseSearchResult = useMemo(
