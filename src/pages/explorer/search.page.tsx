@@ -140,7 +140,7 @@ const Search: NextPage = () => {
   console.log("WHAT IS BLOCKS --- " + JSON.stringify(blocks))
   /*const blocks = [notesData?.wallets[0].blocks];*/
 
-  /*const blocksFuseSearchResult = useMemo(
+  const blocksFuseSearchResult = useMemo(
     () =>
       blocks.length > 0
         ? new Fuse(blocks, {
@@ -149,14 +149,14 @@ const Search: NextPage = () => {
           })?.search((term as string) || "")
         : [],
     [blocks, term]
-  );*/
+  );
 
-  const blocksFuseSearchResult = useMemo(
+  /*const blocksFuseSearchResult = useMemo(
     () =>
     blocks.length > 0
     ? blocks.filter((i) => String(i.text).includes(term)) : [],
   [blocks, term]);
-
+*/
   const { getnodeDataHandler, nodeData, hasMorenodeData } =
     useGetBlockTableData({
       term,
