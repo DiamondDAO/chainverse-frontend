@@ -18,6 +18,7 @@ import {
   GET_ALL_NOTES,
   GET_NOTES,
   GET_ALL_BLOCKS,
+  GET_ALL_CREATED,
   GET_SANDBOX,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
@@ -45,7 +46,7 @@ import * as styles from "./styles";
 
 const AllBlocks: NextPage = () => {
   const toast = useToast();
-  const [getNotes, { data }] = useLazyQuery(GET_ALL_BLOCKS);
+  const [getNotes, { data }] = useLazyQuery(GET_ALL_CREATED);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
   const [currentNode, setCurrentNode] = useState(null);
@@ -73,9 +74,11 @@ const AllBlocks: NextPage = () => {
   } = useDisclosure();
 
   const blockCount = useMemo(
-    () => data?.wallets[0].blocks.length,
+    () => (data?.wallets[0].blocks.length + data?.wallets[0].entities.length),
     [data]
   );
+
+  console.log("WHAT IS DATA?.WALLETS ---" + JSON.stringify(data?.wallets))
 
   useEffect(() => {
     if (walletData?.address) {
@@ -359,9 +362,7 @@ const AllBlocks: NextPage = () => {
               </Box>
               <Box>
                 <Box sx={styles.BlockPageBody}>
-                  {data?.wallets[0].blocks
-                    .filter((nodeData) => nodeData.__typename === "Note" || nodeData.__typename === "Partnership")
-                    .filter((noteData) => {
+                  {/*{data?.wallets[0].blocks.filter((noteData) => {
                       let tagFlag = true;
                       let entitiyFlag = true;
                       if (filteredTagsState[0].length !== 0) {
@@ -391,7 +392,8 @@ const AllBlocks: NextPage = () => {
                         );
                       }
                       return tagFlag && entitiyFlag;
-                    })
+                    })*/}
+                    {data?.wallets[0].blocks
                     .map((block, idx) => {
                       return (
                         <Box
@@ -399,7 +401,6 @@ const AllBlocks: NextPage = () => {
                             setCurrentNode(block);
                             if (block.__typename === "Note") {noteBlockDrawerOnOpen()}
                             else if (block.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
-                            else if (block.__typename === "Entity") {entityDrawerOnOpen()}
                           }}
                           key={idx}
                           sx={styles.BlockItem}
@@ -409,6 +410,26 @@ const AllBlocks: NextPage = () => {
                           </Box>
                           <Box>
                             <AddPillsToText text={block.text} />
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                    {data?.wallets[0].entities
+                    .map((block, idx) => {
+                      return (
+                        <Box
+                          onClick={() => {
+                            setCurrentNode(block);
+                            entityDrawerOnOpen()
+                          }}
+                          key={idx}
+                          sx={styles.BlockItem}
+                        >
+                          <Box fontSize={bodyText} fontWeight="500" mr="4px">
+                            {block.__typename}: {block.name}
+                          </Box>
+                          <Box>
+                            Chain: {block.network}
                           </Box>
                         </Box>
                       );
@@ -435,6 +456,18 @@ const AllBlocks: NextPage = () => {
             onClose={() => {
               setCurrentNode(null);
               partnershipBlockDrawerOnClose();
+            }}
+            actions={{
+              addBlockToWorkspace: addBlockHandler,
+              editBlock: onOpen,
+              deleteBlock: deleteBlockHandler }}
+          />
+          <EntityDrawer
+            nodeData={currentNode?.__typename == "Entity" && currentNode}
+            isOpen={entityDrawerIsOpen}
+            onClose={() => {
+              setCurrentNode(null);
+              entityDrawerOnClose();
             }}
             actions={{
               addBlockToWorkspace: addBlockHandler,

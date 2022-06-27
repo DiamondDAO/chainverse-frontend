@@ -62,6 +62,7 @@ export const typeDefs = gql`
     createdAt: DateTime! @timestamp
     blocks: [Block!] @relationship(type: "CREATED", direction: OUT)
     sandbox: Sandbox @relationship(type: "CREATED", direction: OUT)
+    entities: [Entity!] @relationship(type: "CREATED", direction: OUT)
   }
 
   type Tag {

@@ -213,6 +213,71 @@ export const GET_TAG_DATA = gql`
   }
 `;
 
+export const GET_ALL_CREATED = gql`
+  query Wallets($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Note {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+            uuid
+          }
+        }
+      }
+      entities {
+        ... on Entity {
+          uuid
+          name
+          onChain
+          network
+          address {
+            address
+          }
+          addressSource {
+            source
+          }
+          twitter {
+            profileUrl
+          }
+          discord
+          github
+          website
+        }
+      }
+    }
+  }
+`;
+
 export const GET_WALLET_COUNT = gql`
   query Query($where: WalletWhere) {
     walletsCount(where: $where)
