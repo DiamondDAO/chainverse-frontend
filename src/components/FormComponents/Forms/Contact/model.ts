@@ -7,6 +7,12 @@ const questions = [
     initVal: [],
   },
   {
+    question: "What's your Discord handle?",
+    subtitle:
+      'Please include the "#" and the numbers that follow, i.e. amphiboly#4329',
+    initVal: "",
+  },
+  {
     question: "What's your Twitter handle?",
     subtitle: `You don't need the "@"`,
     initVal: "",
@@ -16,14 +22,8 @@ const questions = [
     initVal: "",
   },
   {
-    question: "What's your Discord handle?",
-    subtitle:
-      'Please include the "#" and the numbers that follow, i.e. amphiboly#4329',
-    initVal: "",
-  },
-  {
     question:
-      "Would you like to stay access insights and narratives discovered by Diamond DAO contributors in our bi-weekly newsletter?",
+      "Would you like to stay updated with insights and narratives discovered by Diamond DAO contributors in our bi-weekly newsletter?",
     initVal: false,
   },
   {

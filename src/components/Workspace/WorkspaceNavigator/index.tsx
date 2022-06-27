@@ -20,13 +20,13 @@ export const WorkspaceNavigator = (props: Props) => {
   const [{ data: walletData }] = useAccount();
   const [getWorkspaceOwned, { data: workspaceData }] =
     useLazyQuery(GET_WORKSPACE_OWNED);
-  useEffect(() => {
-    if (walletData?.address) {
-      getWorkspaceOwned({
-        variables: { where: { wallet: { address: walletData?.address } } },
-      });
-    }
-  }, [walletData?.address]);
+    useEffect(() => {
+      if (walletData?.address) {
+        getWorkspaceOwned({
+          variables: { where: { wallet: { address: walletData?.address } } },
+        });
+      }
+    }, [walletData?.address]);
   const workspaces = workspaceData?.workspaces;
 
   return (

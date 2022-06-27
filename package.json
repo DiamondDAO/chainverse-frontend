@@ -23,6 +23,7 @@
     "@neo4j/graphql-ogm": "^3.0.1",
     "apollo-server-micro": "^3.6.3",
     "axios": "^0.24.0",
+    "chakra-ui-simple-autocomplete": "^1.0.0",
     "ethers": "^5.5.3",
     "formik": "^2.2.9",
     "formik-chakra-ui": "^1.6.0",

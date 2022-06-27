@@ -5,16 +5,17 @@ import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddPillsToText } from "@/components/UtilityComponents/AddPillsToText";
 import { IconVariants } from "@/common/types";
 import * as styles from "./styles";
-interface IBlockNode {
+import { bodyText, subText } from "@/theme";
+interface INoteBlockNode {
   data: { label: string; dim: boolean };
 }
 
-export const BlockNode: FC<IBlockNode> = ({ data }) => {
+export const NoteBlockNode: FC<INoteBlockNode> = ({ data }) => {
   return (
-    <Box sx={styles.BlockNodeContainer(data.dim)}>
+    <Box sx={styles.NoteBlockNodeContainer(data.dim)}>
       <Box mr="4px">
-        <Box sx={styles.IconStyle}>
-          <BlockIcon variant={IconVariants.White} />
+        <Box fontSize={bodyText} fontWeight="500">
+          Note Block
         </Box>
       </Box>
       <Box sx={styles.PillText}>

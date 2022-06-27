@@ -8,7 +8,7 @@ export const GET_NOTES = gql`
           text
           uuid
           sources {
-            url
+            source
           }
           tags {
             tag
@@ -25,12 +25,13 @@ export const GET_NOTES = gql`
     }
   }
 `;
+
 export const GET_ALL_NOTES = gql`
   query Notes {
     notes {
       text
       sources {
-        url
+        source
       }
       tags {
         tag
@@ -46,6 +47,101 @@ export const GET_ALL_NOTES = gql`
   }
 `;
 
+export const GET_PARTNERSHIPS = gql`
+  query Partnerships($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_ALL_PARTNERSHIPS = gql`
+  query Partnerships {
+    partnerships {
+      text
+      type
+      sources {
+        source
+      }
+      tags {
+        tag
+      }
+      createdAt
+      wallet {
+        address
+      }
+      entities {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_ALL_BLOCKS = gql`
+  query Wallets($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Note {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+            uuid
+          }
+        }
+      }
+    }
+  }
+`;
+
+
 export const GET_BLOCK_DATA = gql`
   query Notes($where: NoteWhere) {
     notes(where: $where) {
@@ -53,7 +149,7 @@ export const GET_BLOCK_DATA = gql`
       uuid
       createdAt
       sources {
-        url
+        source
       }
       tags {
         tag
@@ -83,17 +179,23 @@ export const GET_ENTITIES_DATA = gql`
   query Entities($where: EntityWhere) {
     entities(where: $where) {
       id
-      minScore
+      uuid
       name
-      network
-      onlyMembers
-      symbol
       avatar
-      address
-      about
-      proposalsAggregate {
-        count
+      onChain
+      network
+      address {
+        address
       }
+      addressSource {
+        source
+      }
+      twitter {
+        profileUrl
+      }
+      discord
+      github
+      website
     }
   }
 `;
@@ -106,6 +208,71 @@ export const GET_TAG_DATA = gql`
       createdAt
       blocksConnection {
         totalCount
+      }
+    }
+  }
+`;
+
+export const GET_ALL_CREATED = gql`
+  query Wallets($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Note {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+            uuid
+          }
+        }
+      }
+      entities {
+        ... on Entity {
+          uuid
+          name
+          onChain
+          network
+          address {
+            address
+          }
+          addressSource {
+            source
+          }
+          twitter {
+            profileUrl
+          }
+          discord
+          github
+          website
+        }
       }
     }
   }
@@ -139,12 +306,11 @@ export const GET_SANDBOX = gql`
       name
       entities {
         name
-        address
-        avatar
-        about
-        proposalsAggregate {
-          count
+        uuid
+        address {
+          address
         }
+        avatar
       }
       blocks {
         ... on Note {
@@ -159,6 +325,26 @@ export const GET_SANDBOX = gql`
           }
           entities {
             name
+          }
+          sources {
+            source
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          uuid
+          wallet {
+            address
+          }
+          tags {
+            tag
+          }
+          entities {
+            name
+          }
+          sources {
+            source
           }
         }
       }
@@ -176,10 +362,15 @@ export const GET_WORKSPACES = gql`
           text
           uuid
         }
+        ... on Partnership {
+          text
+          type
+          uuid
+        }
       }
       entities {
         name
-        id
+        uuid
       }
     }
   }
@@ -195,15 +386,19 @@ export const GET_WORKSPACE_OWNED = gql`
           text
           uuid
         }
+        ... on Partnership {
+          text
+          type
+          uuid
+        }
       }
       entities {
         name
-        address
-        avatar
-        about
-        proposalsAggregate {
-          count
+        uuid
+        address {
+          address
         }
+        avatar
       }
     }
   }
@@ -216,12 +411,8 @@ export const GET_WORKSPACE = gql`
       rfObject
       entities {
         name
-        id
+        uuid
         avatar
-        about
-        proposalsAggregate {
-          count
-        }
       }
       blocks {
         ... on Note {
@@ -236,6 +427,27 @@ export const GET_WORKSPACE = gql`
           }
           entities {
             name
+          }
+          sources {
+            source
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          createdAt
+          uuid
+          wallet {
+            address
+          }
+          tags {
+            tag
+          }
+          entities {
+            name
+          }
+          sources {
+            source
           }
         }
       }
