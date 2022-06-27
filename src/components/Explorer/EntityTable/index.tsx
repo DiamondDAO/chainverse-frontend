@@ -50,20 +50,11 @@ export const EntityTable = ({ data, update, hasMore, walletAddress }) => {
           fontWeight: "500",
         },
       },
-      // {
-      //   Header: "ID",
-      //   accessor: "id",
-      // },
-      // { Header: "Network", accessor: "network" },
-      // { Header: "Only Members?", accessor: "onlyMembers" },
-      // { Header: "Symbol", accessor: "symbol" },
-      // {
-      //   Header: "YTD Proposal",
-      //   accessor: "proposalsAggregate",
-      //   Cell: ({ value }) => {
-      //     return <>{value.count}</>;
-      //   },
-      // },
+      {
+        Header: "ID",
+        accessor: "id",
+      },
+      { Header: "Network", accessor: "network" },
       {
         Header: "Actions",
         accessor: "actions",

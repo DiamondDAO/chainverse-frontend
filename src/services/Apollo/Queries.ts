@@ -133,6 +133,7 @@ export const GET_ALL_BLOCKS = gql`
           }
           entities {
             name
+            uuid
           }
         }
       }
@@ -178,17 +179,23 @@ export const GET_ENTITIES_DATA = gql`
   query Entities($where: EntityWhere) {
     entities(where: $where) {
       id
-      minScore
+      uuid
       name
-      network
-      onlyMembers
-      symbol
       avatar
-      address
-      about
-      proposalsAggregate {
-        count
+      onChain
+      network
+      address {
+        address
       }
+      addressSource {
+        source
+      }
+      twitter {
+        profileUrl
+      }
+      discord
+      github
+      website
     }
   }
 `;
@@ -201,6 +208,71 @@ export const GET_TAG_DATA = gql`
       createdAt
       blocksConnection {
         totalCount
+      }
+    }
+  }
+`;
+
+export const GET_ALL_CREATED = gql`
+  query Wallets($where: WalletWhere) {
+    wallets(where: $where) {
+      blocks {
+        ... on Note {
+          text
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+          }
+        }
+        ... on Partnership {
+          text
+          type
+          uuid
+          sources {
+            source
+          }
+          tags {
+            tag
+          }
+          createdAt
+          wallet {
+            address
+          }
+          entities {
+            name
+            uuid
+          }
+        }
+      }
+      entities {
+        ... on Entity {
+          uuid
+          name
+          onChain
+          network
+          address {
+            address
+          }
+          addressSource {
+            source
+          }
+          twitter {
+            profileUrl
+          }
+          discord
+          github
+          website
+        }
       }
     }
   }
@@ -234,12 +306,11 @@ export const GET_SANDBOX = gql`
       name
       entities {
         name
-        address
-        avatar
-        about
-        proposalsAggregate {
-          count
+        uuid
+        address {
+          address
         }
+        avatar
       }
       blocks {
         ... on Note {
@@ -299,7 +370,7 @@ export const GET_WORKSPACES = gql`
       }
       entities {
         name
-        id
+        uuid
       }
     }
   }
@@ -323,12 +394,11 @@ export const GET_WORKSPACE_OWNED = gql`
       }
       entities {
         name
-        address
-        avatar
-        about
-        proposalsAggregate {
-          count
+        uuid
+        address {
+          address
         }
+        avatar
       }
     }
   }
@@ -341,12 +411,8 @@ export const GET_WORKSPACE = gql`
       rfObject
       entities {
         name
-        id
+        uuid
         avatar
-        about
-        proposalsAggregate {
-          count
-        }
       }
       blocks {
         ... on Note {

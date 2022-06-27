@@ -16,7 +16,6 @@ import Fuse from "fuse.js";
 import { Pill } from "src/components/Pill";
 import { TagIcon } from "src/components/Icons/TagIcon";
 import { EntitiesIcon } from "src/components/Icons/EntitiesIcon";
-import { TipDrawer } from "../TipDrawer";
 import { LinkSourceModal } from "../LinkSourceModal";
 import * as styles from "./styles";
 import { bodyText, subText } from "@/theme";

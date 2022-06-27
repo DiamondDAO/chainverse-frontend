@@ -61,8 +61,6 @@ export const Inner: FC<IFlow> = ({
           const selectedNode = restoredFlowJSON?.nodes?.find((selectNode) =>
             node?.id
               ? node.id === selectNode.id
-              : node?.address
-              ? node?.address === selectNode.address
               : node.name === selectNode.name
           );
           return {
@@ -70,7 +68,6 @@ export const Inner: FC<IFlow> = ({
             data: {
               node,
               title: node.name,
-              about: node.about,
               avatar: node.avatar,
               dim: false,
             },

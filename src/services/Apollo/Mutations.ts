@@ -80,6 +80,34 @@ export const CREATE_WORKSPACES = gql`
   }
 `;
 
+export const CREATE_ENTITIES = gql`
+  mutation CreateEntities($input: [EntityCreateInput!]!) {
+    createEntities(input: $input) {
+      entities {
+        uuid
+        name
+        onChain
+        network
+        address {
+          address
+        }
+        addressSource {
+          source
+        }
+        twitter {
+          profileUrl
+        }
+        discord
+        github
+        website
+        wallet {
+          address
+        }
+      }
+    }
+  }
+`;
+
 export const ADD_SANDBOX_TO_WALLET = gql`
   mutation UpdateWallets(
     $where: WalletWhere
@@ -178,6 +206,37 @@ mutation UpdatePartnerships(
 }
 `;
 
+export const UPDATE_ENTITIES = gql`
+mutation UpdateEntities(
+  $update: EntitypUpdateInput
+  $where: EntityWhere
+  $disconnect: EntityDisconnectInput
+) {
+  updateEntities(update: $update, where: $where, disconnect: $disconnect) {
+    entities {
+      uuid
+      name
+      id
+      avatar
+      onChain
+      network
+      address {
+        address
+      }
+      addressSource {
+        source
+      }
+      twitter {
+        profileUrl
+      }
+      discord
+      github
+      website
+    }
+  }
+}
+`;
+
 
 export const UPDATE_WORKSPACE = gql`
   mutation Mutation(
@@ -214,6 +273,15 @@ export const DELETE_PARTNERSHIPS = gql`
 export const DELETE_WORKSPACE = gql`
   mutation DeleteWorkspaces($where: WorkspaceWhere) {
     deleteWorkspaces(where: $where) {
+      nodesDeleted
+      relationshipsDeleted
+    }
+  }
+`;
+
+export const DELETE_ENTITIES = gql`
+  mutation DeleteEntities($where: EntityWhere) {
+    deleteEntities(where: $where) {
       nodesDeleted
       relationshipsDeleted
     }
