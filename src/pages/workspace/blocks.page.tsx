@@ -333,8 +333,8 @@ const AllBlocks: NextPage = () => {
                 </MenuButton>
                 <MenuList>
                   <MenuGroup ml="12.8" title="Block types">
-                    {blockTypes.map(type => (
-                      <MenuItem onClick={() => {
+                    {blockTypes.map((type, idx) => (
+                      <MenuItem key={idx} onClick={() => {
                           setBlockType(type)
                           onOpen()
                         }}>
