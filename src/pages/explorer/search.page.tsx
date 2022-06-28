@@ -137,7 +137,6 @@ const Search: NextPage = () => {
     [notesData]
   );
 
-  console.log("WHAT IS BLOCKS --- " + JSON.stringify(blocks))
   /*const blocks = [notesData?.wallets[0].blocks];*/
 
   const blocksFuseSearchResult = useMemo(
