@@ -29,6 +29,8 @@ interface INoteBlockModal {
   nodeData?: any;
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string[];
+  isOpen: boolean;
+  saveToWorkspaceFn?: any;
 }
 
 export const NoteBlockModal: FC<INoteBlockModal> = ({

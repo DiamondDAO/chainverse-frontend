@@ -20,4 +20,5 @@ export enum AddWorkspaceType {
 
 export type Block = {
   uuid: string;
+  __typename: string;
 };
