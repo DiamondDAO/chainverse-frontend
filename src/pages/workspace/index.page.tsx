@@ -489,8 +489,8 @@ const Workspace: NextPage = () => {
                 </MenuButton>
                 <MenuList>
                   <MenuGroup ml="12.8" title="Block types">
-                    {blockTypes.map(type => (
-                      <MenuItem onClick={() => {
+                    {blockTypes.map((type, index) => (
+                      <MenuItem key={index} onClick={() => {
                           setBlockType(type)
                           onOpen()
                         }}>

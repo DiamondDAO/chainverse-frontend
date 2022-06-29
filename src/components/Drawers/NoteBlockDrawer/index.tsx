@@ -219,8 +219,8 @@ export const NoteBlockDrawer: FC<INoteBlockDrawer> = ({
             <Box  mt="16px" color="diamond.blue.3" fontWeight={500}>
               SOURCES
             </Box>
-              {nodeData?.sources.map((s) => (
-                <Tooltip label={s.source} fontSize="xs">
+              {nodeData?.sources.map((s, index) => (
+                <Tooltip key={index} label={s.source} fontSize="xs">
                   <span
                     //@ts-ignore
                     rel="noopener noreferrer"
