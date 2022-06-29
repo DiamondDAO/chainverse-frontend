@@ -20,7 +20,7 @@ export const typeDefs = gql`
     onChain: Boolean
     network: String @unique
     address: Wallet @relationship(type: "HAS_WALLET", direction: OUT)
-    addressSource: Source! @relationship(type: "HAS_SOURCE", direction: OUT)
+    addressSource: Source @relationship(type: "HAS_SOURCE", direction: OUT)
     twitter: AccountTwitter @relationship(type: "HAS_ACCOUNT", direction: OUT)
     discord: String @unique
     github: String @unique

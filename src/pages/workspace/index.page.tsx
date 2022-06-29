@@ -23,6 +23,7 @@ import {
   GET_NOTES,
   GET_ALL_BLOCKS,
   GET_SANDBOX,
+  GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
@@ -31,13 +32,13 @@ import {
   CREATE_WORKSPACES,
   DELETE_NOTES,
   DELETE_PARTNERSHIPS,
+  DELETE_ENTITIES,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from "@/services/Apollo/Mutations";
 
 import { filterUniqueObjects } from "@/common/utils";
 import { bodyText, subText } from "@/theme";
-import { Block } from "@/common/types";
 import * as styles from "./styles";
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -269,7 +270,6 @@ const Workspace: NextPage = () => {
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
-      console.log("INDEX - WHAT IS IN NODE DATA ------ " + JSON.stringify(data))
       if (data.__typename == "Note") {
         await addBlockToSandbox({
           variables: {
@@ -363,7 +363,19 @@ const Workspace: NextPage = () => {
       { query: GET_ALL_BLOCKS },
     ],
   });
-  const deleteBlockHandler = async (block: Block) => {
+
+  const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
+    refetchQueries: [
+      {
+        query: GET_ENTITIES_DATA,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+    ],
+  });
+
+
+  const deleteBlockHandler = async (block?: any) => {
     try {
       if (block.__typename === "Note") {
         await deleteNoteBlock({
@@ -402,6 +414,34 @@ const Workspace: NextPage = () => {
     }
     onClose();
   };
+
+  const deleteEntityHandler = async (block?: any) => {
+    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+    try {
+      await deleteEntity({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Entity Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when deleting your entity. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
+
 
   return (
     <>
@@ -449,8 +489,8 @@ const Workspace: NextPage = () => {
                 </MenuButton>
                 <MenuList>
                   <MenuGroup ml="12.8" title="Block types">
-                    {blockTypes.map(type => (
-                      <MenuItem onClick={() => {
+                    {blockTypes.map((type, index) => (
+                      <MenuItem key={index} onClick={() => {
                           setBlockType(type)
                           onOpen()
                         }}>
@@ -501,6 +541,7 @@ const Workspace: NextPage = () => {
               setCurrentNode(null);
               entityDrawerOnClose();
             }}
+            actions={{ editBlock: onOpen, deleteBlock: deleteEntityHandler }}
           />
           <AddBlockTypeModal
             tags={

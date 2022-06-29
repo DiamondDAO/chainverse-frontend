@@ -47,8 +47,8 @@ export const LinkSourceModal: FC<ILinkSource> = ({
             <Box sx={styles.SourceStyle("")}>
               {sources && (
                 <>
-                  {sources.map((s) => (
-                    <Box sx={styles.SourceStyle(s)}>
+                  {sources.map((s, index) => (
+                    <Box key={index} sx={styles.SourceStyle(s)}>
                       <Tooltip label={s} fontSize="xs">
                         <span
                           //@ts-ignore

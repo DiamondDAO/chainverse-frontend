@@ -14,6 +14,7 @@ import {
   GET_ALL_NOTES,
   GET_NOTES,
   GET_ALL_BLOCKS,
+  GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
   GET_WORKSPACE_OWNED,
@@ -28,6 +29,7 @@ import { Loader } from "@/components/Loader";
 import {
   DELETE_NOTES,
   DELETE_PARTNERSHIPS,
+  DELETE_ENTITIES,
   DELETE_WORKSPACE,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
@@ -203,7 +205,18 @@ const Workspace: NextPage = () => {
     ],
   });
 
-  const deleteBlockHandler = async (block: Block) => {
+  const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
+    refetchQueries: [
+      {
+        query: GET_ENTITIES_DATA,
+        variables: { where: { address: nodeData?.wallet?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+    ],
+  });
+
+  const deleteBlockHandler = async (block?: any) => {
+    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
     try {
       if (block.__typename === "Note") {
         await deleteNoteBlock({
@@ -242,6 +255,34 @@ const Workspace: NextPage = () => {
     }
     onClose();
   };
+
+  const deleteEntityHandler = async (block?: any) => {
+    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+    try {
+      await deleteEntity({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Entity Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when deleting your entity. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
+
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
       refetchQueries: [
@@ -328,6 +369,7 @@ const Workspace: NextPage = () => {
                   onInit={setRfInstance}
                   setCurrentNode={(value) => {
                     setCurrentNode(value);
+                    console.log("WHAT IS A VALUE --- " + JSON.stringify(value))
                     if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
                     else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
                     else if (value.__typename === "Entity") {entityDrawerOnOpen()}
@@ -362,8 +404,8 @@ const Workspace: NextPage = () => {
                     </MenuButton>
                     <MenuList>
                       <MenuGroup ml="12.8" title="Block types">
-                        {blockTypes.map(type => (
-                          <MenuItem onClick={() => {
+                        {blockTypes.map((type, idx) => (
+                          <MenuItem key={idx} onClick={() => {
                               setBlockType(type)
                               onOpen()
                             }}>
@@ -422,6 +464,7 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   entityDrawerOnClose();
                 }}
+                actions={{ editBlock: onOpen, deleteBlock: deleteEntityHandler }}
               />
               <AddBlockTypeModal
                 tags={tags}

@@ -14,15 +14,6 @@ import { Layout } from "@/components/Layout";
 import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
 import { useAccount } from "wagmi";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import {
-  GET_ALL_NOTES,
-  GET_NOTES,
-  GET_ALL_BLOCKS,
-  GET_ALL_CREATED,
-  GET_SANDBOX,
-  GET_TAGS_AND_ENTITIES,
-  GET_WORKSPACE_OWNED,
-} from "@/services/Apollo/Queries";
 import { bodyText, subText } from "@/theme";
 import { filterUniqueObjects } from "@/common/utils";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
@@ -33,8 +24,22 @@ import { BlockIcon } from "@/components/Icons/BlockIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { AddWorkspaceType, Block, IconVariants } from "@/common/types";
 import {
+  GET_ALL_NOTES,
+  GET_NOTES,
+  GET_ALL_BLOCKS,
+  GET_SANDBOX,
+  GET_ALL_CREATED,
+  GET_ENTITIES_DATA,
+  GET_TAGS_AND_ENTITIES,
+  GET_WORKSPACE_OWNED,
+} from "@/services/Apollo/Queries";
+import {
+  ADD_SANDBOX_TO_WALLET,
+  CREATE_WORKSPACES,
   DELETE_NOTES,
   DELETE_PARTNERSHIPS,
+  DELETE_ENTITIES,
+  RESET_SANDBOX,
   UPDATE_SANDBOX,
   UPDATE_WORKSPACE,
 } from "@/services/Apollo/Mutations";
@@ -104,10 +109,9 @@ const AllBlocks: NextPage = () => {
     refetchQueries: [
       {
         query: GET_ALL_BLOCKS,
-        variables: { where: { address: walletData?.wallet?.address } },
+        variables: { where: { address: walletData?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
     ],
   });
 
@@ -115,14 +119,24 @@ const AllBlocks: NextPage = () => {
     refetchQueries: [
       {
         query: GET_ALL_BLOCKS,
-        variables: { where: { address: walletData?.wallet?.address } },
+        variables: { where: { address: walletData?.address } },
       },
       GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
     ],
   });
-  const deleteBlockHandler = async (block: Block) => {
-    console.log("BLOCK TO DELETE IS -- " + JSON.stringify(block))
+
+  const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
+    refetchQueries: [
+      {
+        query: GET_ENTITIES_DATA,
+        variables: { where: { address: walletData?.address } },
+      },
+      GET_TAGS_AND_ENTITIES,
+    ],
+  });
+
+
+  const deleteBlockHandler = async (block: any) => {
     try {
       if (block.__typename === "Note") {
         await deleteNoteBlock({
@@ -162,6 +176,33 @@ const AllBlocks: NextPage = () => {
     onClose();
   };
 
+  const deleteEntityHandler = async (block?: any) => {
+    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+    try {
+      await deleteEntity({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: "Entity Block Deleted!",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: "Error",
+        description:
+          "There was an error when deleting your entity. Please try again.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
+
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
@@ -179,7 +220,7 @@ const AllBlocks: NextPage = () => {
       ],
     });
   const addBlockHandler = async (
-    block: Block,
+    block: any,
     type: AddWorkspaceType,
     workspaceUuid?: string
   ) => {
@@ -333,8 +374,8 @@ const AllBlocks: NextPage = () => {
                 </MenuButton>
                 <MenuList>
                   <MenuGroup ml="12.8" title="Block types">
-                    {blockTypes.map(type => (
-                      <MenuItem onClick={() => {
+                    {blockTypes.map((type, idx) => (
+                      <MenuItem key={idx} onClick={() => {
                           setBlockType(type)
                           onOpen()
                         }}>
@@ -469,10 +510,7 @@ const AllBlocks: NextPage = () => {
               setCurrentNode(null);
               entityDrawerOnClose();
             }}
-            actions={{
-              addBlockToWorkspace: addBlockHandler,
-              editBlock: onOpen,
-              deleteBlock: deleteBlockHandler }}
+            actions={{ editBlock: onOpen, deleteBlock: deleteEntityHandler }}
           />
           <AddBlockTypeModal
             tags={tags}

@@ -10,7 +10,7 @@ interface IPartnershipBlockNode {
   data: { label: string; dim: boolean };
 }
 
-export const PartnershipBlockNode: FC<PartnershipBlockNode> = ({ data }) => {
+export const PartnershipBlockNode: FC<IPartnershipBlockNode> = ({ data }) => {
   return (
     <Box sx={styles.PartnershipBlockNodeContainer(data.dim)}>
       <Box mr="4px">

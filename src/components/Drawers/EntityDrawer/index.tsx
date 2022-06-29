@@ -4,6 +4,9 @@ import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
 import { PlusIcon } from "@/components/Icons/PlusIcon";
 import { GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
 import { useLazyQuery } from "@apollo/client";
+import { bodyText } from "@/theme";
+import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
+
 import {
   Box,
   Button,
@@ -21,7 +24,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import React, { FC, useEffect, useMemo } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import { SiTwitter, SiDiscord } from "react-icons/si";
 import { useAccount } from "wagmi";
 import * as styles from "../styles";
@@ -35,6 +38,10 @@ interface IEntityDrawer {
   onClose: () => void;
   nodeData: any;
   hideActions?: boolean;
+  actions?: {
+    editBlock?: () => void;
+    deleteBlock?: (block: any) => Promise<void>;
+  };
 }
 
 export const EntityDrawer: FC<IEntityDrawer> = ({
@@ -43,6 +50,7 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
   nodeData,
   hideActions,
   addEntityHandler,
+  actions,
 }) => {
   const [{ data: walletData }] = useAccount();
   const [getWorkspaceOwned, { data: workspaceData, loading }] =
@@ -54,6 +62,9 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
       });
     }
   }, [getWorkspaceOwned, walletData?.address]);
+
+  const [deletingBlock, setDeletingBlock] = useState(false);
+
 
   const entityData = useMemo(
     () => [
@@ -103,68 +114,87 @@ export const EntityDrawer: FC<IEntityDrawer> = ({
         </DrawerHeader>
 
         <DrawerBody fontSize="12px">
-          {!hideActions && (
-            <>
-              <Box>
-                <Text color="diamond.blue.3" fontWeight={500}>
-                  ACTIONS
-                </Text>
-                <Box sx={styles.RowContainer}>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      leftIcon={
-                        <PlusIcon width="11px" height="11px" fill="white" />
-                      }
-                      fontSize="12px"
-                      variant="primary"
-                    >
-                      Add to workspace
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          addEntityHandler &&
-                            addEntityHandler(
-                              nodeData,
-                              AddWorkspaceType.Sandbox
-                            );
-                          onClose();
-                        }}
-                      >
-                        Sandbox
-                      </MenuItem>
-                      {workspaces?.map((workspace) => (
-                        <MenuItem
-                          onClick={() => {
-                            addEntityHandler &&
-                              addEntityHandler(
-                                nodeData,
-                                AddWorkspaceType.Workspace,
-                                workspace.uuid
-                              );
-                            onClose();
-                          }}
-                          key={workspace.uuid}
-                        >
-                          {workspace.name}
-                        </MenuItem>
-                      ))}
-                    </MenuList>
-                  </Menu>
-                  {/* <Button
-                    onClick={() => {}}
-                    leftIcon={<RiNodeTree size="12px" />}
-                    variant="primary"
+          <Box>
+            <Text color="diamond.blue.3" fontWeight={500}>
+              ACTIONS
+            </Text>
+            <Box sx={styles.RowContainer}>
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  leftIcon={
+                    <PlusIcon width="11px" height="11px" fill="white" />
+                  }
+                  fontSize="12px"
+                  variant="primary"
+                >
+                  Add to workspace
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={() => {
+                      addEntityHandler &&
+                        addEntityHandler(
+                          nodeData,
+                          AddWorkspaceType.Sandbox
+                        );
+                      onClose();
+                    }}
                   >
-                    View graph
-                  </Button> */}
-                </Box>
-              </Box>
-              <Divider mt="16px" />
-            </>
-          )}
-
+                    Sandbox
+                  </MenuItem>
+                  {workspaces?.map((workspace) => (
+                    <MenuItem
+                      onClick={() => {
+                        addEntityHandler &&
+                          addEntityHandler(
+                            nodeData,
+                            AddWorkspaceType.Workspace,
+                            workspace.uuid
+                          );
+                        onClose();
+                      }}
+                      key={workspace.uuid}
+                    >
+                      {workspace.name}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+              {actions?.editBlock && (
+                <Button
+                  onClick={actions?.editBlock}
+                  leftIcon={<CreateSnapshotIcon />}
+                  variant="primary"
+                >
+                  Edit Block
+                </Button>
+              )}
+              {actions?.deleteBlock && (
+                <Button
+                  disabled={deletingBlock}
+                  isLoading={deletingBlock}
+                  onClick={async () => {
+                    setDeletingBlock(true);
+                    await actions?.deleteBlock(nodeData);
+                    setDeletingBlock(false);
+                  }}
+                  leftIcon={<CreateSnapshotIcon />}
+                  variant="primary"
+                >
+                  Delete Block
+                </Button>
+              )}
+              {/* <Button
+                onClick={() => {}}
+                leftIcon={<RiNodeTree size="12px" />}
+                variant="primary"
+              >
+                View graph
+              </Button> */}
+            </Box>
+          </Box>
+          <Divider mt="16px" />
           <Box mt="16px">
             {entityData.map((dataItem, idx) => {
               return (
