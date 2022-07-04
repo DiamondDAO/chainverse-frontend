@@ -6,28 +6,29 @@ import {
   InputLeftElement,
   Select,
   Text,
-} from "@chakra-ui/react";
-import type { NextPage } from "next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Layout } from "@/components/Layout";
-import { useQuery } from "@apollo/client";
+} from '@chakra-ui/react';
+import type { NextPage } from 'next';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Layout } from '@/components/Layout';
+import { useQuery } from '@apollo/client';
 import {
   GET_ALL_NOTES,
   GET_TAGS_AND_ENTITIES,
-} from "@/services/Apollo/Queries";
-import { SearchIcon } from "@chakra-ui/icons";
-import { useSpring, a } from "react-spring";
-import Fuse from "fuse.js";
-import { filterUniqueObjects } from "@/common/utils";
-import Router from "next/router";
-import { bodyText } from "@/theme";
-import * as styles from "./styles";
+} from '@/services/Apollo/Queries';
+import { SearchIcon } from '@chakra-ui/icons';
+import { useSpring, a } from 'react-spring';
+import Fuse from 'fuse.js';
+import { filterUniqueObjects } from '@/common/utils';
+import Router from 'next/router';
+import { bodyText } from '@/theme';
+import * as styles from './styles';
+import { Explorer as Test } from '@chainverse/os';
 
 const Explorer: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [displaySearchBox, setDisplaySearchBox] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
 
@@ -45,30 +46,30 @@ const Explorer: NextPage = () => {
       }
     };
     // Bind the event listener
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       // Unbind the event listener on clean up
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [searchBoxRef]);
 
   const tags = useMemo(
     () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map((i) => i.tag) ||
       [],
     [tagAndEntitiesData?.tags]
   );
 
   const entities = useMemo(
     () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+      filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
         (i) => i.name
       ) || [],
     [tagAndEntitiesData?.entities]
   );
   const blocks = useMemo(
     () =>
-      filterUniqueObjects(notesData?.notes, "text")?.map((i) => i.text) || [],
+      filterUniqueObjects(notesData?.notes, 'text')?.map((i) => i.text) || [],
     [notesData]
   );
   const tagFuse = new Fuse(tags, {
@@ -104,6 +105,13 @@ const Explorer: NextPage = () => {
       <Layout>
         <Box sx={styles.ExplorerTitleContainer}>
           <Text sx={styles.ExplorerTitle}>Explorer</Text>
+          <Test
+            value="test"
+            onchange={(e) => console.log(e)}
+            onKeyPress={(e) => console.log(e)}
+            onFocus={(e) => console.log(e)}
+            placeholder="placeholder"
+          ></Test>
         </Box>
         <Box sx={styles.ExplorerBody}>
           <Box sx={styles.ExplorerNavigatorContainer}>
@@ -123,7 +131,7 @@ const Explorer: NextPage = () => {
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     onKeyPress={(e) => {
-                      if (e.key === "Enter")
+                      if (e.key === 'Enter')
                         Router.push(`/explorer/search?term=${searchValue}`);
                     }}
                     onFocus={() => setDisplaySearchBox(true)}
@@ -280,7 +288,7 @@ const Explorer: NextPage = () => {
                 <Box sx={styles.AdvancedSearchBody}>
                   <Text sx={styles.AdvanceSearchText}>Find all</Text>
                   <Select
-                    placeholder={"object type"}
+                    placeholder={'object type'}
                     sx={styles.AdvancedSearchSelect}
                   >
                     <option value="wallets">wallets</option>
