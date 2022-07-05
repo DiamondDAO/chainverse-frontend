@@ -20,9 +20,9 @@ import { useSpring, a } from 'react-spring';
 import Fuse from 'fuse.js';
 import { filterUniqueObjects } from '@/common/utils';
 import Router from 'next/router';
-import { bodyText } from '@/theme';
 import * as styles from './styles';
-import { Explorer as Test } from '@chainverse/os';
+import { SearchOS } from '@chainverse/os';
+import '@chainverse/os/dist/chainverse-os.css';
 
 const Explorer: NextPage = () => {
   const { data: notesData } = useQuery(GET_ALL_NOTES);
@@ -105,13 +105,14 @@ const Explorer: NextPage = () => {
       <Layout>
         <Box sx={styles.ExplorerTitleContainer}>
           <Text sx={styles.ExplorerTitle}>Explorer</Text>
-          <Test
+          <SearchOS
             value="test"
-            onchange={(e) => console.log(e)}
-            onKeyPress={(e) => console.log(e)}
+            onChangeType={(e) => console.log(e)}
+            onChange={(e) => console.log(e)}
+            onEnter={(e) => console.log(e)}
             onFocus={(e) => console.log(e)}
             placeholder="placeholder"
-          ></Test>
+          ></SearchOS>
         </Box>
         <Box sx={styles.ExplorerBody}>
           <Box sx={styles.ExplorerNavigatorContainer}>

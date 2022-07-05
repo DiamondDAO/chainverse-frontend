@@ -14,8 +14,8 @@
     "chromatic": "npx chromatic --project-token=0edcf7bf162e"
   },
   "dependencies": {
+    "@chainverse/os": "^0.1.3",
     "@apollo/client": "^3.5.8",
-    "@chainverse/os": "git+ssh://git@github.com:DiamondDAO/chainverse-os.git",
     "@chakra-ui/icons": "^1.1.1",
     "@chakra-ui/react": "^1.7.2",
     "@emotion/react": "^11.7.0",
