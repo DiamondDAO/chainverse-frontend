@@ -23,15 +23,25 @@ import Router from 'next/router';
 import * as styles from './styles';
 import { SearchOS } from '@chainverse/os';
 import '@chainverse/os/dist/chainverse-os.css';
-
+import { EntityTable } from '@/components/Explorer/EntityTable';
+import { BlockTable } from '@/components/Explorer/BlockTable';
+import { TagTable } from '@/components/Explorer/TagTable';
+import { useAccount } from 'wagmi';
+enum SearchTypes {
+  Blocks = 'blocks',
+  Tags = 'tags',
+  Entities = 'entities',
+}
 const Explorer: NextPage = () => {
-  const { data: notesData } = useQuery(GET_ALL_NOTES);
-  const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+  //const { data: notesData } = useQuery(GET_ALL_NOTES);
+  //const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+  const [{ data: walletData }] = useAccount();
 
   const [searchValue, setSearchValue] = useState('');
   const [displaySearchBox, setDisplaySearchBox] = useState(false);
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
-
+  const [searchType, setSearchType] = useState<SearchTypes | undefined>();
+  const [searchData, setSearchData] = useState({});
   const searchBoxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     /**
@@ -53,40 +63,6 @@ const Explorer: NextPage = () => {
     };
   }, [searchBoxRef]);
 
-  const tags = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map((i) => i.tag) ||
-      [],
-    [tagAndEntitiesData?.tags]
-  );
-
-  const entities = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
-        (i) => i.name
-      ) || [],
-    [tagAndEntitiesData?.entities]
-  );
-  const blocks = useMemo(
-    () =>
-      filterUniqueObjects(notesData?.notes, 'text')?.map((i) => i.text) || [],
-    [notesData]
-  );
-  const tagFuse = new Fuse(tags, {
-    includeScore: false,
-    threshold: 0.3,
-  });
-
-  const entityFuse = new Fuse(entities, {
-    includeScore: false,
-    threshold: 0.3,
-  });
-
-  const blockFuse = new Fuse(blocks, {
-    includeScore: false,
-    threshold: 0.7,
-  });
-
   // animations
   const [searchBoxStyle, api] = useSpring(() => {
     opacity: 0;
@@ -100,6 +76,20 @@ const Explorer: NextPage = () => {
     }
   }, [api, displaySearchBox]);
 
+  // handlers
+  const handleOnChangeSearch = (data: any) => {
+    const { searchType, entity, tags, blocks } = data;
+    setSearchType(searchType);
+    setSearchData(data);
+  };
+  const onChangeTypeSearch = () => {
+    
+  }
+
+  //@ts-ignore
+  const { entity, tags, blocks } = searchData || {};
+  const { entityData, getEntityDataHandler, hasMoreEntityData } = entity || {};
+
   return (
     <>
       <Layout>
@@ -109,7 +99,7 @@ const Explorer: NextPage = () => {
             value="test"
             onChangeType={(e) => console.log(e)}
             onChange={(e) => console.log(e)}
-            onEnter={(e) => console.log(e)}
+            onEnter={handleOnChangeSearch}
             onFocus={(e) => console.log(e)}
             placeholder="placeholder"
           ></SearchOS>
@@ -157,129 +147,6 @@ const Explorer: NextPage = () => {
                         Search: {`"`} {searchValue} {`"`}
                       </Text>
                     </Box>
-                    {/* <Tabs px="25px" variant="unstyled">
-                      <TabList sx={{ "& > button": { padding: "12px" } }}>
-                        <Tab
-                          marginLeft="-12px"
-                          fontSize={"12px"}
-                          fontWeight="500"
-                          color="diamond.gray.3"
-                          height={"fit-content"}
-                          _selected={{
-                            color: "diamond.blue.5",
-                            textDecoration: "underline",
-                            textUnderlineOffset: "2px",
-                          }}
-                        >
-                          ENTITIES
-                        </Tab>
-                        <Tab
-                          fontSize={"12px"}
-                          fontWeight="500"
-                          color="diamond.gray.3"
-                          height={"fit-content"}
-                          _selected={{
-                            color: "diamond.blue.5",
-                            textDecoration: "underline",
-                            textUnderlineOffset: "2px",
-                          }}
-                        >
-                          TAGS
-                        </Tab>
-                        <Tab
-                          fontSize={"12px"}
-                          fontWeight="500"
-                          color="diamond.gray.3"
-                          height={"fit-content"}
-                          _selected={{
-                            color: "diamond.blue.5",
-                            textDecoration: "underline",
-                            textUnderlineOffset: "2px",
-                          }}
-                        >
-                          BLOCKS
-                        </Tab>
-                      </TabList>
-                      <TabPanels
-                        sx={{
-                          "& > *": { padding: "0 !important" },
-                          paddingBottom: "25px",
-                        }}
-                      >
-                        <TabPanel>
-                          {entityFuse
-                            ?.search(searchValue)
-                            .slice(0, 5)
-                            .map((i) => i.item)
-                            .map((entity: string) => (
-                              <Box
-                                key={entity}
-                                display="flex"
-                                justifyContent={"space-between"}
-                                p="2px"
-                              >
-                                <Pill asButton icon={<EntitiesIcon />}>
-                                  <Text
-                                    color="diamond.blue.5"
-                                    fontSize={bodyText}
-                                  >
-                                    {entity}
-                                  </Text>
-                                </Pill>
-                                <Text color="diamond.gray.3">
-                                  Some metadata. 125 views
-                                </Text>
-                              </Box>
-                            ))}
-                        </TabPanel>
-                        <TabPanel>
-                          {tagFuse
-                            ?.search(searchValue)
-                            .slice(0, 5)
-                            .map((i) => i.item)
-                            .map((tag: string) => (
-                              <Box
-                                key={tag}
-                                display="flex"
-                                justifyContent={"space-between"}
-                                p="2px"
-                              >
-                                <Pill asButton icon={<TagIcon />}>
-                                  <Text
-                                    color="diamond.blue.5"
-                                    fontSize={bodyText}
-                                  >
-                                    {tag}
-                                  </Text>
-                                </Pill>
-                              </Box>
-                            ))}
-                        </TabPanel>
-                        <TabPanel>
-                          {blockFuse
-                            ?.search(searchValue)
-                            .slice(0, 5)
-                            .map((i) => i.item)
-                            .map((text: string, idx) => (
-                              <Box
-                                key={idx}
-                                display="flex"
-                                justifyContent={"space-between"}
-                                p="2px"
-                              >
-                                <Pill asButton>
-                                  <Text
-                                    color="diamond.blue.5"
-                                    fontSize={bodyText}
-                                  >
-                                    {text.slice(0, 15) + "..."}
-                                  </Text>
-                                </Pill>
-                              </Box>
-                            ))}
-                        </TabPanel>
-                      </TabPanels>
-                    </Tabs> */}
                   </AnimatedBox>
                 )}
               </Box>
@@ -322,6 +189,39 @@ const Explorer: NextPage = () => {
                 </Box>
               </Box>
             )}
+          </Box>
+        </Box>
+        <Box
+          mt="40px"
+          display="grid"
+          gridTemplateColumns={['1fr', null, null, '1fr']}
+        >
+          <Box sx={{ columnGap: '50px' }}></Box>
+          <Box ml={['unset', null, null, '50px']}>
+            {searchType === SearchTypes.Entities && (
+              <EntityTable
+                data={entityData}
+                walletAddress={walletData?.address}
+                update={() => getEntityDataHandler({ reset: false })}
+                hasMore={hasMoreEntityData}
+              />
+            )}
+            {/* {searchType === SearchTypes.Blocks && (
+              <BlockTable
+                data={nodeData}
+                walletAddress={walletData?.address}
+                update={() => getnodeDataHandler({ reset: false })}
+                hasMore={hasMorenodeData}
+              />
+            )}
+            {searchType === SearchTypes.Tags && (
+              <TagTable
+                data={tagData}
+                walletAddress={walletData?.address}
+                update={() => getTagDataHandler({ reset: false })}
+                hasMore={hasMoreTagData}
+              />
+            )} */}
           </Box>
         </Box>
       </Layout>
