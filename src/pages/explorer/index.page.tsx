@@ -10,31 +10,17 @@ import {
 import type { NextPage } from 'next';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Layout } from '@/components/Layout';
-import { useQuery } from '@apollo/client';
-import {
-  GET_ALL_NOTES,
-  GET_TAGS_AND_ENTITIES,
-} from '@/services/Apollo/Queries';
 import { SearchIcon } from '@chakra-ui/icons';
 import { useSpring, a } from 'react-spring';
-import Fuse from 'fuse.js';
-import { filterUniqueObjects } from '@/common/utils';
 import Router from 'next/router';
 import * as styles from './styles';
-import { SearchOS } from '@chainverse/os';
-import '@chainverse/os/dist/chainverse-os.css';
+import { SearchOS, SearchTypes } from '@chainverse/os';
 import { EntityTable } from '@/components/Explorer/EntityTable';
 import { BlockTable } from '@/components/Explorer/BlockTable';
 import { TagTable } from '@/components/Explorer/TagTable';
 import { useAccount } from 'wagmi';
-enum SearchTypes {
-  Blocks = 'blocks',
-  Tags = 'tags',
-  Entities = 'entities',
-}
+
 const Explorer: NextPage = () => {
-  //const { data: notesData } = useQuery(GET_ALL_NOTES);
-  //const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
 
   const [searchValue, setSearchValue] = useState('');
@@ -78,31 +64,26 @@ const Explorer: NextPage = () => {
 
   // handlers
   const handleOnChangeSearch = (data: any) => {
-    const { searchType, entity, tags, blocks } = data;
+    const { searchType } = data;
     setSearchType(searchType);
     setSearchData(data);
   };
-  const onChangeTypeSearch = () => {
-    
-  }
+  const onChangeTypeSearch = (data: any) => {
+    const { searchType } = data;
+    setSearchType(searchType);
+  };
 
   //@ts-ignore
   const { entity, tags, blocks } = searchData || {};
   const { entityData, getEntityDataHandler, hasMoreEntityData } = entity || {};
+  const { nodeData, getnodeDataHandler, hasMorenodeData } = blocks || {};
+  const { tagData, getTagDataHandler, hasMoreTagData } = tags || {};
 
   return (
     <>
       <Layout>
         <Box sx={styles.ExplorerTitleContainer}>
           <Text sx={styles.ExplorerTitle}>Explorer</Text>
-          <SearchOS
-            value="test"
-            onChangeType={(e) => console.log(e)}
-            onChange={(e) => console.log(e)}
-            onEnter={handleOnChangeSearch}
-            onFocus={(e) => console.log(e)}
-            placeholder="placeholder"
-          ></SearchOS>
         </Box>
         <Box sx={styles.ExplorerBody}>
           <Box sx={styles.ExplorerNavigatorContainer}>
@@ -111,88 +92,34 @@ const Explorer: NextPage = () => {
             </Box>
           </Box>
           <Box sx={styles.SearchStyle}>
-            {!isAdvancedSearch && (
-              <Box ref={searchBoxRef} sx={styles.SearchContainer}>
-                <InputGroup sx={styles.SearchInputGroup}>
-                  <InputLeftElement sx={styles.SearchLeftElement}>
-                    <SearchIcon w="12px" />
-                  </InputLeftElement>
-                  <Input
-                    sx={styles.SearchBoxStyle}
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter')
-                        Router.push(`/explorer/search?term=${searchValue}`);
-                    }}
-                    onFocus={() => setDisplaySearchBox(true)}
-                    placeholder="Start with a search for any keyword, community name, or user"
-                  />
-                </InputGroup>
-                <Box
-                  onClick={() => setIsAdvancedSearch(true)}
-                  sx={styles.AdvanceSearchLink}
-                >
-                  Advanced Search
-                </Box>
-                {displaySearchBox && (
-                  <AnimatedBox style={searchBoxStyle} sx={styles.SearchResult}>
-                    <Box
-                      sx={styles.SearchResultText}
-                      onClick={() =>
-                        Router.push(`/explorer/search?term=${searchValue}`)
-                      }
-                    >
-                      <Text>
-                        Search: {`"`} {searchValue} {`"`}
-                      </Text>
-                    </Box>
-                  </AnimatedBox>
-                )}
-              </Box>
-            )}
-            {isAdvancedSearch && (
-              <Box ref={searchBoxRef} sx={styles.SearchContainer}>
-                <Box sx={styles.AdvancedSearchBody}>
-                  <Text sx={styles.AdvanceSearchText}>Find all</Text>
-                  <Select
-                    placeholder={'object type'}
-                    sx={styles.AdvancedSearchSelect}
+            <Box ref={searchBoxRef} sx={styles.SearchContainer}>
+              <SearchOS
+                value="test"
+                onChangeType={onChangeTypeSearch}
+                onChange={(e) => console.log(e)}
+                onEnter={handleOnChangeSearch}
+                onFocus={(e) => console.log(e)}
+                placeholder="placeholder"
+              ></SearchOS>
+              {displaySearchBox && (
+                <AnimatedBox style={searchBoxStyle} sx={styles.SearchResult}>
+                  <Box
+                    sx={styles.SearchResultText}
+                    onClick={() =>
+                      Router.push(`/explorer/search?term=${searchValue}`)
+                    }
                   >
-                    <option value="wallets">wallets</option>
-                  </Select>
-                  <Text sx={styles.AdvancedSearchThat}>that</Text>
-                  <Select
-                    sx={styles.AdvancedSearchSelect}
-                    placeholder="has this relationship"
-                  >
-                    <option value="is_a_member_of">is a member of</option>
-                  </Select>
-                  <Box sx={styles.AdvanceSearchToThisWrapper}>
-                    <Input
-                      sx={{
-                        ...styles.AdvancedSearchSelect,
-                        ...styles.AdvanceSearchToThis,
-                      }}
-                      placeholder="to this"
-                    />
+                    <Text>
+                      Search: {`"`} {searchValue} {`"`}
+                    </Text>
                   </Box>
-                </Box>
-                <Box
-                  sx={styles.AdvanceSearchLink}
-                  onClick={() => setIsAdvancedSearch(false)}
-                >
-                  Return to simple search
-                  <Button ml="9px" variant="primary">
-                    Search
-                  </Button>
-                </Box>
-              </Box>
-            )}
+                </AnimatedBox>
+              )}
+            </Box>
           </Box>
         </Box>
         <Box
-          mt="40px"
+          mt="20px"
           display="grid"
           gridTemplateColumns={['1fr', null, null, '1fr']}
         >
@@ -206,7 +133,7 @@ const Explorer: NextPage = () => {
                 hasMore={hasMoreEntityData}
               />
             )}
-            {/* {searchType === SearchTypes.Blocks && (
+            {searchType === SearchTypes.Blocks && (
               <BlockTable
                 data={nodeData}
                 walletAddress={walletData?.address}
@@ -221,7 +148,7 @@ const Explorer: NextPage = () => {
                 update={() => getTagDataHandler({ reset: false })}
                 hasMore={hasMoreTagData}
               />
-            )} */}
+            )}
           </Box>
         </Box>
       </Layout>
