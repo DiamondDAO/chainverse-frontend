@@ -5,6 +5,8 @@ const cors = Cors();
 import { typeDefs } from "../../services/Apollo/typedefs";
 import neo4j from "neo4j-driver";
 import { Neo4jGraphQL } from "@neo4j/graphql";
+// TODO: uncomment after testing app deployed
+// import { typeDefs } from "@chainverse/os";
 
 const URL = process.env["NEO4J_URL"] || "";
 if (!URL) {

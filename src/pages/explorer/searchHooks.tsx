@@ -1,5 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 
+const CHAINVERSE_OS = 'chainverse_os'
+export const showChainverseOS = () =>{
+  localStorage.setItem(CHAINVERSE_OS, "true")
+  window.location.reload();
+}
+export const removeChainverseOS = () =>{
+  localStorage.removeItem(CHAINVERSE_OS)
+  window.location.reload();
+}
+export const isVisibleChainverseOS = () =>{
+  if (typeof window !== 'undefined') {
+  const isVisible = localStorage.getItem(CHAINVERSE_OS)
+   return !!isVisible
+  }
+  return false
+}
+
+
 export const useGetBlockTableData = ({
   term,
   blocksFuseSearchResult,

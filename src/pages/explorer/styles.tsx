@@ -22,6 +22,10 @@ export const ExplorerNavigatorContainer = {
   display: ["none", null, null, "flex"],
   sx: { columnGap: "50px" },
 };
+export const ExplorerTables = {
+  display: ["none", null, null, "flex"],
+  sx: { columnGap: "50px" },
+};
 export const ExplorerNavigatorInner = {
   w: "100%",
   maxWidth: "210px",
