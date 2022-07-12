@@ -80,7 +80,6 @@ const Workspace: NextPage = () => {
   );
   const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
     GET_SANDBOX,
-    { fetchPolicy: `network-only` }
   );
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
@@ -605,7 +604,11 @@ const Workspace: NextPage = () => {
             saveToWorkspaceFn={addBlockToSandboxHandler}
             onClose={(refresh) => {
               onClose();
-              if(refresh) getSandbox()
+              if(refresh){
+                setTimeout(() => {
+                  window.location.reload()
+                }, 2000);
+              }
             }}
             blockType={blockType}
             nodeData={currentNode}
