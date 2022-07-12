@@ -26,6 +26,12 @@ export const GraphContainer = {
   zIndex: 0,
 };
 
+export const GraphLoading = {
+  display: "flex",
+  justifyContent: "center",
+  marginTop: "150px"
+}
+
 export const Container = {
   display: "flex",
   width: "100%",

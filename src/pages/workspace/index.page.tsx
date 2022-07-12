@@ -1,22 +1,31 @@
-import type { NextPage } from "next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import type { NextPage } from 'next';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Box, Button, Text,
-  Menu,MenuButton,MenuDivider,MenuGroup,MenuItem,MenuList,
-  useDisclosure, useToast } from "@chakra-ui/react";
-import { useAccount } from "wagmi";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+  Box,
+  Button,
+  Text,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  useDisclosure,
+  useToast,
+} from '@chakra-ui/react';
+import { useAccount } from 'wagmi';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 
-import { Layout } from "@/components/Layout";
-import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
-import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
-import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
-import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
-import { Flow } from "@/components/Workspace/Flow";
-import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
-import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
-import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
-import { Block } from "@/common/types";
+import { Layout } from '@/components/Layout';
+import { AddBlockTypeModal } from '@/components/AddBlockTypeModal';
+import { CreateSnapshotIcon } from '@/components/Icons/CreateSnapshotIcon';
+import { AddBlockIcon } from '@/components/Icons/AddBlockIcon';
+import { WorkspaceNavigator } from '@/components/Workspace/WorkspaceNavigator';
+import { Flow } from '@/components/Workspace/Flow';
+import { NoteBlockDrawer } from '@/components/Drawers/NoteBlockDrawer';
+import { PartnershipBlockDrawer } from '@/components/Drawers/PartnershipBlockDrawer';
+import { EntityDrawer } from '@/components/Drawers/EntityDrawer';
+import { Block } from '@/common/types';
 
 import {
   GET_ALL_NOTES,
@@ -26,7 +35,7 @@ import {
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
-} from "@/services/Apollo/Queries";
+} from '@/services/Apollo/Queries';
 import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
@@ -35,11 +44,11 @@ import {
   DELETE_ENTITIES,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
-} from "@/services/Apollo/Mutations";
+} from '@/services/Apollo/Mutations';
 
-import { filterUniqueObjects } from "@/common/utils";
-import { bodyText, subText } from "@/theme";
-import * as styles from "./styles";
+import { filterUniqueObjects } from '@/common/utils';
+import { bodyText, subText } from '@/theme';
+import * as styles from './styles';
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
@@ -59,7 +68,7 @@ const Workspace: NextPage = () => {
   } = useDisclosure();
 
   const [currentNode, setCurrentNode] = useState(null);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
@@ -69,7 +78,10 @@ const Workspace: NextPage = () => {
       refetchQueries: [],
     }
   );
-  const [getSandbox, { data: sandboxData }] = useLazyQuery(GET_SANDBOX);
+  const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
+    GET_SANDBOX,
+    { fetchPolicy: `network-only` }
+  );
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
@@ -106,7 +118,7 @@ const Workspace: NextPage = () => {
   );
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
-  const [blockType, setBlockType] = useState("")
+  const [blockType, setBlockType] = useState('');
 
   const [rfInstance, setRfInstance] = useState(null);
   const toast = useToast();
@@ -153,8 +165,9 @@ const Workspace: NextPage = () => {
 
   const notesData = useMemo(
     () =>
-      sandboxData?.sandboxes[0]?.blocks.filter((i) =>
-      i.__typename === "Note" || i.__typename === "Partnership"),
+      sandboxData?.sandboxes[0]?.blocks.filter(
+        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
+      ),
     [sandboxData?.sandboxes[0]?.blocks]
   );
 
@@ -173,15 +186,16 @@ const Workspace: NextPage = () => {
         variables: {
           input: [
             {
-              name: workspaceNameRef.current.innerText || "",
+              name: workspaceNameRef.current.innerText || '',
               rfObject: JSON.stringify(rfInstance?.toObject()),
               blocks: {
                 Note: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData
-                        .filter((node) => node.__typename === "Note")
-                        .map((node) => node.uuid),
+                      node: {
+                        uuid_IN: nodeData
+                          .filter((node) => node.__typename === 'Note')
+                          .map((node) => node.uuid),
                       },
                     },
                   },
@@ -189,9 +203,10 @@ const Workspace: NextPage = () => {
                 Partnership: {
                   connect: {
                     where: {
-                      node: { uuid_IN: nodeData
-                        .filter((node) => node.__typename === "Partnership")
-                        .map((node) => node.uuid),
+                      node: {
+                        uuid_IN: nodeData
+                          .filter((node) => node.__typename === 'Partnership')
+                          .map((node) => node.uuid),
                       },
                     },
                   },
@@ -200,9 +215,10 @@ const Workspace: NextPage = () => {
               entities: {
                 connect: {
                   where: {
-                    node: { uuid_IN: nodeData
-                      .filter((node) => node.__typename === "Entity")
-                      .map((node) => node.uuid),
+                    node: {
+                      uuid_IN: nodeData
+                        .filter((node) => node.__typename === 'Entity')
+                        .map((node) => node.uuid),
                     },
                   },
                 },
@@ -251,16 +267,16 @@ const Workspace: NextPage = () => {
       });
       toast({
         title: `Workspace ${workspaceNameRef.current.innerText} Created!`,
-        status: "success",
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
     } catch (e) {
       toast({
-        title: "Error",
+        title: 'Error',
         description:
-          "There was an error when creating your workspace. Please try again.",
-        status: "error",
+          'There was an error when creating your workspace. Please try again.',
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
@@ -270,7 +286,7 @@ const Workspace: NextPage = () => {
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
-      if (data.__typename == "Note") {
+      if (data.__typename == 'Note') {
         await addBlockToSandbox({
           variables: {
             where: {
@@ -293,7 +309,7 @@ const Workspace: NextPage = () => {
             },
           },
         });
-      } else if (data.__typename == "Partnership") {
+      } else if (data.__typename == 'Partnership') {
         await addBlockToSandbox({
           variables: {
             where: {
@@ -316,7 +332,7 @@ const Workspace: NextPage = () => {
             },
           },
         });
-      } else if (data.__typename == "Entity") {
+      } else if (data.__typename == 'Entity') {
         await addBlockToSandbox({
           variables: {
             where: {
@@ -342,72 +358,78 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
-  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
-    refetchQueries: [
-      {
-        query: GET_ALL_BLOCKS,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
-    ],
-  });
+  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(
+    DELETE_NOTES,
+    {
+      refetchQueries: [
+        {
+          query: GET_ALL_BLOCKS,
+          variables: { where: { address: nodeData?.wallet?.address } },
+        },
+        GET_TAGS_AND_ENTITIES,
+        { query: GET_ALL_BLOCKS },
+      ],
+    }
+  );
 
-  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
-    refetchQueries: [
-      {
-        query: GET_ALL_BLOCKS,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
-    ],
-  });
+  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] =
+    useMutation(DELETE_PARTNERSHIPS, {
+      refetchQueries: [
+        {
+          query: GET_ALL_BLOCKS,
+          variables: { where: { address: nodeData?.wallet?.address } },
+        },
+        GET_TAGS_AND_ENTITIES,
+        { query: GET_ALL_BLOCKS },
+      ],
+    });
 
-  const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
-    refetchQueries: [
-      {
-        query: GET_ENTITIES_DATA,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-    ],
-  });
-
+  const [deleteEntity, { error: deleteEntityError }] = useMutation(
+    DELETE_ENTITIES,
+    {
+      refetchQueries: [
+        {
+          query: GET_ENTITIES_DATA,
+          variables: { where: { address: nodeData?.wallet?.address } },
+        },
+        GET_TAGS_AND_ENTITIES,
+      ],
+    }
+  );
 
   const deleteBlockHandler = async (block?: any) => {
     try {
-      if (block.__typename === "Note") {
+      if (block.__typename === 'Note') {
         await deleteNoteBlock({
           variables: {
             where: { uuid: block.uuid },
           },
         });
         toast({
-          title: "Note Block Deleted!",
-          status: "info",
+          title: 'Note Block Deleted!',
+          status: 'info',
           duration: 2000,
           isClosable: true,
         });
-      } else if (block.__typename === "Partnership") {
+      } else if (block.__typename === 'Partnership') {
         await deletePartnershipBlock({
           variables: {
             where: { uuid: block.uuid },
           },
         });
         toast({
-          title: "Partnership Block Deleted!",
-          status: "info",
+          title: 'Partnership Block Deleted!',
+          status: 'info',
           duration: 2000,
           isClosable: true,
         });
       }
     } catch (e) {
       toast({
-        title: "Error",
+        title: 'Error',
         description:
-          "There was an error when deleting your block. Please try again.",
-        status: "error",
+          'There was an error when deleting your block. Please try again.',
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
@@ -416,7 +438,7 @@ const Workspace: NextPage = () => {
   };
 
   const deleteEntityHandler = async (block?: any) => {
-    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+    console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
     try {
       await deleteEntity({
         variables: {
@@ -424,17 +446,17 @@ const Workspace: NextPage = () => {
         },
       });
       toast({
-        title: "Entity Block Deleted!",
-        status: "info",
+        title: 'Entity Block Deleted!',
+        status: 'info',
         duration: 2000,
         isClosable: true,
       });
     } catch (e) {
       toast({
-        title: "Error",
+        title: 'Error',
         description:
-          "There was an error when deleting your entity. Please try again.",
-        status: "error",
+          'There was an error when deleting your entity. Please try again.',
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
@@ -442,12 +464,12 @@ const Workspace: NextPage = () => {
     onClose();
   };
 
-
   return (
     <>
       <Layout>
         {/* Graph */}
         <Box sx={styles.GraphContainer}>
+          {loading && <Box sx={styles.GraphLoading}>Loading...</Box>}
           {nodeData && (
             <Flow
               currentNode={currentNode}
@@ -455,9 +477,13 @@ const Workspace: NextPage = () => {
               onInit={setRfInstance}
               setCurrentNode={(value) => {
                 setCurrentNode(value);
-                if (value.__typename === "Note") {noteBlockDrawerOnOpen()}
-                else if (value.__typename === "Partnership") {partnershipBlockDrawerOnOpen()}
-                else if (value.__typename === "Entity") {entityDrawerOnOpen()}
+                if (value.__typename === 'Note') {
+                  noteBlockDrawerOnOpen();
+                } else if (value.__typename === 'Partnership') {
+                  partnershipBlockDrawerOnOpen();
+                } else if (value.__typename === 'Entity') {
+                  entityDrawerOnOpen();
+                }
               }}
             />
           )}
@@ -483,17 +509,20 @@ const Workspace: NextPage = () => {
               <Menu gutter={15} offset={[15, 12]}>
                 <MenuButton sx={styles.MenuButton} as={Box}>
                   <Box sx={styles.MenuContents}>
-                    <AddBlockIcon/>
+                    <AddBlockIcon />
                     <Text ml="4px">Add block</Text>
                   </Box>
                 </MenuButton>
                 <MenuList>
                   <MenuGroup ml="12.8" title="Block types">
                     {blockTypes.map((type, index) => (
-                      <MenuItem key={index} onClick={() => {
-                          setBlockType(type)
-                          onOpen()
-                        }}>
+                      <MenuItem
+                        key={index}
+                        onClick={() => {
+                          setBlockType(type);
+                          onOpen();
+                        }}
+                      >
                         <Box sx={styles.MenuContents}>
                           <Text ml="5px">{type}</Text>
                         </Box>
@@ -517,47 +546,69 @@ const Workspace: NextPage = () => {
             </Box>
           </Box>
           <NoteBlockDrawer
-            nodeData={currentNode?.__typename == "Note" && currentNode}
+            nodeData={currentNode?.__typename == 'Note' && currentNode}
             isOpen={noteBlockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
               noteBlockDrawerOnClose();
             }}
-            actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
+            actions={{
+              editBlock: () => {
+                onOpen();
+                setBlockType('Note');
+              },
+              deleteBlock: deleteBlockHandler,
+            }}
           />
           <PartnershipBlockDrawer
-            nodeData={currentNode?.__typename == "Partnership" && currentNode}
+            nodeData={currentNode?.__typename == 'Partnership' && currentNode}
             isOpen={partnershipBlockDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
               partnershipBlockDrawerOnClose();
             }}
-            actions={{ editBlock: onOpen, deleteBlock: deleteBlockHandler }}
+            actions={{
+              editBlock: () => {
+                onOpen();
+                setBlockType('Partnership');
+              },
+              deleteBlock: deleteBlockHandler,
+            }}
           />
           <EntityDrawer
-            nodeData={currentNode?.__typename == "Entity" && currentNode}
+            nodeData={currentNode?.__typename == 'Entity' && currentNode}
             isOpen={entityDrawerIsOpen}
             onClose={() => {
               setCurrentNode(null);
               entityDrawerOnClose();
             }}
-            actions={{ editBlock: onOpen, deleteBlock: deleteEntityHandler }}
+            actions={{
+              editBlock: () => {
+                onOpen();
+                setBlockType('Entity');
+              },
+              deleteBlock: deleteEntityHandler,
+            }}
           />
           <AddBlockTypeModal
             tags={
-              filterUniqueObjects(tagAndEntitiesData?.tags, "text")?.map(
+              filterUniqueObjects(tagAndEntitiesData?.tags, 'text')?.map(
                 (i) => i.text
               ) || []
             }
             entities={
-              filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+              filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
                 (i) => i.name
               ) || []
             }
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
-            onClose={onClose}
+            onClose={(refresh) => {
+              onClose();
+              if(refresh) getSandbox()
+            }}
             blockType={blockType}
+            nodeData={currentNode}
           />
         </Box>
       </Layout>

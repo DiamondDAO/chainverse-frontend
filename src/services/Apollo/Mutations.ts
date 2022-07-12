@@ -199,7 +199,6 @@ mutation UpdatePartnerships(
       sources {
         uuid
         source
-        sourceType
       }
     }
   }
@@ -208,7 +207,7 @@ mutation UpdatePartnerships(
 
 export const UPDATE_ENTITIES = gql`
 mutation UpdateEntities(
-  $update: EntitypUpdateInput
+  $update: EntityUpdateInput
   $where: EntityWhere
   $disconnect: EntityDisconnectInput
 ) {
