@@ -167,7 +167,7 @@ const AllBlocks: NextPage = () => {
       toast({
         title: "Error",
         description:
-          "There was an error when creating your block. Please try again.",
+          "There was an error when deleting your block. Please try again.",
         status: "error",
         duration: 2000,
         isClosable: true,
@@ -488,7 +488,10 @@ const AllBlocks: NextPage = () => {
             }}
             actions={{
               addBlockToWorkspace: addBlockHandler,
-              editBlock: onOpen,
+              editBlock: () => {
+                onOpen();
+                setBlockType('Note');
+              },
               deleteBlock: deleteBlockHandler }}
           />
           <PartnershipBlockDrawer
@@ -500,7 +503,10 @@ const AllBlocks: NextPage = () => {
             }}
             actions={{
               addBlockToWorkspace: addBlockHandler,
-              editBlock: onOpen,
+              editBlock: () => {
+                onOpen();
+                setBlockType('Partnership');
+              },
               deleteBlock: deleteBlockHandler }}
           />
           <EntityDrawer
@@ -510,7 +516,13 @@ const AllBlocks: NextPage = () => {
               setCurrentNode(null);
               entityDrawerOnClose();
             }}
-            actions={{ editBlock: onOpen, deleteBlock: deleteEntityHandler }}
+            actions={{
+              editBlock: () => {
+                onOpen();
+                setBlockType('Entity');
+              },
+              deleteBlock: deleteEntityHandler
+            }}
           />
           <AddBlockTypeModal
             tags={tags}
