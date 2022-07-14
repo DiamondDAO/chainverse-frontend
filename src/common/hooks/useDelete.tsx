@@ -11,13 +11,11 @@ import {
   DELETE_NOTES,
   DELETE_PARTNERSHIPS
 } from "@/services/Apollo/Mutations";
-import { useGetNodeData } from "./";
 
 export const useDelete = (nodeData: any) => {
   
   const toast = useToast();
   const { onClose } = useDisclosure();
-  // const { nodeData } = useGetNodeData();
 
   const [ deleteNoteBlock, { error: deleteNoteBlockError } ] = useMutation(
     DELETE_NOTES,
@@ -58,7 +56,7 @@ export const useDelete = (nodeData: any) => {
     }
   );
   
-  const deleteBlockHandler = async (block: any) => {
+  const deleteBlockHandler = async (block?: any) => {
     try {
       if (block.__typename === "Note") {
         await deleteNoteBlock({
