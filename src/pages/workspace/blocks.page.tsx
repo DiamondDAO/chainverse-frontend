@@ -135,7 +135,6 @@ const AllBlocks: NextPage = () => {
     ],
   });
 
-
   const deleteBlockHandler = async (block: any) => {
     try {
       if (block.__typename === "Note") {

@@ -1,5 +1,5 @@
+import React, { useEffect, useRef, useState } from 'react';
 import type { NextPage } from 'next';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -39,18 +39,22 @@ import {
 import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
-  DELETE_NOTES,
-  DELETE_PARTNERSHIPS,
-  DELETE_ENTITIES,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from '@/services/Apollo/Mutations';
 
 import { filterUniqueObjects } from '@/common/utils';
+import { useDelete } from '@/common/hooks';
 import { bodyText, subText } from '@/theme';
 import * as styles from './styles';
+import { useGetNodeData } from '@/common/hooks/use-get-node-data';
+
 const Workspace: NextPage = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const toast = useToast();
+  const { deleteEntity, deleteBlockHandler } = useDelete();
+  const { nodeData } = useGetNodeData();
+  
   const {
     isOpen: noteBlockDrawerIsOpen,
     onOpen: noteBlockDrawerOnOpen,
@@ -72,12 +76,12 @@ const Workspace: NextPage = () => {
   const [{ data: walletData }] = useAccount();
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
-  const [addSandboxToWallet, { error: addBlockError }] = useMutation(
-    ADD_SANDBOX_TO_WALLET,
-    {
-      refetchQueries: [],
-    }
-  );
+  // const [addSandboxToWallet, { error: addBlockError }] = useMutation(
+  //   ADD_SANDBOX_TO_WALLET,
+  //   {
+  //     refetchQueries: [],
+  //   }
+  // );
   const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
     GET_SANDBOX,
   );
@@ -120,65 +124,65 @@ const Workspace: NextPage = () => {
   const [blockType, setBlockType] = useState('');
 
   const [rfInstance, setRfInstance] = useState(null);
-  const toast = useToast();
+  // const toast = useToast();
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
 
-  useEffect(() => {
-    const connectOrCreateSandbox = async (walletAddress: string) => {
-      const Sandbox = await getSandbox({
-        variables: {
-          where: { wallet: { address: walletAddress } },
-        },
-      });
-      if (Sandbox.data.sandboxes.length === 0) {
-        await addSandboxToWallet({
-          variables: {
-            where: { address: walletAddress },
-            connectOrCreate: {
-              sandbox: {
-                where: {
-                  node: { name: `${walletAddress} Sandbox` },
-                },
-                onCreate: {
-                  node: {
-                    name: `${walletAddress} Sandbox`,
-                  },
-                },
-              },
-            },
-          },
-        });
-      }
-    };
-    if (walletData?.address) {
-      connectOrCreateSandbox(walletData.address);
-    }
-  }, [getSandbox, walletData?.address]);
+  // useEffect(() => {
+  //   const connectOrCreateSandbox = async (walletAddress: string) => {
+  //     const Sandbox = await getSandbox({
+  //       variables: {
+  //         where: { wallet: { address: walletAddress } },
+  //       },
+  //     });
+  //     if (Sandbox.data.sandboxes.length === 0) {
+  //       await addSandboxToWallet({
+  //         variables: {
+  //           where: { address: walletAddress },
+  //           connectOrCreate: {
+  //             sandbox: {
+  //               where: {
+  //                 node: { name: `${walletAddress} Sandbox` },
+  //               },
+  //               onCreate: {
+  //                 node: {
+  //                   name: `${walletAddress} Sandbox`,
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       });
+  //     }
+  //   };
+  //   if (walletData?.address) {
+  //     connectOrCreateSandbox(walletData.address);
+  //   }
+  // }, [getSandbox, walletData?.address, addSandboxToWallet]);
 
-  const entityData = useMemo(
-    () => sandboxData?.sandboxes[0]?.entities,
-    [sandboxData?.sandboxes[0]?.entities]
-  );
+  // const entityData = useMemo(
+  //   () => sandboxData?.sandboxes[0]?.entities,
+  //   [sandboxData?.sandboxes[0]?.entities]
+  // );
 
-  const notesData = useMemo(
-    () =>
-      sandboxData?.sandboxes[0]?.blocks.filter(
-        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
-      ),
-    [sandboxData?.sandboxes[0]?.blocks]
-  );
+  // const notesData = useMemo(
+  //   () =>
+  //     sandboxData?.sandboxes[0]?.blocks.filter(
+  //       (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
+  //     ),
+  //   [sandboxData?.sandboxes[0]?.blocks]
+  // );
 
-  const nodeData = useMemo(
-    () => entityData?.concat(notesData),
-    [entityData, notesData]
-  );
+  // const nodeData = useMemo(
+  //   () => entityData?.concat(notesData),
+  //   [entityData, notesData]
+  // );
 
   const workspaceNameRef = useRef(null);
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
 
-  const saveWorkspaceHandler = async () => {
+  const saveWorkspaceHandler = async (nodeData: any) => {
     setIsSavingWorkspace(true);
     try {
       await createWorkspace({
@@ -357,84 +361,84 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
-  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(
-    DELETE_NOTES,
-    {
-      refetchQueries: [
-        {
-          query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-        { query: GET_ALL_BLOCKS },
-      ],
-    }
-  );
+  // const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(
+  //   DELETE_NOTES,
+  //   {
+  //     refetchQueries: [
+  //       {
+  //         query: GET_ALL_BLOCKS,
+  //         variables: { where: { address: nodeData?.wallet?.address } },
+  //       },
+  //       GET_TAGS_AND_ENTITIES,
+  //       { query: GET_ALL_BLOCKS },
+  //     ],
+  //   }
+  // );
 
-  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] =
-    useMutation(DELETE_PARTNERSHIPS, {
-      refetchQueries: [
-        {
-          query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-        { query: GET_ALL_BLOCKS },
-      ],
-    });
+  // const [deletePartnershipBlock, { error: deletePartnershipBlockError }] =
+  //   useMutation(DELETE_PARTNERSHIPS, {
+  //     refetchQueries: [
+  //       {
+  //         query: GET_ALL_BLOCKS,
+  //         variables: { where: { address: nodeData?.wallet?.address } },
+  //       },
+  //       GET_TAGS_AND_ENTITIES,
+  //       { query: GET_ALL_BLOCKS },
+  //     ],
+  //   });
 
-  const [deleteEntity, { error: deleteEntityError }] = useMutation(
-    DELETE_ENTITIES,
-    {
-      refetchQueries: [
-        {
-          query: GET_ENTITIES_DATA,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-      ],
-    }
-  );
+  // const [deleteEntity, { error: deleteEntityError }] = useMutation(
+  //   DELETE_ENTITIES,
+  //   {
+  //     refetchQueries: [
+  //       {
+  //         query: GET_ENTITIES_DATA,
+  //         variables: { where: { address: nodeData?.wallet?.address } },
+  //       },
+  //       GET_TAGS_AND_ENTITIES,
+  //     ],
+  //   }
+  // );
 
-  const deleteBlockHandler = async (block?: any) => {
-    try {
-      if (block.__typename === 'Note') {
-        await deleteNoteBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: 'Note Block Deleted!',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
-      } else if (block.__typename === 'Partnership') {
-        await deletePartnershipBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: 'Partnership Block Deleted!',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when deleting your block. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
+  // const deleteBlockHandler = async (block?: any) => {
+  //   try {
+  //     if (block.__typename === 'Note') {
+  //       await deleteNoteBlock({
+  //         variables: {
+  //           where: { uuid: block.uuid },
+  //         },
+  //       });
+  //       toast({
+  //         title: 'Note Block Deleted!',
+  //         status: 'info',
+  //         duration: 2000,
+  //         isClosable: true,
+  //       });
+  //     } else if (block.__typename === 'Partnership') {
+  //       await deletePartnershipBlock({
+  //         variables: {
+  //           where: { uuid: block.uuid },
+  //         },
+  //       });
+  //       toast({
+  //         title: 'Partnership Block Deleted!',
+  //         status: 'info',
+  //         duration: 2000,
+  //         isClosable: true,
+  //       });
+  //     }
+  //   } catch (e) {
+  //     toast({
+  //       title: 'Error',
+  //       description:
+  //         'There was an error when deleting your block. Please try again.',
+  //       status: 'error',
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   }
+  //   onClose();
+  // };
 
   const deleteEntityHandler = async (block?: any) => {
     console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
@@ -607,7 +611,7 @@ const Workspace: NextPage = () => {
               if(refresh){
                 setTimeout(() => {
                   window.location.reload()
-                }, 2000);
+                }, 1500);
               }
             }}
             blockType={blockType}
