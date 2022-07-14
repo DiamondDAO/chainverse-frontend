@@ -5,7 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "prod": "npx cross-env NODE_OPTIONS=--max-old-space-size=5120 next start",
+    "prod": "next start",
     "buildProd": "next build",
     "lint": "next lint",
     "install-build-start": "npm i && npm run build && npm start",
