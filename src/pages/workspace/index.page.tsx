@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { NextPage } from 'next';
 import {
   Box,
@@ -39,6 +39,9 @@ import {
 import {
   ADD_SANDBOX_TO_WALLET,
   CREATE_WORKSPACES,
+  DELETE_ENTITIES,
+  DELETE_NOTES,
+  DELETE_PARTNERSHIPS,
   RESET_SANDBOX,
   UPDATE_SANDBOX,
 } from '@/services/Apollo/Mutations';
@@ -47,13 +50,12 @@ import { filterUniqueObjects } from '@/common/utils';
 import { useDelete } from '@/common/hooks';
 import { bodyText, subText } from '@/theme';
 import * as styles from './styles';
-import { useGetNodeData } from '@/common/hooks/use-get-node-data';
+import { useGetNodeData } from '@/common/hooks';
 
 const Workspace: NextPage = () => {
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   const toast = useToast();
-  const { deleteEntity, deleteBlockHandler } = useDelete();
-  const { nodeData } = useGetNodeData();
   
   const {
     isOpen: noteBlockDrawerIsOpen,
@@ -70,21 +72,23 @@ const Workspace: NextPage = () => {
     onOpen: entityDrawerOnOpen,
     onClose: entityDrawerOnClose,
   } = useDisclosure();
-
+  
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
+  const { nodeData, loading } = useGetNodeData(walletData);
+  const { deleteEntityHandler, deleteBlockHandler } = useDelete(nodeData);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
-  // const [addSandboxToWallet, { error: addBlockError }] = useMutation(
-  //   ADD_SANDBOX_TO_WALLET,
-  //   {
-  //     refetchQueries: [],
-  //   }
-  // );
-  const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
-    GET_SANDBOX,
+  const [addSandboxToWallet, { error: addBlockError }] = useMutation(
+    ADD_SANDBOX_TO_WALLET,
+    {
+      refetchQueries: [],
+    }
   );
+  // const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
+  //   GET_SANDBOX,
+  // );
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
@@ -361,6 +365,7 @@ const Workspace: NextPage = () => {
       throw e;
     }
   };
+
   // const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(
   //   DELETE_NOTES,
   //   {
@@ -440,32 +445,32 @@ const Workspace: NextPage = () => {
   //   onClose();
   // };
 
-  const deleteEntityHandler = async (block?: any) => {
-    console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
-    try {
-      await deleteEntity({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: 'Entity Block Deleted!',
-        status: 'info',
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when deleting your entity. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
+  // const deleteEntityHandler = async (block?: any) => {
+  //   console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
+  //   try {
+  //     await deleteEntity({
+  //       variables: {
+  //         where: { uuid: block.uuid },
+  //       },
+  //     });
+  //     toast({
+  //       title: 'Entity Block Deleted!',
+  //       status: 'info',
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   } catch (e) {
+  //     toast({
+  //       title: 'Error',
+  //       description:
+  //         'There was an error when deleting your entity. Please try again.',
+  //       status: 'error',
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   }
+  //   onClose();
+  // };
 
   return (
     <>
@@ -611,7 +616,7 @@ const Workspace: NextPage = () => {
               if(refresh){
                 setTimeout(() => {
                   window.location.reload()
-                }, 1500);
+                }, 700);
               }
             }}
             blockType={blockType}

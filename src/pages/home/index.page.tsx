@@ -2,7 +2,7 @@ import { Box, Spinner, Text } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React from "react";
 import { Layout } from "@/components/Layout";
-import { useGetAccountName } from "@/common/hooks/use-get-account-name";
+import { useGetAccountName } from "@/common/hooks";
 import * as styles from "./styles";
 const FillerBox = () => (
   <Box minWidth="300px" height="200px" bg="#C4C4C4" border="1px solid black" />

@@ -11,11 +11,13 @@ import {
   DELETE_NOTES,
   DELETE_PARTNERSHIPS
 } from "@/services/Apollo/Mutations";
+import { useGetNodeData } from "./";
 
-export const useDelete = ( nodeData?: any ) => {
+export const useDelete = (nodeData: any) => {
   
   const toast = useToast();
   const { onClose } = useDisclosure();
+  // const { nodeData } = useGetNodeData();
 
   const [ deleteNoteBlock, { error: deleteNoteBlockError } ] = useMutation(
     DELETE_NOTES,
@@ -95,5 +97,33 @@ export const useDelete = ( nodeData?: any ) => {
     }
     onClose();
   };
-  return { deleteBlockHandler, deleteEntity }
+
+  const deleteEntityHandler = async (block?: any) => {
+    console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
+    try {
+      await deleteEntity({
+        variables: {
+          where: { uuid: block.uuid },
+        },
+      });
+      toast({
+        title: 'Entity Block Deleted!',
+        status: 'info',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description:
+          'There was an error when deleting your entity. Please try again.',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    onClose();
+  };
+
+  return { deleteBlockHandler, deleteEntityHandler }
 }

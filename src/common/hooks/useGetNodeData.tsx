@@ -4,8 +4,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { GET_SANDBOX } from "@/services/Apollo/Queries";
 import { ADD_SANDBOX_TO_WALLET } from "@/services/Apollo/Mutations";
 
-
-export const useGetNodeData = (walletData?: any) => {
+export const useGetNodeData = (walletData: any) => {
 
   const [ getSandbox, { data: sandboxData, loading } ] = useLazyQuery(
     GET_SANDBOX,
@@ -18,21 +17,23 @@ export const useGetNodeData = (walletData?: any) => {
   );
   
   const entityData = useMemo(
-    () => sandboxData?.sandboxes[ 0 ]?.entities,
-    [ sandboxData?.sandboxes ]
-  );
-  const notesData = useMemo(
-    () =>
-      sandboxData?.sandboxes[ 0 ]?.blocks.filter(
-        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
-      ),
-    [ sandboxData?.sandboxes ]
-  );
-  const nodeData = useMemo(
-    () => entityData?.concat(notesData),
-    [ entityData, notesData ]
+    () => sandboxData?.sandboxes[0]?.entities,
+    [sandboxData?.sandboxes[0]?.entities]
   );
 
+  const notesData = useMemo(
+    () =>
+      sandboxData?.sandboxes[0]?.blocks.filter(
+        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
+      ),
+    [sandboxData?.sandboxes[0]?.blocks]
+  );
+  
+  const nodeData = useMemo(
+    () => entityData?.concat(notesData),
+    [entityData, notesData]
+  );
+    
   useEffect(() => {
     const connectOrCreateSandbox = async (walletAddress: string) => {
       const Sandbox = await getSandbox({
@@ -65,5 +66,8 @@ export const useGetNodeData = (walletData?: any) => {
     }
   }, [getSandbox, walletData?.address, addSandboxToWallet]);
 
-  return { nodeData }
+  return { 
+    nodeData,
+    loading 
+  }
 }
