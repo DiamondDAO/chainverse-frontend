@@ -446,13 +446,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   noteBlockDrawerOnClose();
                 }}
-                  actions={{
-                    editBlock: () => {
-                      onOpen();
-                      setBlockType('Note');
-                    },
-                  deleteBlock: deleteBlockHandler,
-                  }}
+                actions={{
+                  editBlock: () => {
+                    onOpen();
+                    setBlockType('Note');
+                  },
+                deleteBlock: deleteBlockHandler,
+                }}
               />
               <PartnershipBlockDrawer
                 nodeData={currentNode?.__typename == "Partnership" && currentNode}
@@ -461,13 +461,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   partnershipBlockDrawerOnClose();
                 }}
-                  actions={{
-                    editBlock: () => {
-                      onOpen();
-                      setBlockType('Partnership');
-                    },
-                    deleteBlock: deleteBlockHandler,
-                  }}
+                actions={{
+                  editBlock: () => {
+                    onOpen();
+                    setBlockType('Partnership');
+                  },
+                  deleteBlock: deleteBlockHandler,
+                }}
               />
               <EntityDrawer
                 nodeData={currentNode?.__typename == "Entity" && currentNode}
@@ -476,13 +476,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   entityDrawerOnClose();
                 }}
-                  actions={{
-                    editBlock: () => {
-                      onOpen();
-                      setBlockType('Entity');
-                    },
-                    deleteBlock: deleteEntityHandler,
-                  }}
+                actions={{
+                  editBlock: () => {
+                    onOpen();
+                    setBlockType('Entity');
+                  },
+                  deleteBlock: deleteEntityHandler,
+                }}
               />
               <AddBlockTypeModal
                 tags={tags}
@@ -491,7 +491,7 @@ const Workspace: NextPage = () => {
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
                 onClose={onClose}
                 blockType={blockType}
-                  nodeData={currentNode}
+                nodeData={currentNode}
               />
             </Box>
             <DeleteModal
