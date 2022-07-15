@@ -35,6 +35,7 @@ import {
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE_OWNED,
+  GET_ALL_CREATED,
 } from '@/services/Apollo/Queries';
 import {
   ADD_SANDBOX_TO_WALLET,
@@ -77,7 +78,7 @@ const Workspace: NextPage = () => {
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
   const { nodeData, loading } = useGetSandboxData(walletData);
-  const { deleteEntityHandler, deleteBlockHandler } = useDelete(nodeData?.wallet?.address);
+  const { deleteEntityHandler, deleteBlockHandler } = useDelete(walletData);
   console.log('nodeData::', nodeData)
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
