@@ -1,8 +1,4 @@
-import { GET_WORKSPACE } from "@/services/Apollo/Queries";
-import { useQuery } from "@apollo/client";
-import { useRouter } from "next/router";
 import { useMemo } from "react";
-
 
 export const useGetWorkspaceData = (workspaceData: any) => {
 
@@ -24,5 +20,4 @@ export const useGetWorkspaceData = (workspaceData: any) => {
     nodeData,
     workspace,
   }
-
 }

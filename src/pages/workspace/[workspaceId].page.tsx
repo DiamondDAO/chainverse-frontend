@@ -451,7 +451,7 @@ const Workspace: NextPage = () => {
                     onOpen();
                     setBlockType('Note');
                   },
-                deleteBlock: deleteBlockHandler,
+                  deleteBlock: deleteBlockHandler,
                 }}
               />
               <PartnershipBlockDrawer
