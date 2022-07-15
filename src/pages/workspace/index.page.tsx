@@ -48,7 +48,7 @@ import {
 
 import { filterUniqueObjects } from '@/common/utils';
 import { useDelete } from '@/common/hooks';
-import { useGetNodeData } from '@/common/hooks';
+import { useGetSandboxData } from '@/common/hooks';
 import { bodyText, subText } from '@/theme';
 import * as styles from './styles';
 
@@ -76,9 +76,9 @@ const Workspace: NextPage = () => {
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
-  const { nodeData, loading } = useGetNodeData(walletData);
-  console.log('comentariio', nodeData)
-  const { deleteEntityHandler, deleteBlockHandler } = useDelete(nodeData?.wallet?.address);
+  const { nodeData, loading } = useGetSandboxData(walletData);
+  const { deleteEntityHandler, deleteBlockHandler } = useDelete(walletData?.address);
+  console.log('comentariio', walletData?.address)
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
   const [addSandboxToWallet, { error: addBlockError }] = useMutation(
@@ -237,7 +237,7 @@ const Workspace: NextPage = () => {
     }
     setIsSavingWorkspace(false);
   };
-
+  
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
       if (data.__typename == 'Note') {

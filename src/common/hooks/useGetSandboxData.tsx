@@ -4,7 +4,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { GET_SANDBOX } from "@/services/Apollo/Queries";
 import { ADD_SANDBOX_TO_WALLET } from "@/services/Apollo/Mutations";
 
-export const useGetNodeData = (walletData: any) => {
+export const useGetSandboxData = (walletData: any) => {
 
   const [ getSandbox, { data: sandboxData, loading } ] = useLazyQuery(
     GET_SANDBOX,
@@ -16,19 +16,15 @@ export const useGetNodeData = (walletData: any) => {
     }
   );
   
+  const sandbox = sandboxData?.sandboxes?.[0];
   const entityData = useMemo(
-    () => sandboxData?.sandboxes[0]?.entities,
-    [sandboxData?.sandboxes[0]?.entities]
+    () => sandbox?.entities,
+    [sandbox?.entities]
   );
-
   const notesData = useMemo(
-    () =>
-      sandboxData?.sandboxes[0]?.blocks.filter(
-        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
-      ),
-    [sandboxData?.sandboxes[0]?.blocks]
+    () => sandbox?.blocks.filter((i) => i.__typename === 'Note' || i.__typename === 'Partnership'),
+    [sandbox?.blocks]
   );
-  
   const nodeData = useMemo(
     () => entityData?.concat(notesData),
     [entityData, notesData]

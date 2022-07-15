@@ -40,11 +40,12 @@ import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDra
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
-import { useDelete, useGetNodeData } from "@/common/hooks";
+import { useDelete, useGetWorkspaceData } from "@/common/hooks";
 
 const Workspace: NextPage = () => {
   const router = useRouter();
   const { workspaceId } = router.query;
+  const toast = useToast();
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
     isOpen: noteBlockDrawerIsOpen,
@@ -68,16 +69,12 @@ const Workspace: NextPage = () => {
     onOpen: onDeleteModalOpen,
   } = useDisclosure();
   const [{ data: walletData }] = useAccount();
-  const { deleteBlockHandler, deleteEntityHandler } = useDelete();
-  const {
-    loading,
-    error,
-    data: workspaceData,
-  } = useQuery(GET_WORKSPACE, {
+  const { deleteBlockHandler, deleteEntityHandler } = useDelete(walletData?.address);
+  const { data: workspaceData, loading, error } = useQuery(GET_WORKSPACE, {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
   });
-  const toast = useToast();
+  const { workspace, nodeData } = useGetWorkspaceData(workspaceData);
   console.log('comentario' + walletData?.address);
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
     UPDATE_WORKSPACE,
@@ -104,7 +101,7 @@ const Workspace: NextPage = () => {
     }
   );
 
-  const workspace = workspaceData?.workspaces?.[0];
+  // const workspace = workspaceData?.workspaces?.[0];
   const [date, setDate] = useState("");
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [currentNode, setCurrentNode] = useState(null);
@@ -114,15 +111,15 @@ const Workspace: NextPage = () => {
     setDate(new Date().toLocaleString());
   }, []);
 
-  const notesData = useMemo(() => workspace?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership" ),
-  [workspace?.blocks]);
+  // const entityData = useMemo(() => workspace?.entities, [workspace?.entities]);
+  
+  // const notesData = useMemo(() => workspace?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership" ),
+  // [workspace?.blocks]);
 
-  const entityData = useMemo(() => workspace?.entities, [workspace?.entities]);
-
-  const nodeData = useMemo(
-    () => entityData?.concat(notesData),
-    [entityData, notesData]
-  );
+  // const nodeData = useMemo(
+  //   () => entityData?.concat(notesData),
+  //   [entityData, notesData]
+  // );
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState("")
@@ -285,7 +282,7 @@ const Workspace: NextPage = () => {
   //   }
   //   onClose();
   // };
-
+//entityblocks can be deleted...?
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
       refetchQueries: [
@@ -449,13 +446,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   noteBlockDrawerOnClose();
                 }}
-                actions={{
-                  editBlock: () => {
-                    onOpen();
-                    setBlockType('Note');
-                  },
+                  actions={{
+                    editBlock: () => {
+                      onOpen();
+                      setBlockType('Note');
+                    },
                   deleteBlock: deleteBlockHandler,
-                }}
+                  }}
               />
               <PartnershipBlockDrawer
                 nodeData={currentNode?.__typename == "Partnership" && currentNode}
@@ -464,13 +461,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   partnershipBlockDrawerOnClose();
                 }}
-                actions={{
-                  editBlock: () => {
-                    onOpen();
-                    setBlockType('Partnership');
-                  },
-                  deleteBlock: deleteBlockHandler,
-                }}
+                  actions={{
+                    editBlock: () => {
+                      onOpen();
+                      setBlockType('Partnership');
+                    },
+                    deleteBlock: deleteBlockHandler,
+                  }}
               />
               <EntityDrawer
                 nodeData={currentNode?.__typename == "Entity" && currentNode}
@@ -479,13 +476,13 @@ const Workspace: NextPage = () => {
                   setCurrentNode(null);
                   entityDrawerOnClose();
                 }}
-                actions={{
-                  editBlock: () => {
-                    onOpen();
-                    setBlockType('Entity');
-                  },
-                  deleteBlock: deleteEntityHandler,
-                }}
+                  actions={{
+                    editBlock: () => {
+                      onOpen();
+                      setBlockType('Entity');
+                    },
+                    deleteBlock: deleteEntityHandler,
+                  }}
               />
               <AddBlockTypeModal
                 tags={tags}
@@ -494,7 +491,7 @@ const Workspace: NextPage = () => {
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
                 onClose={onClose}
                 blockType={blockType}
-                nodeData={currentNode}
+                  nodeData={currentNode}
               />
             </Box>
             <DeleteModal
