@@ -57,6 +57,7 @@ export const useDelete = (address?: any) => {
   );
   
   const deleteBlockHandler = async (block?: any) => {
+    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
     try {
       if (block.__typename === "Note") {
         await deleteNoteBlock({
