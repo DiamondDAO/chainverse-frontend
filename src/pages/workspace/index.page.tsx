@@ -77,7 +77,8 @@ const Workspace: NextPage = () => {
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
   const { nodeData, loading } = useGetNodeData(walletData);
-  const { deleteEntityHandler, deleteBlockHandler } = useDelete(nodeData);
+  console.log('comentariio', nodeData)
+  const { deleteEntityHandler, deleteBlockHandler } = useDelete(nodeData?.wallet?.address);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
   const [addSandboxToWallet, { error: addBlockError }] = useMutation(

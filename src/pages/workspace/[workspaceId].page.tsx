@@ -40,6 +40,7 @@ import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDra
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
+import { useDelete, useGetNodeData } from "@/common/hooks";
 
 const Workspace: NextPage = () => {
   const router = useRouter();
@@ -67,6 +68,7 @@ const Workspace: NextPage = () => {
     onOpen: onDeleteModalOpen,
   } = useDisclosure();
   const [{ data: walletData }] = useAccount();
+  const { deleteBlockHandler, deleteEntityHandler } = useDelete();
   const {
     loading,
     error,
@@ -76,6 +78,7 @@ const Workspace: NextPage = () => {
     fetchPolicy: "network-only",
   });
   const toast = useToast();
+  console.log('comentario' + walletData?.address);
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
     UPDATE_WORKSPACE,
     {
@@ -183,105 +186,105 @@ const Workspace: NextPage = () => {
     onClose();
     setDeletingWorkspace(false);
   };
-  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
-    refetchQueries: [
-      {
-        query: GET_ALL_BLOCKS,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
-    ],
-  });
+  // const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
+  //   refetchQueries: [
+  //     {
+  //       query: GET_ALL_BLOCKS,
+  //       variables: { where: { address: nodeData?.wallet?.address } },
+  //     },
+  //     GET_TAGS_AND_ENTITIES,
+  //     { query: GET_ALL_BLOCKS },
+  //   ],
+  // });
 
-  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
-    refetchQueries: [
-      {
-        query: GET_ALL_BLOCKS,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-      { query: GET_ALL_BLOCKS },
-    ],
-  });
+  // const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
+  //   refetchQueries: [
+  //     {
+  //       query: GET_ALL_BLOCKS,
+  //       variables: { where: { address: nodeData?.wallet?.address } },
+  //     },
+  //     GET_TAGS_AND_ENTITIES,
+  //     { query: GET_ALL_BLOCKS },
+  //   ],
+  // });
 
-  const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
-    refetchQueries: [
-      {
-        query: GET_ENTITIES_DATA,
-        variables: { where: { address: nodeData?.wallet?.address } },
-      },
-      GET_TAGS_AND_ENTITIES,
-    ],
-  });
+  // const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
+  //   refetchQueries: [
+  //     {
+  //       query: GET_ENTITIES_DATA,
+  //       variables: { where: { address: nodeData?.wallet?.address } },
+  //     },
+  //     GET_TAGS_AND_ENTITIES,
+  //   ],
+  // });
 
-  const deleteBlockHandler = async (block?: any) => {
-    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
-    try {
-      if (block.__typename === "Note") {
-        await deleteNoteBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: "Note Block Deleted!",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-      } else if (block.__typename === "Partnership") {
-        await deletePartnershipBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: "Partnership Block Deleted!",
-          status: "info",
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    } catch (e) {
-      toast({
-        title: "Error",
-        description:
-          "There was an error when deleting your block. Please try again.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
+  // const deleteBlockHandler = async (block?: any) => {
+  //   console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+  //   try {
+  //     if (block.__typename === "Note") {
+  //       await deleteNoteBlock({
+  //         variables: {
+  //           where: { uuid: block.uuid },
+  //         },
+  //       });
+  //       toast({
+  //         title: "Note Block Deleted!",
+  //         status: "info",
+  //         duration: 2000,
+  //         isClosable: true,
+  //       });
+  //     } else if (block.__typename === "Partnership") {
+  //       await deletePartnershipBlock({
+  //         variables: {
+  //           where: { uuid: block.uuid },
+  //         },
+  //       });
+  //       toast({
+  //         title: "Partnership Block Deleted!",
+  //         status: "info",
+  //         duration: 2000,
+  //         isClosable: true,
+  //       });
+  //     }
+  //   } catch (e) {
+  //     toast({
+  //       title: "Error",
+  //       description:
+  //         "There was an error when deleting your block. Please try again.",
+  //       status: "error",
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   }
+  //   onClose();
+  // };
 
-  const deleteEntityHandler = async (block?: any) => {
-    console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
-    try {
-      await deleteEntity({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: "Entity Block Deleted!",
-        status: "info",
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: "Error",
-        description:
-          "There was an error when deleting your entity. Please try again.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
+  // const deleteEntityHandler = async (block?: any) => {
+  //   console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
+  //   try {
+  //     await deleteEntity({
+  //       variables: {
+  //         where: { uuid: block.uuid },
+  //       },
+  //     });
+  //     toast({
+  //       title: "Entity Block Deleted!",
+  //       status: "info",
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   } catch (e) {
+  //     toast({
+  //       title: "Error",
+  //       description:
+  //         "There was an error when deleting your entity. Please try again.",
+  //       status: "error",
+  //       duration: 2000,
+  //       isClosable: true,
+  //     });
+  //   }
+  //   onClose();
+  // };
 
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
@@ -481,7 +484,7 @@ const Workspace: NextPage = () => {
                     onOpen();
                     setBlockType('Entity');
                   },
-                  deleteBlock: deleteBlockHandler,
+                  deleteBlock: deleteEntityHandler,
                 }}
               />
               <AddBlockTypeModal

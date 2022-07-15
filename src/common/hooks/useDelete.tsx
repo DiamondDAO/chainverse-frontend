@@ -12,7 +12,7 @@ import {
   DELETE_PARTNERSHIPS
 } from "@/services/Apollo/Mutations";
 
-export const useDelete = (nodeData: any) => {
+export const useDelete = (address?: any) => {
   
   const toast = useToast();
   const { onClose } = useDisclosure();
@@ -23,7 +23,7 @@ export const useDelete = (nodeData: any) => {
       refetchQueries: [
         {
           query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
+          variables: { where: { address: address } },
         },
         GET_TAGS_AND_ENTITIES,
         { query: GET_ALL_BLOCKS },
@@ -36,7 +36,7 @@ export const useDelete = (nodeData: any) => {
       refetchQueries: [
         {
           query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
+          variables: { where: { address: address } },
         },
         GET_TAGS_AND_ENTITIES,
         { query: GET_ALL_BLOCKS },
@@ -49,7 +49,7 @@ export const useDelete = (nodeData: any) => {
       refetchQueries: [
         {
           query: GET_ENTITIES_DATA,
-          variables: { where: { address: nodeData?.wallet?.address } },
+          variables: { where: { address: address } },
         },
         GET_TAGS_AND_ENTITIES,
       ],
