@@ -8,6 +8,9 @@ export const useGetSandboxData = (walletData: any) => {
 
   const [ getSandbox, { data: sandboxData, loading } ] = useLazyQuery(
     GET_SANDBOX,
+    {
+      fetchPolicy: "network-only",
+    }
   );
   const [addSandboxToWallet, { error: addBlockError }] = useMutation(
     ADD_SANDBOX_TO_WALLET,

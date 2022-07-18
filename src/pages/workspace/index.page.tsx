@@ -82,12 +82,12 @@ const Workspace: NextPage = () => {
   console.log('nodeData::', nodeData)
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
 
-  const [addSandboxToWallet, { error: addBlockError }] = useMutation(
-    ADD_SANDBOX_TO_WALLET,
-    {
-      refetchQueries: [],
-    }
-  );
+  // const [addSandboxToWallet, { error: addBlockError }] = useMutation(
+  //   ADD_SANDBOX_TO_WALLET,
+  //   {
+  //     refetchQueries: [],
+  //   }
+  // );
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
@@ -96,7 +96,7 @@ const Workspace: NextPage = () => {
           query: GET_SANDBOX,
           variables: {
             where: { wallet: { address: walletData?.address } },
-            directed: false,
+            // directed: false,
           },
         },
       ],
@@ -442,8 +442,8 @@ const Workspace: NextPage = () => {
           />
           <AddBlockTypeModal
             tags={
-              filterUniqueObjects(tagAndEntitiesData?.tags, 'text')?.map(
-                (i) => i.text
+              filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map(
+                (i) => i.tag
               ) || []
             }
             entities={
@@ -453,14 +453,15 @@ const Workspace: NextPage = () => {
             }
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
-            onClose={(refresh) => {
-              onClose();
-              if(refresh){
-                setTimeout(() => {
-                  window.location.reload()
-                }, 700);
-              }
-            }}
+            onClose={onClose}
+            // onClose={(refresh) => {
+            //   onClose();
+            //   if(refresh){
+            //     setTimeout(() => {
+            //       window.location.reload()
+            //     }, 700);
+            //   }
+            // }}
             blockType={blockType}
             nodeData={currentNode}
           />
