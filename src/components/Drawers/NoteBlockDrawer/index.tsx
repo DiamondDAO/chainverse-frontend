@@ -34,6 +34,7 @@ import { generateDateString, truncateAddress } from "@/common/utils";
 import { bodyText } from "@/theme";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import * as styles from "../styles";
+import { Loader } from "@/components/Loader";
 
 interface INoteBlockDrawer {
   isOpen: boolean;

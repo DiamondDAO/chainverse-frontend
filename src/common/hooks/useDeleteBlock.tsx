@@ -1,19 +1,14 @@
-import { useMutation } from "@apollo/client";
+import { DocumentNode, useMutation } from "@apollo/client";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 
-import {
-  GET_ALL_BLOCKS,
-  GET_ENTITIES_DATA,
-  GET_SANDBOX,
-  GET_TAGS_AND_ENTITIES
-} from "@/services/Apollo/Queries";
 import {
   DELETE_ENTITIES,
   DELETE_NOTES,
   DELETE_PARTNERSHIPS
 } from "@/services/Apollo/Mutations";
 
-export const useDelete = (walletData?: any) => {
+// type refetch = { query: DocumentNode; variables: { where: { wallet?: { address: string; }; }; directed?: boolean; }; }
+export const useDeleteBlock = ( refetchQueries: any[]) => {
   
   const toast = useToast();
   const { onClose } = useDisclosure();
@@ -21,54 +16,20 @@ export const useDelete = (walletData?: any) => {
   const [ deleteNoteBlock, { error: deleteNoteBlockError } ] = useMutation(
     DELETE_NOTES,
     {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-        }
-        // GET_TAGS_AND_ENTITIES,
-        // { query: GET_ALL_BLOCKS },
-      ],
-    }
-  );
+      refetchQueries,
+    });
   
   const [ deletePartnershipBlock, { error: deletePartnershipBlockError } ] =
-    useMutation(DELETE_PARTNERSHIPS, {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-          // query: GET_ALL_BLOCKS,
-          // variables: { where: { address: walletData?.address } },
-        },
-        // GET_TAGS_AND_ENTITIES,
-        // { query: GET_ALL_BLOCKS },
-      ],
+    useMutation(DELETE_PARTNERSHIPS,
+    {
+      refetchQueries
     });
   
   const [ deleteEntity, { error: deleteEntityError } ] = useMutation(
     DELETE_ENTITIES,
     {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-          // query: GET_ENTITIES_DATA,
-          // variables: { where: { address: walletData?.address } },
-        },
-        // GET_TAGS_AND_ENTITIES,
-      ],
-    }
-  );
+      refetchQueries
+    });
   
   const deleteBlockHandler = async (block?: any) => {
     console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))

@@ -6,15 +6,13 @@ import {
   Text,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuGroup,
   MenuItem,
   MenuList,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 
 import { Layout } from '@/components/Layout';
 import { AddBlockTypeModal } from '@/components/AddBlockTypeModal';
@@ -25,39 +23,22 @@ import { Flow } from '@/components/Workspace/Flow';
 import { NoteBlockDrawer } from '@/components/Drawers/NoteBlockDrawer';
 import { PartnershipBlockDrawer } from '@/components/Drawers/PartnershipBlockDrawer';
 import { EntityDrawer } from '@/components/Drawers/EntityDrawer';
-import { Block } from '@/common/types';
 
 import {
-  GET_ALL_NOTES,
-  GET_NOTES,
-  GET_ALL_BLOCKS,
   GET_SANDBOX,
-  GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
-  GET_WORKSPACE_OWNED,
-  GET_ALL_CREATED,
 } from '@/services/Apollo/Queries';
-import {
-  ADD_SANDBOX_TO_WALLET,
-  CREATE_WORKSPACES,
-  DELETE_ENTITIES,
-  DELETE_NOTES,
-  DELETE_PARTNERSHIPS,
-  RESET_SANDBOX,
-  UPDATE_SANDBOX,
-} from '@/services/Apollo/Mutations';
 
+import { Loader } from '@/components/Loader';
 import { filterUniqueObjects } from '@/common/utils';
-import { useDelete } from '@/common/hooks';
+import { useDeleteBlock, useAddBlock, useSaveWorkspace } from '@/common/hooks';
 import { useGetSandboxData } from '@/common/hooks';
-import { bodyText, subText } from '@/theme';
+import { subText } from '@/theme';
 import * as styles from './styles';
 
 const Workspace: NextPage = () => {
 
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const toast = useToast();
-  
   const {
     isOpen: noteBlockDrawerIsOpen,
     onOpen: noteBlockDrawerOnOpen,
@@ -73,246 +54,53 @@ const Workspace: NextPage = () => {
     onOpen: entityDrawerOnOpen,
     onClose: entityDrawerOnClose,
   } = useDisclosure();
-  
+
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
-  const { nodeData, loading } = useGetSandboxData(walletData);
-  const { deleteEntityHandler, deleteBlockHandler } = useDelete(walletData);
-  console.log('nodeData::', nodeData)
+  const { nodeData, loading, sandboxData } = useGetSandboxData(walletData);
+  const refetch =
+    {
+      query: GET_SANDBOX,
+      variables: {
+        where: { wallet: { address: walletData?.address } },
+        directed: false,
+      },
+    }
+  const { addBlockToSandboxHandler } = useAddBlock([refetch]);
+  const { deleteEntityHandler, deleteBlockHandler } = useDeleteBlock([refetch]);
+  const { 
+    workspaceNameRef,
+    setRfInstance,
+    isSavingWorkspace,
+    saveWorkspaceHandler
+  } = useSaveWorkspace(walletData);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
-
-  // const [addSandboxToWallet, { error: addBlockError }] = useMutation(
-  //   ADD_SANDBOX_TO_WALLET,
-  //   {
-  //     refetchQueries: [],
-  //   }
-  // );
-  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
-    UPDATE_SANDBOX,
-    {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            // directed: false,
-          },
-        },
-      ],
-    }
-  );
-  const [createWorkspace, { error: createWorkspaceError }] =
-    useMutation(CREATE_WORKSPACES);
-  const [resetSandbox, { error: resetSandboxError }] = useMutation(
-    RESET_SANDBOX,
-    {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-        },
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    }
-  );
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState('');
-
-  const [rfInstance, setRfInstance] = useState(null);
+  
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
 
-  const workspaceNameRef = useRef(null);
-  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
+  const tags = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      [],
+    [tagAndEntitiesData?.tags]
+  );
+  const entities = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+        (i) => i.name
+      ) || [],
+    [tagAndEntitiesData?.entities]
+  );
 
-  const saveWorkspaceHandler = async () => {
-    setIsSavingWorkspace(true);
-    try {
-      await createWorkspace({
-        variables: {
-          input: [
-            {
-              name: workspaceNameRef.current.innerText || '',
-              rfObject: JSON.stringify(rfInstance?.toObject()),
-              blocks: {
-                Note: {
-                  connect: {
-                    where: {
-                      node: {
-                        uuid_IN: nodeData
-                          .filter((node) => node.__typename === 'Note')
-                          .map((node) => node.uuid),
-                      },
-                    },
-                  },
-                },
-                Partnership: {
-                  connect: {
-                    where: {
-                      node: {
-                        uuid_IN: nodeData
-                          .filter((node) => node.__typename === 'Partnership')
-                          .map((node) => node.uuid),
-                      },
-                    },
-                  },
-                },
-              },
-              entities: {
-                connect: {
-                  where: {
-                    node: {
-                      uuid_IN: nodeData
-                        .filter((node) => node.__typename === 'Entity')
-                        .map((node) => node.uuid),
-                    },
-                  },
-                },
-              },
-              wallet: {
-                connect: { where: { node: { address: walletData?.address } } },
-              },
-            },
-          ],
-        },
-      });
-      await resetSandbox({
-        variables: {
-          disconnect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid_NOT: 0,
-                    },
-                  },
-                },
-              ],
-              Partnership: [
-                {
-                  where: {
-                    node: {
-                      uuid_NOT: 0,
-                    },
-                  },
-                },
-              ],
-            },
-            entities: [
-              {
-                where: {
-                  node: {
-                    name_NOT: null,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      });
-      toast({
-        title: `Workspace ${workspaceNameRef.current.innerText} Created!`,
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when creating your workspace. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    setIsSavingWorkspace(false);
-  };
-  
-  const addBlockToSandboxHandler = async (data?: any) => {
-    try {
-      if (data.__typename == 'Note') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else if (data.__typename == 'Partnership') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Partnership: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else if (data.__typename == 'Entity') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              entities: [
-                {
-                  where: {
-                    node: {
-                      uuid: data?.uuid,
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        });
-      }
-    } catch (e) {
-      throw e;
-    }
-  };
+  if (!sandboxData) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -441,16 +229,8 @@ const Workspace: NextPage = () => {
             }}
           />
           <AddBlockTypeModal
-            tags={
-              filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map(
-                (i) => i.tag
-              ) || []
-            }
-            entities={
-              filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
-                (i) => i.name
-              ) || []
-            }
+            tags={tags}
+            entities={entities}
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
             onClose={onClose}

@@ -48,14 +48,21 @@ import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDra
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import Router from "next/router";
 import * as styles from "./styles";
-import { useDeleteBlocks } from "@/common/hooks";
+import { useDeleteBlock } from "@/common/hooks";
+import { Loader } from "@/components/Loader";
 
 const AllBlocks: NextPage = () => {
   const toast = useToast();
   const [getNotes, { data }] = useLazyQuery(GET_ALL_CREATED);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [{ data: walletData }] = useAccount();
-  const { deleteBlockHandler, deleteEntityHandler } = useDeleteBlocks(walletData);
+  const refetch = [
+    {
+      query: GET_ALL_BLOCKS,
+      variables: { where: { address: walletData?.address } }
+    },
+  ]
+  const { deleteBlockHandler, deleteEntityHandler } = useDeleteBlock(refetch);
   const [currentNode, setCurrentNode] = useState(null);
   const filteredTagsState = useState<string[]>([]);
   const filteredEntitiesState = useState<string[]>([]);
@@ -93,20 +100,6 @@ const AllBlocks: NextPage = () => {
     }
   }, [getNotes, walletData?.address]);
 
-  const tags = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
-      [],
-    [tagAndEntitiesData?.tags]
-  );
-
-  const entities = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
-        (i) => i.name
-      ) || [],
-    [tagAndEntitiesData?.entities]
-  );
   // const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
   //   refetchQueries: [
   //     {
@@ -353,6 +346,22 @@ const AllBlocks: NextPage = () => {
       throw Error(`${e}`);
     }
   };
+
+  const tags = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      [],
+    [tagAndEntitiesData?.tags]
+  );
+
+  const entities = useMemo(
+    () =>
+      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+        (i) => i.name
+      ) || [],
+    [tagAndEntitiesData?.entities]
+  );
+
   return (
     <>
       <Layout>

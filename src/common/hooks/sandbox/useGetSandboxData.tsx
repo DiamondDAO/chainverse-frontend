@@ -67,6 +67,7 @@ export const useGetSandboxData = (walletData: any) => {
 
   return { 
     nodeData,
-    loading 
+    loading,
+    sandboxData
   }
 }

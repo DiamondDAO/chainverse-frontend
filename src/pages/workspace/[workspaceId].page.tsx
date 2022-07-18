@@ -2,19 +2,15 @@ import {
   Box,
   Button,
   Text,
-  Menu,MenuButton,MenuDivider,MenuGroup,MenuItem,MenuList,
+  Menu,MenuButton,MenuGroup,MenuItem,MenuList,
   useDisclosure, useToast } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
 import { useAccount } from "wagmi";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
-  GET_ALL_NOTES,
-  GET_NOTES,
-  GET_ALL_BLOCKS,
-  GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
   GET_WORKSPACE_OWNED,
@@ -40,9 +36,10 @@ import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDra
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
 import { Block } from "@/common/types";
 import * as styles from "./styles";
-import { useDelete, useGetWorkspaceData } from "@/common/hooks";
+import { useDeleteBlock, useGetWorkspaceData, } from "@/common/hooks";
 
 const Workspace: NextPage = () => {
+
   const router = useRouter();
   const { workspaceId } = router.query;
   const toast = useToast();
@@ -69,13 +66,22 @@ const Workspace: NextPage = () => {
     onOpen: onDeleteModalOpen,
   } = useDisclosure();
   const [{ data: walletData }] = useAccount();
-  const { deleteBlockHandler, deleteEntityHandler } = useDelete(walletData?.address);
+  const refetch = [
+    {
+      query: GET_WORKSPACE_OWNED,
+      variables: { where: { wallet: { address: walletData?.address } } },
+    },
+    { 
+      query: GET_WORKSPACE,
+      variables: { where: { uuid: workspaceId } }
+    },
+  ]
+  const { deleteBlockHandler, deleteEntityHandler } = useDeleteBlock(refetch);
   const { data: workspaceData, loading, error } = useQuery(GET_WORKSPACE, {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
   });
   const { workspace, nodeData } = useGetWorkspaceData(workspaceData);
-  console.log('comentario' + walletData?.address);
   const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
     UPDATE_WORKSPACE,
     {
@@ -101,7 +107,6 @@ const Workspace: NextPage = () => {
     }
   );
 
-  // const workspace = workspaceData?.workspaces?.[0];
   const [date, setDate] = useState("");
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [currentNode, setCurrentNode] = useState(null);
@@ -110,16 +115,6 @@ const Workspace: NextPage = () => {
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-
-  // const entityData = useMemo(() => workspace?.entities, [workspace?.entities]);
-  
-  // const notesData = useMemo(() => workspace?.blocks.filter((i) => i.__typename === "Note" || i.__typename === "Partnership" ),
-  // [workspace?.blocks]);
-
-  // const nodeData = useMemo(
-  //   () => entityData?.concat(notesData),
-  //   [entityData, notesData]
-  // );
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState("")
@@ -183,106 +178,7 @@ const Workspace: NextPage = () => {
     onClose();
     setDeletingWorkspace(false);
   };
-  // const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(DELETE_NOTES, {
-  //   refetchQueries: [
-  //     {
-  //       query: GET_ALL_BLOCKS,
-  //       variables: { where: { address: nodeData?.wallet?.address } },
-  //     },
-  //     GET_TAGS_AND_ENTITIES,
-  //     { query: GET_ALL_BLOCKS },
-  //   ],
-  // });
 
-  // const [deletePartnershipBlock, { error: deletePartnershipBlockError }] = useMutation(DELETE_PARTNERSHIPS, {
-  //   refetchQueries: [
-  //     {
-  //       query: GET_ALL_BLOCKS,
-  //       variables: { where: { address: nodeData?.wallet?.address } },
-  //     },
-  //     GET_TAGS_AND_ENTITIES,
-  //     { query: GET_ALL_BLOCKS },
-  //   ],
-  // });
-
-  // const [deleteEntity, { error: deleteEntityError }] = useMutation(DELETE_ENTITIES, {
-  //   refetchQueries: [
-  //     {
-  //       query: GET_ENTITIES_DATA,
-  //       variables: { where: { address: nodeData?.wallet?.address } },
-  //     },
-  //     GET_TAGS_AND_ENTITIES,
-  //   ],
-  // });
-
-  // const deleteBlockHandler = async (block?: any) => {
-  //   console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
-  //   try {
-  //     if (block.__typename === "Note") {
-  //       await deleteNoteBlock({
-  //         variables: {
-  //           where: { uuid: block.uuid },
-  //         },
-  //       });
-  //       toast({
-  //         title: "Note Block Deleted!",
-  //         status: "info",
-  //         duration: 2000,
-  //         isClosable: true,
-  //       });
-  //     } else if (block.__typename === "Partnership") {
-  //       await deletePartnershipBlock({
-  //         variables: {
-  //           where: { uuid: block.uuid },
-  //         },
-  //       });
-  //       toast({
-  //         title: "Partnership Block Deleted!",
-  //         status: "info",
-  //         duration: 2000,
-  //         isClosable: true,
-  //       });
-  //     }
-  //   } catch (e) {
-  //     toast({
-  //       title: "Error",
-  //       description:
-  //         "There was an error when deleting your block. Please try again.",
-  //       status: "error",
-  //       duration: 2000,
-  //       isClosable: true,
-  //     });
-  //   }
-  //   onClose();
-  // };
-
-  // const deleteEntityHandler = async (block?: any) => {
-  //   console.log("WHAT IS A BLOCK --- " + JSON.stringify(block))
-  //   try {
-  //     await deleteEntity({
-  //       variables: {
-  //         where: { uuid: block.uuid },
-  //       },
-  //     });
-  //     toast({
-  //       title: "Entity Block Deleted!",
-  //       status: "info",
-  //       duration: 2000,
-  //       isClosable: true,
-  //     });
-  //   } catch (e) {
-  //     toast({
-  //       title: "Error",
-  //       description:
-  //         "There was an error when deleting your entity. Please try again.",
-  //       status: "error",
-  //       duration: 2000,
-  //       isClosable: true,
-  //     });
-  //   }
-  //   onClose();
-  // };
-//entityblocks can be deleted...?
   const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
     useMutation(UPDATE_WORKSPACE, {
       refetchQueries: [
@@ -290,7 +186,10 @@ const Workspace: NextPage = () => {
           query: GET_WORKSPACE_OWNED,
           variables: { where: { wallet: { address: walletData?.address } } },
         },
-        { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
+        { 
+          query: GET_WORKSPACE,
+          variables: { where: { uuid: workspaceId } } 
+        },
       ],
     });
 
