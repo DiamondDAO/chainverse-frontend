@@ -4,7 +4,7 @@ import { AddWorkspaceType } from "@/common/types";
 import { useMutation } from "@apollo/client";
 import { UPDATE_SANDBOX, UPDATE_WORKSPACE } from "@/services/Apollo/Mutations";
 import { GET_SANDBOX, GET_WORKSPACE_OWNED } from "@/services/Apollo/Queries";
-import * as styles from './../../../pages/workspace/styles';
+import * as styles from '../../../pages/workspace/styles';
 
 export const useAddBlock = (walletData?: any) => {
 

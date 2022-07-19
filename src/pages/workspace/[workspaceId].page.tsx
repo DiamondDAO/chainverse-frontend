@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import {
   Box,
@@ -58,12 +58,12 @@ const Workspace: NextPage = () => {
     onOpen: entityDrawerOnOpen,
     onClose: entityDrawerOnClose,
   } = useDisclosure();
-
   const {
     isOpen: isDeleteModalOpen,
     onClose: onDeleteModalClose,
     onOpen: onDeleteModalOpen,
   } = useDisclosure();
+
   const [{ data: walletData }] = useAccount();
   const refetch = [
     {
@@ -84,7 +84,7 @@ const Workspace: NextPage = () => {
     setRfInstance,
     workspaceNameRef,
   } = useSaveWorkspace(refetch);
-
+  
   const { data: workspaceData, loading, error } = useQuery(GET_WORKSPACE, {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
@@ -241,7 +241,15 @@ const Workspace: NextPage = () => {
                 entities={entities}
                 isOpen={isOpen}
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
-                onClose={onClose}
+                // onClose={onClose}
+                onClose={(refresh) => {
+                  onClose();
+                  if(refresh){
+                    setTimeout(() => {
+                      window.location.reload()
+                    }, 700);
+                  }
+                }}
                 blockType={blockType}
                 nodeData={currentNode}
               />

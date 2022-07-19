@@ -17,42 +17,69 @@ export const useAddBlockToWorkspace = (refetchQueries: any[]) => {
 
   const addBlockToWorkspaceHandler = async (data?: any) => {
     try {
-      await addBlockToWorkspace({
-        variables: {
-          where: { uuid: workspaceId },
-          connect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid: data.uuid,
+      if (data.__typename === "Note") {
+        console.log(data)
+        await addBlockToWorkspace({
+          variables: {
+            where: {
+              uuid: workspaceId
+            },
+            connect: {
+              blocks: {
+                Note: [
+                  {
+                    where: {
+                      node: {
+                        uuid: data?.uuid,
+                      },
                     },
                   },
-                },
-              ],
-              Partnership: [
+                ],
+              },
+            },
+          },
+        });
+      } else if (data.__typename === 'Partnership') {
+        await addBlockToWorkspace({
+          variables: {
+            where: {
+              uuid: workspaceId
+            },
+            connect: {
+              blocks: {
+                Partnership: [
+                  {
+                    where: {
+                      node: {
+                        uuid: data?.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        });
+      } else if (data.__typename === 'Entity') {
+        await addBlockToWorkspace({
+          variables: {
+            where: {
+              uuid: workspaceId
+            },
+            connect: {
+              entities: [
                 {
                   where: {
                     node: {
-                      uuid: data.uuid,
+                      uuid: data?.uuid,
                     },
                   },
                 },
               ],
             },
-            entities: [
-              {
-                where: {
-                  node: {
-                    uuid: data.uuid,
-                  }
-                }
-              }
-            ],
           },
-        },
-      });
+        });
+      }
     } catch (e) {
       throw e;
     }

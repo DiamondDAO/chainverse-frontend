@@ -1,19 +1,18 @@
 import { UPDATE_SANDBOX } from "@/services/Apollo/Mutations";
 import { useMutation } from "@apollo/client";
 
-
-export const useAddBlockToSandbox = (refetchQueries: any[]) => {
+export const useAddBlockToSandbox = (refetch?: any) => {
 
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,
     {
-      refetchQueries
+      refetchQueries: refetch
     }
   );
 
   const addBlockToSandboxHandler = async (data?: any) => {
     try {
-      if (data.__typename === "Note") {
+      if (data.__typename == "Note") {
         console.log(data)
         await addBlockToSandbox({
           variables: {
@@ -37,7 +36,7 @@ export const useAddBlockToSandbox = (refetchQueries: any[]) => {
             },
           },
         });
-      } else if (data.__typename === 'Partnership') {
+      } else if (data.__typename == 'Partnership') {
         await addBlockToSandbox({
           variables: {
             where: {
@@ -60,7 +59,7 @@ export const useAddBlockToSandbox = (refetchQueries: any[]) => {
             },
           },
         });
-      } else if (data.__typename === 'Entity') {
+      } else if (data.__typename == 'Entity') {
         await addBlockToSandbox({
           variables: {
             where: {

@@ -58,6 +58,12 @@ const Workspace: NextPage = () => {
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
+  const { 
+    workspaceNameRef,
+    setRfInstance,
+    isSavingWorkspace,
+    createWorkspaceHandler
+  } = useCreateWorkspace(walletData);
   const { nodeData, loading } = useGetSandboxData(walletData);
   const refetch = [
     {
@@ -68,15 +74,9 @@ const Workspace: NextPage = () => {
       }
     },
   ]
-  const { tags, entities } = useTagsAndEntities();
   const { addBlockToSandboxHandler } = useAddBlockToSandbox(refetch);
   const { deleteEntityHandler, deleteBlockHandler } = useDeleteBlock(refetch);
-  const { 
-    workspaceNameRef,
-    setRfInstance,
-    isSavingWorkspace,
-    createWorkspaceHandler
-  } = useCreateWorkspace(walletData);
+  const { tags, entities } = useTagsAndEntities();
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState('');
@@ -216,15 +216,15 @@ const Workspace: NextPage = () => {
             entities={entities}
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
-            onClose={onClose}
-            // onClose={(refresh) => {
-            //   onClose();
-            //   if(refresh){
-            //     setTimeout(() => {
-            //       window.location.reload()
-            //     }, 700);
-            //   }
-            // }}
+            // onClose={onClose}
+            onClose={(refresh) => {
+              onClose();
+              if(refresh){
+                setTimeout(() => {
+                  window.location.reload()
+                }, 700);
+              }
+            }}
             blockType={blockType}
             nodeData={currentNode}
           />
