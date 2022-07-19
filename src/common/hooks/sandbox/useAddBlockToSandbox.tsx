@@ -2,7 +2,7 @@ import { UPDATE_SANDBOX } from "@/services/Apollo/Mutations";
 import { useMutation } from "@apollo/client";
 
 
-export const useAddBlock = (refetchQueries: any[]) => {
+export const useAddBlockToSandbox = (refetchQueries: any[]) => {
 
   const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
     UPDATE_SANDBOX,

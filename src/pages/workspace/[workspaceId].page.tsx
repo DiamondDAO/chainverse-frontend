@@ -1,48 +1,47 @@
+import React, { useEffect, useMemo, useState } from "react";
+import type { NextPage } from "next";
 import {
   Box,
   Button,
   Text,
   Menu,MenuButton,MenuGroup,MenuItem,MenuList,
-  useDisclosure, useToast } from "@chakra-ui/react";
-import type { NextPage } from "next";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Layout } from "@/components/Layout";
-import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
+  useDisclosure } from "@chakra-ui/react";
 import { useAccount } from "wagmi";
-import { useMutation, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import {
-  GET_TAGS_AND_ENTITIES,
   GET_WORKSPACE,
   GET_WORKSPACE_OWNED,
 } from "@/services/Apollo/Queries";
-import { filterUniqueObjects } from "@/common/utils";
+
+import { Layout } from "@/components/Layout";
+import { AddBlockTypeModal } from "@/components/AddBlockTypeModal";
 import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 import { AddBlockIcon } from "@/components/Icons/AddBlockIcon";
 import { WorkspaceNavigator } from "@/components/Workspace/WorkspaceNavigator";
 import { Flow } from "@/components/Workspace/Flow";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Loader } from "@/components/Loader";
-import {
-  DELETE_NOTES,
-  DELETE_PARTNERSHIPS,
-  DELETE_ENTITIES,
-  DELETE_WORKSPACE,
-  UPDATE_WORKSPACE,
-} from "@/services/Apollo/Mutations";
-import { subText } from "@/theme";
 import { DeleteModal } from "@/components/DeleteModal";
 import { NoteBlockDrawer } from "@/components/Drawers/NoteBlockDrawer";
 import { PartnershipBlockDrawer } from "@/components/Drawers/PartnershipBlockDrawer";
 import { EntityDrawer } from "@/components/Drawers/EntityDrawer";
-import { Block } from "@/common/types";
+
+import { subText } from "@/theme";
+import {
+  useAddBlockToWorkspace,
+  useDeleteBlock,
+  useDeleteWorkspace,
+  useGetWorkspaceData,
+  useSaveWorkspace,
+  useTagsAndEntities,
+} from "@/common/hooks";
 import * as styles from "./styles";
-import { useDeleteBlock, useGetWorkspaceData, } from "@/common/hooks";
 
 const Workspace: NextPage = () => {
 
   const router = useRouter();
   const { workspaceId } = router.query;
-  const toast = useToast();
+  
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
     isOpen: noteBlockDrawerIsOpen,
@@ -76,41 +75,26 @@ const Workspace: NextPage = () => {
       variables: { where: { uuid: workspaceId } }
     },
   ]
+  const { addBlockToWorkspaceHandler } = useAddBlockToWorkspace(refetch);
   const { deleteBlockHandler, deleteEntityHandler } = useDeleteBlock(refetch);
+  const { deleteWorkspaceHandler, deletingWorkspace } = useDeleteWorkspace(walletData);
+  const {
+    saveWorkspaceHandler,
+    isSavingWorkspace,
+    setRfInstance,
+    workspaceNameRef,
+  } = useSaveWorkspace(refetch);
+
   const { data: workspaceData, loading, error } = useQuery(GET_WORKSPACE, {
     variables: { where: { uuid: workspaceId } },
     fetchPolicy: "network-only",
   });
   const { workspace, nodeData } = useGetWorkspaceData(workspaceData);
-  const [updateWorkspace, { error: updateWorkspaceError }] = useMutation(
-    UPDATE_WORKSPACE,
-    {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-        { query: GET_WORKSPACE, variables: { where: { uuid: workspaceId } } },
-      ],
-    }
-  );
-
-  const [deleteWorkspace, { error: deleteWokspaceError }] = useMutation(
-    DELETE_WORKSPACE,
-    {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    }
-  );
+  const { tags, entities } = useTagsAndEntities();
 
   const [date, setDate] = useState("");
-  const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
   const [currentNode, setCurrentNode] = useState(null);
-  const [rfInstance, setRfInstance] = useState(null);
+  
   // TODO: make it a real last updated
   useEffect(() => {
     setDate(new Date().toLocaleString());
@@ -118,137 +102,6 @@ const Workspace: NextPage = () => {
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState("")
-
-
-  const workspaceNameRef = useRef(null);
-  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
-  const saveWorkspaceHandler = async () => {
-    setIsSavingWorkspace(true);
-    try {
-      await updateWorkspace({
-        variables: {
-          where: {
-            uuid: workspaceId,
-          },
-          update: {
-            rfObject: JSON.stringify(rfInstance?.toObject()),
-            name: workspaceNameRef.current.innerText,
-          },
-        },
-      });
-
-      toast({
-        title: `Workspace ${workspaceNameRef.current.innerText} Saved!`,
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: "Error",
-        description:
-          "There was an error when saving your workspace. Please try again.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    setIsSavingWorkspace(false);
-  };
-  const [deletingWorkspace, setDeletingWorkspace] = useState(false);
-  const deleteWorkspaceHandler = async () => {
-    try {
-      setDeletingWorkspace(true);
-      await deleteWorkspace({
-        variables: {
-          where: { uuid: workspaceId },
-        },
-      });
-      Router.push("/workspace");
-    } catch (e) {
-      toast({
-        title: "Error",
-        description:
-          "There was an error when deleting your workspace. Please try again.",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-    setDeletingWorkspace(false);
-  };
-
-  const [addBlockToWorkspace, { error: addBlockToWorkspaceError }] =
-    useMutation(UPDATE_WORKSPACE, {
-      refetchQueries: [
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-        { 
-          query: GET_WORKSPACE,
-          variables: { where: { uuid: workspaceId } } 
-        },
-      ],
-    });
-
-  const addBlockToWorkspaceHandler = async (data?: any) => {
-    try {
-      await addBlockToWorkspace({
-        variables: {
-          where: { uuid: workspaceId },
-          connect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid: data.uuid,
-                    },
-                  },
-                },
-              ],
-              Partnership: [
-                {
-                  where: {
-                    node: {
-                      uuid: data.uuid,
-                    },
-                  },
-                },
-              ],
-            },
-            entities: [
-              {
-                where: {
-                  node: {
-                    uuid: data.uuid,
-                  }
-                }
-              }
-            ],
-          },
-        },
-      });
-    } catch (e) {
-      throw e;
-    }
-  };
-  const tags = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
-      [],
-    [tagAndEntitiesData?.tags]
-  );
-
-  const entities = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
-        (i) => i.name
-      ) || [],
-    [tagAndEntitiesData?.entities]
-  );
 
   if (!workspaceData) {
     return <Loader />;

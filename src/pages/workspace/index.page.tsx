@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import {
   Box,
@@ -12,7 +12,8 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
-import { useQuery } from '@apollo/client';
+
+import { GET_SANDBOX } from '@/services/Apollo/Queries';
 
 import { Layout } from '@/components/Layout';
 import { AddBlockTypeModal } from '@/components/AddBlockTypeModal';
@@ -25,16 +26,15 @@ import { PartnershipBlockDrawer } from '@/components/Drawers/PartnershipBlockDra
 import { EntityDrawer } from '@/components/Drawers/EntityDrawer';
 
 import {
-  GET_SANDBOX,
-  GET_TAGS_AND_ENTITIES,
-} from '@/services/Apollo/Queries';
-
-import { Loader } from '@/components/Loader';
-import { filterUniqueObjects } from '@/common/utils';
-import { useDeleteBlock, useAddBlock, useSaveWorkspace } from '@/common/hooks';
-import { useGetSandboxData } from '@/common/hooks';
+  useDeleteBlock,
+  useGetSandboxData,
+  useCreateWorkspace,
+  useAddBlockToSandbox,
+  useTagsAndEntities,
+} from '@/common/hooks';
 import { subText } from '@/theme';
 import * as styles from './styles';
+import { Loader } from '@/components/Loader';
 
 const Workspace: NextPage = () => {
 
@@ -58,24 +58,25 @@ const Workspace: NextPage = () => {
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
-  const { nodeData, loading, sandboxData } = useGetSandboxData(walletData);
-  const refetch =
+  const { nodeData, loading } = useGetSandboxData(walletData);
+  const refetch = [
     {
       query: GET_SANDBOX,
       variables: {
         where: { wallet: { address: walletData?.address } },
         directed: false,
-      },
-    }
-  const { addBlockToSandboxHandler } = useAddBlock([refetch]);
-  const { deleteEntityHandler, deleteBlockHandler } = useDeleteBlock([refetch]);
+      }
+    },
+  ]
+  const { tags, entities } = useTagsAndEntities();
+  const { addBlockToSandboxHandler } = useAddBlockToSandbox(refetch);
+  const { deleteEntityHandler, deleteBlockHandler } = useDeleteBlock(refetch);
   const { 
     workspaceNameRef,
     setRfInstance,
     isSavingWorkspace,
-    saveWorkspaceHandler
-  } = useSaveWorkspace(walletData);
-  const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
+    createWorkspaceHandler
+  } = useCreateWorkspace(walletData);
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState('');
@@ -83,24 +84,6 @@ const Workspace: NextPage = () => {
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-
-  const tags = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
-      [],
-    [tagAndEntitiesData?.tags]
-  );
-  const entities = useMemo(
-    () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
-        (i) => i.name
-      ) || [],
-    [tagAndEntitiesData?.entities]
-  );
-
-  if (!sandboxData) {
-    return <Loader />;
-  }
 
   return (
     <>
@@ -174,7 +157,7 @@ const Workspace: NextPage = () => {
                   isLoading={isSavingWorkspace}
                   isDisabled={isSavingWorkspace}
                   sx={styles.ButtonStyle}
-                  onClick={saveWorkspaceHandler}
+                  onClick={createWorkspaceHandler}
                   leftIcon={<CreateSnapshotIcon />}
                   variant="primary"
                 >

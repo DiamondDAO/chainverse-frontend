@@ -99,5 +99,8 @@ export const useDeleteBlock = ( refetchQueries: any[]) => {
     onClose();
   };
 
-  return { deleteBlockHandler, deleteEntityHandler }
+  return {
+    deleteBlockHandler,
+    deleteEntityHandler,
+  }
 }

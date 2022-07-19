@@ -6,10 +6,9 @@ import { useRef, useState } from "react";
 import { useGetSandboxData } from "./useGetSandboxData";
 
 
-export const useSaveWorkspace = (walletData: any) => {
+export const useCreateWorkspace = (walletData: any) => {
 
   const toast = useToast();
-
   const [createWorkspace, { error: createWorkspaceError }] =
     useMutation(CREATE_WORKSPACES);
   const [resetSandbox, { error: resetSandboxError }] = useMutation(
@@ -36,7 +35,7 @@ export const useSaveWorkspace = (walletData: any) => {
   const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
   const { nodeData } = useGetSandboxData(walletData);
 
-  const saveWorkspaceHandler = async () => {
+  const createWorkspaceHandler = async () => {
     setIsSavingWorkspace(true);
     try {
       await createWorkspace({
@@ -141,5 +140,10 @@ export const useSaveWorkspace = (walletData: any) => {
     setIsSavingWorkspace(false);
   };
 
-  return { workspaceNameRef, setRfInstance, isSavingWorkspace, saveWorkspaceHandler }
+  return {
+    workspaceNameRef,
+    setRfInstance,
+    isSavingWorkspace,
+    createWorkspaceHandler,
+  }
 }
