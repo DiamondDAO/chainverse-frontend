@@ -35,6 +35,7 @@ export default cors(async (req, res) => {
   await startServer;
   return server.createHandler({
     path: "/api/graphql",
+    // path: "http://staging.chainverse.diamonds/api/graphql"
   })(req, res);
 });
 

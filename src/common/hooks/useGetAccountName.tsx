@@ -23,7 +23,7 @@ export const useGetAccountName = ({
     } else {
       return loadingComponent;
     }
-  }, [data?.ens?.name, data?.address, loadingComponent]);
+  }, [data?.ens?.name, data?.address, loadingComponent, data?.connector]);
 
   return { accountName, loading };
 };

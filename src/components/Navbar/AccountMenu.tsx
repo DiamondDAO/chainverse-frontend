@@ -14,7 +14,7 @@ import Router from "next/router";
 import React, { FC } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useAccount, useConnect } from "wagmi";
-import { useGetAccountName } from "@/common/hooks/use-get-account-name";
+import { useGetAccountName } from "@/common/hooks";
 import AccountIcon from "../Icons/AccountIcon";
 import * as styles from "./styles";
 

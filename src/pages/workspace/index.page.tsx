@@ -1,20 +1,19 @@
+import { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
   Text,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuGroup,
   MenuItem,
   MenuList,
   useDisclosure,
-  useToast,
 } from '@chakra-ui/react';
 import { useAccount } from 'wagmi';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+
+import { GET_SANDBOX } from '@/services/Apollo/Queries';
 
 import { Layout } from '@/components/Layout';
 import { AddBlockTypeModal } from '@/components/AddBlockTypeModal';
@@ -25,31 +24,20 @@ import { Flow } from '@/components/Workspace/Flow';
 import { NoteBlockDrawer } from '@/components/Drawers/NoteBlockDrawer';
 import { PartnershipBlockDrawer } from '@/components/Drawers/PartnershipBlockDrawer';
 import { EntityDrawer } from '@/components/Drawers/EntityDrawer';
-import { Block } from '@/common/types';
 
 import {
-  GET_ALL_NOTES,
-  GET_NOTES,
-  GET_ALL_BLOCKS,
-  GET_SANDBOX,
-  GET_ENTITIES_DATA,
-  GET_TAGS_AND_ENTITIES,
-  GET_WORKSPACE_OWNED,
-} from '@/services/Apollo/Queries';
-import {
-  ADD_SANDBOX_TO_WALLET,
-  CREATE_WORKSPACES,
-  DELETE_NOTES,
-  DELETE_PARTNERSHIPS,
-  DELETE_ENTITIES,
-  RESET_SANDBOX,
-  UPDATE_SANDBOX,
-} from '@/services/Apollo/Mutations';
-
-import { filterUniqueObjects } from '@/common/utils';
-import { bodyText, subText } from '@/theme';
+  useDeleteBlock,
+  useGetSandboxData,
+  useCreateWorkspace,
+  useAddBlockToSandbox,
+  useTagsAndEntities,
+} from '@/common/hooks';
+import { subText } from '@/theme';
 import * as styles from './styles';
+import { Loader } from '@/components/Loader';
+
 const Workspace: NextPage = () => {
+
   const { isOpen, onClose, onOpen } = useDisclosure();
   const {
     isOpen: noteBlockDrawerIsOpen,
@@ -70,398 +58,32 @@ const Workspace: NextPage = () => {
   const [currentNode, setCurrentNode] = useState(null);
   const [date, setDate] = useState('');
   const [{ data: walletData }] = useAccount();
-  const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
-
-  const [addSandboxToWallet, { error: addBlockError }] = useMutation(
-    ADD_SANDBOX_TO_WALLET,
+  const { 
+    workspaceNameRef,
+    setRfInstance,
+    isSavingWorkspace,
+    createWorkspaceHandler
+  } = useCreateWorkspace(walletData);
+  const { nodeData, loading } = useGetSandboxData(walletData);
+  const refetch = [
     {
-      refetchQueries: [],
-    }
-  );
-  const [getSandbox, { data: sandboxData, loading }] = useLazyQuery(
-    GET_SANDBOX,
-  );
-  const [addBlockToSandbox, { error: addBlockToSandboxError }] = useMutation(
-    UPDATE_SANDBOX,
-    {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-        },
-      ],
-    }
-  );
-  const [createWorkspace, { error: createWorkspaceError }] =
-    useMutation(CREATE_WORKSPACES);
-  const [resetSandbox, { error: resetSandboxError }] = useMutation(
-    RESET_SANDBOX,
-    {
-      refetchQueries: [
-        {
-          query: GET_SANDBOX,
-          variables: {
-            where: { wallet: { address: walletData?.address } },
-            directed: false,
-          },
-        },
-        {
-          query: GET_WORKSPACE_OWNED,
-          variables: { where: { wallet: { address: walletData?.address } } },
-        },
-      ],
-    }
-  );
+      query: GET_SANDBOX,
+      variables: {
+        where: { wallet: { address: walletData?.address } },
+        directed: false,
+      }
+    },
+  ]
+  const { addBlockToSandboxHandler } = useAddBlockToSandbox(refetch);
+  const { deleteEntityHandler, deleteBlockHandler } = useDeleteBlock(refetch);
+  const { tags, entities } = useTagsAndEntities();
 
   const blockTypes = ['Entity', 'Note', 'Partnership'];
   const [blockType, setBlockType] = useState('');
-
-  const [rfInstance, setRfInstance] = useState(null);
-  const toast = useToast();
+  
   useEffect(() => {
     setDate(new Date().toLocaleString());
   }, []);
-
-  useEffect(() => {
-    const connectOrCreateSandbox = async (walletAddress: string) => {
-      const Sandbox = await getSandbox({
-        variables: {
-          where: { wallet: { address: walletAddress } },
-        },
-      });
-      if (Sandbox.data.sandboxes.length === 0) {
-        await addSandboxToWallet({
-          variables: {
-            where: { address: walletAddress },
-            connectOrCreate: {
-              sandbox: {
-                where: {
-                  node: { name: `${walletAddress} Sandbox` },
-                },
-                onCreate: {
-                  node: {
-                    name: `${walletAddress} Sandbox`,
-                  },
-                },
-              },
-            },
-          },
-        });
-      }
-    };
-    if (walletData?.address) {
-      connectOrCreateSandbox(walletData.address);
-    }
-  }, [getSandbox, walletData?.address]);
-
-  const entityData = useMemo(
-    () => sandboxData?.sandboxes[0]?.entities,
-    [sandboxData?.sandboxes[0]?.entities]
-  );
-
-  const notesData = useMemo(
-    () =>
-      sandboxData?.sandboxes[0]?.blocks.filter(
-        (i) => i.__typename === 'Note' || i.__typename === 'Partnership'
-      ),
-    [sandboxData?.sandboxes[0]?.blocks]
-  );
-
-  const nodeData = useMemo(
-    () => entityData?.concat(notesData),
-    [entityData, notesData]
-  );
-
-  const workspaceNameRef = useRef(null);
-  const [isSavingWorkspace, setIsSavingWorkspace] = useState(false);
-
-  const saveWorkspaceHandler = async () => {
-    setIsSavingWorkspace(true);
-    try {
-      await createWorkspace({
-        variables: {
-          input: [
-            {
-              name: workspaceNameRef.current.innerText || '',
-              rfObject: JSON.stringify(rfInstance?.toObject()),
-              blocks: {
-                Note: {
-                  connect: {
-                    where: {
-                      node: {
-                        uuid_IN: nodeData
-                          .filter((node) => node.__typename === 'Note')
-                          .map((node) => node.uuid),
-                      },
-                    },
-                  },
-                },
-                Partnership: {
-                  connect: {
-                    where: {
-                      node: {
-                        uuid_IN: nodeData
-                          .filter((node) => node.__typename === 'Partnership')
-                          .map((node) => node.uuid),
-                      },
-                    },
-                  },
-                },
-              },
-              entities: {
-                connect: {
-                  where: {
-                    node: {
-                      uuid_IN: nodeData
-                        .filter((node) => node.__typename === 'Entity')
-                        .map((node) => node.uuid),
-                    },
-                  },
-                },
-              },
-              wallet: {
-                connect: { where: { node: { address: walletData?.address } } },
-              },
-            },
-          ],
-        },
-      });
-      await resetSandbox({
-        variables: {
-          disconnect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid_NOT: 0,
-                    },
-                  },
-                },
-              ],
-              Partnership: [
-                {
-                  where: {
-                    node: {
-                      uuid_NOT: 0,
-                    },
-                  },
-                },
-              ],
-            },
-            entities: [
-              {
-                where: {
-                  node: {
-                    name_NOT: null,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      });
-      toast({
-        title: `Workspace ${workspaceNameRef.current.innerText} Created!`,
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when creating your workspace. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    setIsSavingWorkspace(false);
-  };
-
-  const addBlockToSandboxHandler = async (data?: any) => {
-    try {
-      if (data.__typename == 'Note') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Note: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else if (data.__typename == 'Partnership') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              blocks: {
-                Partnership: [
-                  {
-                    where: {
-                      node: {
-                        uuid: data?.uuid,
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        });
-      } else if (data.__typename == 'Entity') {
-        await addBlockToSandbox({
-          variables: {
-            where: {
-              wallet: {
-                address: data?.walletAddress,
-              },
-            },
-            connect: {
-              entities: [
-                {
-                  where: {
-                    node: {
-                      uuid: data?.uuid,
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        });
-      }
-    } catch (e) {
-      throw e;
-    }
-  };
-  const [deleteNoteBlock, { error: deleteNoteBlockError }] = useMutation(
-    DELETE_NOTES,
-    {
-      refetchQueries: [
-        {
-          query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-        { query: GET_ALL_BLOCKS },
-      ],
-    }
-  );
-
-  const [deletePartnershipBlock, { error: deletePartnershipBlockError }] =
-    useMutation(DELETE_PARTNERSHIPS, {
-      refetchQueries: [
-        {
-          query: GET_ALL_BLOCKS,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-        { query: GET_ALL_BLOCKS },
-      ],
-    });
-
-  const [deleteEntity, { error: deleteEntityError }] = useMutation(
-    DELETE_ENTITIES,
-    {
-      refetchQueries: [
-        {
-          query: GET_ENTITIES_DATA,
-          variables: { where: { address: nodeData?.wallet?.address } },
-        },
-        GET_TAGS_AND_ENTITIES,
-      ],
-    }
-  );
-
-  const deleteBlockHandler = async (block?: any) => {
-    try {
-      if (block.__typename === 'Note') {
-        await deleteNoteBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: 'Note Block Deleted!',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
-      } else if (block.__typename === 'Partnership') {
-        await deletePartnershipBlock({
-          variables: {
-            where: { uuid: block.uuid },
-          },
-        });
-        toast({
-          title: 'Partnership Block Deleted!',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when deleting your block. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
-
-  const deleteEntityHandler = async (block?: any) => {
-    console.log('WHAT IS A BLOCK --- ' + JSON.stringify(block));
-    try {
-      await deleteEntity({
-        variables: {
-          where: { uuid: block.uuid },
-        },
-      });
-      toast({
-        title: 'Entity Block Deleted!',
-        status: 'info',
-        duration: 2000,
-        isClosable: true,
-      });
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description:
-          'There was an error when deleting your entity. Please try again.',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-      });
-    }
-    onClose();
-  };
 
   return (
     <>
@@ -535,7 +157,7 @@ const Workspace: NextPage = () => {
                   isLoading={isSavingWorkspace}
                   isDisabled={isSavingWorkspace}
                   sx={styles.ButtonStyle}
-                  onClick={saveWorkspaceHandler}
+                  onClick={createWorkspaceHandler}
                   leftIcon={<CreateSnapshotIcon />}
                   variant="primary"
                 >
@@ -590,24 +212,17 @@ const Workspace: NextPage = () => {
             }}
           />
           <AddBlockTypeModal
-            tags={
-              filterUniqueObjects(tagAndEntitiesData?.tags, 'text')?.map(
-                (i) => i.text
-              ) || []
-            }
-            entities={
-              filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
-                (i) => i.name
-              ) || []
-            }
+            tags={tags}
+            entities={entities}
             isOpen={isOpen}
             saveToWorkspaceFn={addBlockToSandboxHandler}
+            // onClose={onClose}
             onClose={(refresh) => {
               onClose();
               if(refresh){
                 setTimeout(() => {
                   window.location.reload()
-                }, 2000);
+                }, 700);
               }
             }}
             blockType={blockType}
