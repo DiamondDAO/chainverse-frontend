@@ -50,6 +50,9 @@ import {
 import { bodyText, subText } from '@/theme';
 import { getCaretPosition, getCaretCoordinates } from './utils';
 import * as styles from './styles';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 enum submitBlockAction {
   Add = 'add',
@@ -65,6 +68,15 @@ interface IAddBlockTypeModal {
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
 }
+
+const schema = yup.object().shape({
+  nameEntity: yup.string().required()
+})
+
+type FormInput = {
+  nameEntity: string;
+}
+
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   tags,
   entities,
@@ -76,6 +88,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
+
+  const { register, formState: { errors } } = useForm<FormInput>({
+    mode: 'onBlur',
+    resolver: yupResolver(schema)
+  })
 
   const [clickedTip, setClickedTip] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -100,7 +117,26 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
 
+  const [disableSaveButton, setDisableSaveButton] = useState(true)
+  // const [nameError, setNameError] = useState(null)
+
+  // const formValidation = () => {
+  //   if (entityName === "") {
+  //     setNameError('Name cant be blank')
+  //     return true
+  //   } else {
+  //     setNameError(null)
+  //     return false
+  //   }
+  // }
+
   const position = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (entityName.length > 0) {
+      setDisableSaveButton(false)
+    }
+  }, [entityName])
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -683,15 +719,26 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               <Box sx={styles.ModalBodyStyle}>
                 <Grid gridTemplateRows={'11fr 1fr'}>
                   {blockType === 'Entity' && (
-                    <FormControl>
+                  <form>
+                    <FormControl
+                      isInvalid={!!errors?.nameEntity?.message}
+                      // errortext={errors?.nameEntity?.message}
+                      isRequired
+                    >
                       <FormLabel htmlFor="entity-name">
                         Entity name (no spaces)
                       </FormLabel>
                       <Input
+                        {...register('nameEntity', {required: true})}
+                        type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
                         sx={styles.InputStyle}
                       />
+                      
+                      <FormErrorMessage>Entity name is required</FormErrorMessage>
+                    </FormControl>
+                    <FormControl>
                       <FormLabel htmlFor="entity-onChain">
                         Is this entity onChain?
                       </FormLabel>
@@ -735,36 +782,31 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddress(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                       <FormLabel htmlFor="entity-address-source">
                         Entity wallet address source
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddressSource(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                       <FormLabel htmlFor="entity-twitter">Twitter</FormLabel>
                       <Input
                         onChange={(e) => setEntityTwitter(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                       <FormLabel htmlFor="entity-discord">Discord</FormLabel>
                       <Input
                         onChange={(e) => setEntityDiscord(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                       <FormLabel htmlFor="entity-website">Website</FormLabel>
                       <Input
                         onChange={(e) => setEntityWebsite(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                       <FormLabel htmlFor="entity-github">Github</FormLabel>
                       <Input
                         onChange={(e) => setEntityGithub(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                     </FormControl>
+                  </form>
                   )}
                   {blockType === 'Note' && (
                     <FormControl>
@@ -976,6 +1018,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         </Popover>
                       </Box>
                       <Box
+                        {...register('nameEntity', {required: true})}
                         ref={inputRef}
                         onKeyPress={hashTagListener}
                         onKeyUp={keyUpListener}
@@ -987,7 +1030,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal sources={sources} />
+                      <LinkSourceModal sources={sources}/>
                     </FormControl>
                   )}
                 </Grid>
@@ -1014,6 +1057,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                     });
                   }
                 }}
+                disabled={disableSaveButton}
                 variant="primary"
               >
                 Save Block
