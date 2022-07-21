@@ -53,6 +53,7 @@ import * as styles from './styles';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import { stubFalse } from 'lodash';
 
 enum submitBlockAction {
   Add = 'add',
@@ -103,6 +104,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [sources, setSources] = useState([]);
   const [addingBlock, setAddingBlock] = useState(false);
   const [pillText, setPillText] = useState('');
+  const [error, setError] = useState(false);
 
   //setting intial form values
   const [partnershipType, setPartnershipType] = useState('');
@@ -124,22 +126,30 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [disableSaveButton, setDisableSaveButton] = useState(true)
 
   useEffect(() => {
-    {blockType === 'Entity' && (
-      (entityName.length <= 0) ?
-      setDisableSaveButton(true) :
+
+    const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
+    const tagAndEntity = _.includes('@') && _.includes('#')
+    console.log('tagAndEntity::', tagAndEntity,  _.split(' '))
+
+    if (blockType === 'Entity' && (entityName.length > 0)) {
       setDisableSaveButton(false)
-    )}
-    {blockType === 'Partnership' && (
-      (_ && (pillText) && (sources.length > 0)) ?
-      setDisableSaveButton(false) :
+    } else if(blockType === 'Partnership' && 
+    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0))) {
+      setDisableSaveButton(false)
+    } else if(blockType === 'Note' &&
+    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0)) ) {
+      setDisableSaveButton(false)
+    } else {
       setDisableSaveButton(true)
-    )}
-    {blockType === 'Note' && (
-      (_ && (pillText) && (sources.length > 0)) ?
-      setDisableSaveButton(false) :
-      setDisableSaveButton(true)
-    )}
+    }
   }, [blockType, entityName, pillText, _, sources])
+
+  console.log('test::', blockType, entityName, pillText, sources, _);
+  console.log('pillText::', pillText);
+  console.log('text::',  _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')));
+  console.log('sources::', sources)
+  console.log(inputRef)
+  console.log(nodeData)
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -153,7 +163,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (nodeData?.sources && nodeData?.sources.length > 0) {
+    if (nodeData?.sources && (nodeData?.sources.length > 0)) {
       setSources(nodeData.sources?.[0]?.source);
     }
     if (nodeData) {
@@ -208,6 +218,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       inputRef.current.innerText = '';
     }
     setSources([]);
+    setTextArea('');
+    setPillText('')
     onClose(refresh);
   };
 
@@ -300,6 +312,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
     setTextArea(inputRef.current.innerText);
   };
+
   const tagFuse = new Fuse(tags, {
     includeScore: false,
     threshold: 0.3,
@@ -699,6 +712,17 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     Option[]
   >([]);
 
+  const requiredFields = () => {
+    if (!_.includes('#')) {
+      <Text sx={styles.errorText(error)}>Tag is required</Text>
+    } else if (!_.includes('@')) {
+      <Text sx={styles.errorText(error)}></Text>
+    }
+  }
+
+  const onHandleSaveSource = (sources: string[]) => {
+    setSources(sources)
+  }
   return (
     <>
       <Modal
@@ -811,7 +835,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   </form>
                   )}
                   {blockType === 'Note' && (
-                    <FormControl>
+                    <FormControl
+                      isInvalid={!!errors?._?.message}
+                      errortext={errors?._?.message}
+                    >
                       <Box
                         sx={styles.EntityTagDialog(position.current, visible)}
                       >
@@ -912,11 +939,25 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal sources={sources} />
+                      {
+                        (_.includes('#') &&
+                         _.includes('@') ) && (
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) ?
+                          null :
+                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                      }
+                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
+                      {
+                        (sources.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Source is required</Text>
+                      }
                     </FormControl>
                   )}
                   {blockType === 'Partnership' && (
-                    <FormControl>
+                    <FormControl
+                      isInvalid={!!errors?._?.message}
+                      errortext={errors?._?.message}
+                    >
                       <FormLabel htmlFor="partner-type">
                         Partnership Type
                       </FormLabel>
@@ -1032,8 +1073,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      {(_.length <= 0) ? <FormErrorMessage>Tag and Entity required</FormErrorMessage> : null}
-                      <LinkSourceModal sources={sources}/>
+                      {
+                        !(_.includes('#') && _.includes('@') && _.length > 0)  &&
+                          <Text sx={styles.errorText(error)}>Tag and Entity are required</Text>
+                      }
+                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
+                      {
+                        (sources.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Source is required</Text>
+                      }
                     </FormControl>
                   )}
                 </Grid>

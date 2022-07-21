@@ -17,10 +17,11 @@ import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
   sources: string[];
+  onSave: (sources: string[]) => void
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  sources,
+  sources,onSave
 }) => {
   const AnimatedBox = a(Box);
   const [linkStyle, api] = useSpring(() => {
@@ -38,6 +39,21 @@ export const LinkSourceModal: FC<ILinkSource> = ({
       inputRef.current.value = sources;
     }
   }, [inputRef, sources]);
+
+  const onHandleSave = () => {
+    if (
+      inputRef.current.value == "" ||
+      validURL(inputRef.current.value)
+    ) {
+      sources.push(inputRef.current.value)
+      setError(false);
+      inputRef.current.value = ""
+      onSave([...sources])
+      close();
+    } else {
+      setError(true);
+    }
+  }
 
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
@@ -76,19 +92,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
           <Input ref={inputRef} sx={styles.URLInput(error)} />
           <Button
             sx={styles.URLButton}
-            onClick={() => {
-              if (
-                inputRef.current.value == "" ||
-                validURL(inputRef.current.value)
-              ) {
-                sources.push(inputRef.current.value)
-                setError(false);
-                inputRef.current.value = ""
-                close();
-              } else {
-                setError(true);
-              }
-            }}
+            onClick={onHandleSave}
           >
             Save link
           </Button>

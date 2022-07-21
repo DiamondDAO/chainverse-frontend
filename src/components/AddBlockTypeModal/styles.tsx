@@ -42,6 +42,14 @@ export const InputStyle = {
   margin: "0px 0px 24px 0px",
 }
 
+export const errorText = (error) => ({
+  color: "red",
+  fontSize: "14px",
+  lineHeight: "12px",
+  fontWeight: 500,
+  margin: "0px 0px 19px 0px"
+});
+
 export const TextboxStyles = {
   p: "0",
   pb: "4px",
@@ -50,7 +58,7 @@ export const TextboxStyles = {
   width: "100%",
   height: "200px",
   padding: "0px 10px 0px 10px",
-  margin: "0px 0px 24px 0px",
+  margin: "0px 0px 15px 0px",
   overflow: "scroll",
   fontSize: ".875rem",
   "&:empty:before": {
