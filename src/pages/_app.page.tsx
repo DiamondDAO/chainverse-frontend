@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import '@chainverse/os/dist/chainverse-os.css';
 
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
