@@ -13,7 +13,7 @@ const IconContainer = ({ children }: { children: React.ReactNode }) => {
     <Box
       display={"flex"}
       justifyContent={"center"}
-      flexDir={"column"}
+      flexDirection={"column"}
       alignItems={"center"}
     >
       {children}
