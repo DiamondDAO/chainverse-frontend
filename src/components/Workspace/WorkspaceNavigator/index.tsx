@@ -54,8 +54,8 @@ export const WorkspaceNavigator = (props: Props) => {
         </UnorderedList>
       </Box>
       <Box
-        onClick={() => Router.push("/workspace/blocks")}
         sx={styles.SelectedStyle(router.asPath === WorkspacePaths.Blocks)}
+        onClick={() => Router.push("/workspace/blocks")}
       >
         My Blocks
       </Box>

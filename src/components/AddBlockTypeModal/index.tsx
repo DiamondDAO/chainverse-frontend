@@ -1,49 +1,66 @@
 import {
-  Modal,ModalOverlay,ModalContent,ModalHeader,ModalFooter,ModalBody,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
   Text,
   Box,
   Grid,
-  Popover,PopoverTrigger,PopoverContent,PopoverHeader,PopoverBody,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
   useToast,
-  Button,Input, Select,
-  FormControl,FormLabel,FormErrorMessage,FormHelperText,
-} from "@chakra-ui/react";
+  Button,
+  Input,
+  Select,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
+} from '@chakra-ui/react';
 import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
-import React, { FC, useEffect, useRef, useState } from "react";
-import Fuse from "fuse.js";
-// import { TipDrawer } from "./TipDrawer";
-import { Pill } from "../Pill";
-import { TagIcon } from "../Icons/TagIcon";
-import { EntitiesIcon } from "../Icons/EntitiesIcon";
-import { LinkSourceModal } from "./LinkSourceModal";
-// import { NoteBlockModal } from "./NoteBlockModal";
-import { useAccount } from "wagmi";
-import { useMutation } from "@apollo/client";
+import React, { FC, useEffect, useRef, useState } from 'react';
+import Fuse from 'fuse.js';
+import { Pill } from '../Pill';
+import { TagIcon } from '../Icons/TagIcon';
+import { EntitiesIcon } from '../Icons/EntitiesIcon';
+import { LinkSourceModal } from './LinkSourceModal';
+import { useAccount } from 'wagmi';
+import { useMutation } from '@apollo/client';
 import {
-  CREATE_NOTES, UPDATE_NOTES,
-  CREATE_PARTNERSHIPS, UPDATE_PARTNERSHIPS,
-  CREATE_ENTITIES, UPDATE_ENTITIES
-} from "@/services/Apollo/Mutations";
+  CREATE_NOTES,
+  UPDATE_NOTES,
+  CREATE_PARTNERSHIPS,
+  UPDATE_PARTNERSHIPS,
+  CREATE_ENTITIES,
+  UPDATE_ENTITIES,
+} from '@/services/Apollo/Mutations';
 import {
-  GET_ALL_NOTES,GET_NOTES,
-  GET_PARTNERSHIPS, GET_ALL_PARTNERSHIPS,
+  GET_ALL_NOTES,
+  GET_NOTES,
+  GET_PARTNERSHIPS,
+  GET_ALL_PARTNERSHIPS,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
-} from "@/services/Apollo/Queries";
-import { bodyText, subText } from "@/theme";
-import { getCaretPosition, getCaretCoordinates } from "./utils";
-import * as styles from "./styles";
+} from '@/services/Apollo/Queries';
+import { bodyText, subText } from '@/theme';
+import { getCaretPosition, getCaretCoordinates } from './utils';
+import * as styles from './styles';
 
 enum submitBlockAction {
-  Add = "add",
-  Update = "update",
+  Add = 'add',
+  Update = 'update',
 }
 
 interface IAddBlockTypeModal {
   tags: string[];
   entities: string[];
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (refresh?: boolean) => void;
   nodeData?: any;
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
@@ -63,30 +80,31 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [clickedTip, setClickedTip] = useState(false);
   const [visible, setVisible] = useState(false);
   const [dialogStartPosition, setDialogStartPosition] = useState(0);
-  const [activationChar, setActivationChar] = useState("");
+  const [activationChar, setActivationChar] = useState('');
   const [sources, setSources] = useState([]);
   const [addingBlock, setAddingBlock] = useState(false);
-  const [pillText, setPillText] = useState("");
+  const [pillText, setPillText] = useState('');
 
   //setting intial form values
-  const [partnershipType, setPartnershipType] = useState("");
-  const [entityName, setEntityName] = useState("");
-  const [entityOnChain, setEntityOnChain] = useState("");
+  const [partnershipType, setPartnershipType] = useState('');
+  const [entityName, setEntityName] = useState('');
+  const [entityOnChain, setEntityOnChain] = useState('');
   const [entityOnChainBool, setEntityOnChainBool] = useState(true);
-  useEffect(() => {
-    setEntityOnChainBool(entityOnChain === "true" ? true : false)}, [entityOnChain])
-  const [entityNetwork, setEntityNetwork] = useState("");
-  const [entityAddress, setEntityAddress] = useState("");
-  const [entityAddressSource, setEntityAddressSource] = useState("");
-  const [entityTwitter, setEntityTwitter] = useState("");
-  const [entityDiscord, setEntityDiscord] = useState("");
-  const [entityWebsite, setEntityWebsite] = useState("");
-  const [entityGithub, setEntityGithub] = useState("");
+  const [entityNetwork, setEntityNetwork] = useState('');
+  const [entityAddress, setEntityAddress] = useState('');
+  const [entityAddressSource, setEntityAddressSource] = useState('');
+  const [entityTwitter, setEntityTwitter] = useState('');
+  const [entityDiscord, setEntityDiscord] = useState('');
+  const [entityWebsite, setEntityWebsite] = useState('');
+  const [entityGithub, setEntityGithub] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
-  const [_, setTextArea] = useState("");
+  const [_, setTextArea] = useState('');
 
   const position = useRef({ x: 0, y: 0 });
 
+  useEffect(() => {
+    setEntityOnChainBool(entityOnChain === 'true' ? true : false);
+  }, [entityOnChain]);
   useEffect(() => {
     if (!isOpen) {
       setClickedTip(false);
@@ -96,17 +114,19 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (nodeData?.sources) {
+    if (nodeData?.sources && nodeData?.sources.length > 0) {
       setSources(nodeData.sources?.[0]?.source);
     }
-  }, [nodeData?.sources]);
-
-
+    if (nodeData) {
+      setPartnershipType(nodeData?.type);
+      setEntityName(nodeData?.name);
+    }
+  }, [nodeData?.sources, nodeData]);
 
   const hashTagListener = (e) => {
     if (
-      String.fromCharCode(e.which) === "#" ||
-      (String.fromCharCode(e.which) === "@" && !visible)
+      String.fromCharCode(e.which) === '#' ||
+      (String.fromCharCode(e.which) === '@' && !visible)
     ) {
       setActivationChar(String.fromCharCode(e.which));
       setDialogStartPosition(getCaretPosition(inputRef.current));
@@ -116,11 +136,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const keyUpListener = (e) => {
-
     if (
-      (visible && e.key === " ") ||
-      e.key === "Enter" ||
-      ".,?!".includes(e.key) ||
+      (visible && e.key === ' ') ||
+      e.key === 'Enter' ||
+      '.,?!'.includes(e.key) ||
       getCaretPosition(inputRef.current) <= dialogStartPosition
     ) {
       setVisible(false);
@@ -129,11 +148,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const onClickPillHandler = (e) => {
-
     const autoCompletedText = e.target.innerText;
     const currentTextLength = inputRef.current?.innerText
       .slice(dialogStartPosition)
-      .split(" ")[0].length;
+      .split(' ')[0].length;
 
     inputRef.current.innerHTML =
       inputRef.current?.innerText.slice(0, dialogStartPosition) +
@@ -146,77 +164,91 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setVisible(false);
     setDialogStartPosition(0);
   };
-  const closeHandler = () => {
-    if (blockType === ("Note" || "Partnership")) {
-      inputRef.current.innerText = "";
+  const closeHandler = (refresh?: boolean) => {
+    if (blockType === ('Note' || 'Partnership')) {
+      inputRef.current.innerText = '';
     }
     setSources([]);
-    onClose();
+    onClose(refresh);
   };
 
-  const [addNoteBlock, { error: addNoteBlockError }] = useMutation(CREATE_NOTES, {
-    refetchQueries: [
-      {
-        query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_NOTES },
-    ],
-  });
+  const [addNoteBlock, { error: addNoteBlockError }] = useMutation(
+    CREATE_NOTES,
+    {
+      refetchQueries: [
+        {
+          query: GET_NOTES,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+        { query: GET_ALL_NOTES },
+      ],
+    }
+  );
 
-  const [updateNoteBlock, { error: updateNoteBlockError }] = useMutation(UPDATE_NOTES, {
-    refetchQueries: [
-      {
-        query: GET_NOTES,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_NOTES },
-    ],
-  });
+  const [updateNoteBlock, { error: updateNoteBlockError }] = useMutation(
+    UPDATE_NOTES,
+    {
+      refetchQueries: [
+        {
+          query: GET_NOTES,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+        { query: GET_ALL_NOTES },
+      ],
+    }
+  );
 
-  const [addPartnershipBlock, { error: addPartnershipBlockError }] = useMutation(CREATE_PARTNERSHIPS, {
-    refetchQueries: [
-      {
-        query: GET_PARTNERSHIPS,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_PARTNERSHIPS },
-    ],
-  });
+  const [addPartnershipBlock, { error: addPartnershipBlockError }] =
+    useMutation(CREATE_PARTNERSHIPS, {
+      refetchQueries: [
+        {
+          query: GET_PARTNERSHIPS,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+        { query: GET_ALL_PARTNERSHIPS },
+      ],
+    });
 
-  const [updatePartnershipBlock, { error: updatePartnershipBlockError }] = useMutation(UPDATE_PARTNERSHIPS, {
-    refetchQueries: [
-      {
-        query: GET_PARTNERSHIPS,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-      { query: GET_ALL_PARTNERSHIPS },
-    ],
-  });
+  const [updatePartnershipBlock, { error: updatePartnershipBlockError }] =
+    useMutation(UPDATE_PARTNERSHIPS, {
+      refetchQueries: [
+        {
+          query: GET_PARTNERSHIPS,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+        { query: GET_ALL_PARTNERSHIPS },
+      ],
+    });
 
-  const [addEntityBlock, { error: addEntityBlockError }] = useMutation(CREATE_ENTITIES, {
-    refetchQueries: [
-      {
-        query: GET_ENTITIES_DATA,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-    ],
-  });
+  const [addEntityBlock, { error: addEntityBlockError }] = useMutation(
+    CREATE_ENTITIES,
+    {
+      refetchQueries: [
+        {
+          query: GET_ENTITIES_DATA,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+      ],
+    }
+  );
 
-  const [updateEntityBlock, { error: updateEntityBlockError }] = useMutation(UPDATE_ENTITIES, {
-    refetchQueries: [
-      {
-        query: GET_ENTITIES_DATA,
-        variables: { where: { address: walletData?.address } },
-      },
-      { query: GET_TAGS_AND_ENTITIES },
-    ],
-  });
+  const [updateEntityBlock, { error: updateEntityBlockError }] = useMutation(
+    UPDATE_ENTITIES,
+    {
+      refetchQueries: [
+        {
+          query: GET_ENTITIES_DATA,
+          variables: { where: { address: walletData?.address } },
+        },
+        { query: GET_TAGS_AND_ENTITIES },
+      ],
+    }
+  );
 
   const inputHandler = (e) => {
     if (visible) {
@@ -260,15 +292,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         })) || [];
     const sourceList =
       sources.map((i) => ({
-          where: { node: { source: i} },
-          onCreate: { node: { source: i} },
-        })) || [];
+        where: { node: { source: i } },
+        onCreate: { node: { source: i } },
+      })) || [];
     try {
       setAddingBlock(true);
       let blockResult = null;
       if (action === submitBlockAction.Add) {
         // creating block in db
-        if (blockType === "Note") {
+        if (blockType === 'Note') {
           blockResult = await addNoteBlock({
             variables: {
               input: [
@@ -297,7 +329,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               ],
             },
           });
-        } else if (blockType === "Partnership") {
+        } else if (blockType === 'Partnership') {
           blockResult = await addPartnershipBlock({
             variables: {
               input: [
@@ -329,7 +361,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         }
       } else if (action === submitBlockAction.Update) {
         // updating block in db
-        if (blockType === "Note") {
+        if (blockType === 'Note') {
           await updateNoteBlock({
             variables: {
               update: {},
@@ -338,21 +370,21 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 tags: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { uuid: '0' },
                     },
                   },
                 ],
                 entities: [
                   {
                     where: {
-                      node_NOT: { name: "" },
+                      node_NOT: { name: '' },
                     },
                   },
                 ],
                 sources: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { uuid: '0' },
                     },
                   },
                 ],
@@ -386,7 +418,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               where: { uuid: nodeData.uuid },
             },
           });
-        } else if (blockType === "Partnership") {
+        } else if (blockType === 'Partnership') {
           await updatePartnershipBlock({
             variables: {
               update: {},
@@ -395,21 +427,21 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 tags: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { uuid: '0' },
                     },
                   },
                 ],
                 entities: [
                   {
                     where: {
-                      node_NOT: { name: "" },
+                      node_NOT: { name: '' },
                     },
                   },
                 ],
                 sources: [
                   {
                     where: {
-                      node_NOT: { uuid: "0" },
+                      node_NOT: { uuid: '0' },
                     },
                   },
                 ],
@@ -447,36 +479,36 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         }
       }
       // save block to workspace if fn exists
-      if (blockType === "Note") {
+      if (blockType === 'Note') {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
             ...blockResult?.data?.createNotes?.notes?.[0],
             walletAddress: walletData?.address,
           });
-        closeHandler();
-      } else if (blockType === "Partnership") {
+        closeHandler(true);
+      } else if (blockType === 'Partnership') {
         saveToWorkspaceFn &&
           saveToWorkspaceFn({
             ...blockResult?.data?.createPartnerships?.partnerships?.[0],
             walletAddress: walletData?.address,
           });
-        closeHandler();
+        closeHandler(true);
       }
 
       toast({
-        title: `Block ${nodeData ? "Saved" : "Created"}!`,
-        status: "success",
+        title: `Block ${nodeData ? 'Saved' : 'Created'}!`,
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
     } catch (e) {
       console.log(e);
       toast({
-        title: "Error",
+        title: 'Error',
         description: `There was an error when ${
-          action === submitBlockAction.Add ? "creating" : "updating"
+          action === submitBlockAction.Add ? 'creating' : 'updating'
         }  your block. Please try again.`,
-        status: "error",
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
@@ -489,19 +521,19 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     action: submitBlockAction;
   }) => {
     try {
-      const twitter = ({
-        where: { node: { profileUrl: entityTwitter} },
-        onCreate: { node: { profileUrl: entityTwitter} },
-      })
+      const twitter = {
+        where: { node: { profileUrl: entityTwitter } },
+        onCreate: { node: { profileUrl: entityTwitter } },
+      };
 
-      const sourceList = ({
-        where: { node: { source: entityAddressSource} },
-        onCreate: { node: { source: entityAddressSource} },
-      })
-      const entAddress = ({
-        where: { node: { address: entityAddress} },
-        onCreate: { node: { address: entityAddress} },
-      })
+      const sourceList = {
+        where: { node: { source: entityAddressSource } },
+        onCreate: { node: { source: entityAddressSource } },
+      };
+      const entAddress = {
+        where: { node: { address: entityAddress } },
+        onCreate: { node: { address: entityAddress } },
+      };
 
       setAddingBlock(true);
       let blockResult = null;
@@ -548,7 +580,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               addressSource: [
                 {
                   where: {
-                    node_NOT: { uuid: "0" },
+                    node_NOT: { uuid: '0' },
                   },
                 },
               ],
@@ -595,32 +627,38 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           ...blockResult?.data?.createEntities?.entities?.[0],
           walletAddress: walletData?.address,
         });
-      closeHandler();
+      closeHandler(true);
 
       toast({
-        title: `Block ${nodeData ? "Saved" : "Created"}!`,
-        status: "success",
+        title: `Block ${nodeData ? 'Saved' : 'Created'}!`,
+        status: 'success',
         duration: 2000,
         isClosable: true,
       });
     } catch (e) {
       console.log(e);
       toast({
-        title: "Error",
+        title: 'Error',
         description: `There was an error when ${
-          action === submitBlockAction.Add ? "creating" : "updating"
+          action === submitBlockAction.Add ? 'creating' : 'updating'
         }  your entity block. Please try again.`,
-        status: "error",
+        status: 'error',
         duration: 2000,
         isClosable: true,
       });
     }
     setAddingBlock(false);
   };
-  const [noteEntitySelection, setNoteEntitySelection] = React.useState<Option[]>([]);
+  const [noteEntitySelection, setNoteEntitySelection] = React.useState<
+    Option[]
+  >([]);
   const [noteTagSelection, setNoteTagSelection] = React.useState<Option[]>([]);
-  const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<Option[]>([]);
-  const [partnerTagSelection, setPartnerTagSelection] = React.useState<Option[]>([]);
+  const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<
+    Option[]
+  >([]);
+  const [partnerTagSelection, setPartnerTagSelection] = React.useState<
+    Option[]
+  >([]);
 
   return (
     <>
@@ -628,73 +666,111 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         closeOnOverlayClick={false}
         onEsc={onClose}
         blockScrollOnMount={false}
-        size={"2xl"}
+        size={'2xl'}
         isOpen={isOpen}
         onClose={onClose}
         useInert={false}
       >
         <ModalOverlay bg="rgba(67, 108, 146, 0.8)" />
-        <ModalContent alignItems={"center"} bg="transparent" boxShadow="none">
+        <ModalContent alignItems={'center'} bg="transparent" boxShadow="none">
           <Box>
             <ModalHeader px="0">
               <Text fontWeight="500" fontSize="1.25rem" color="diamond.white">
-                {nodeData ? "Edit" : "Create"} a {blockType} block
+                {nodeData ? 'Edit' : 'Create'} a {blockType} block
               </Text>
             </ModalHeader>
             <ModalBody padding={0}>
               <Box sx={styles.ModalBodyStyle}>
-                <Grid gridTemplateRows={"11fr 1fr"}>
-                  {blockType === "Entity" && (
+                <Grid gridTemplateRows={'11fr 1fr'}>
+                  {blockType === 'Entity' && (
                     <FormControl>
-                      <FormLabel htmlFor='entity-name'>Entity name (no spaces)</FormLabel>
-                      <Input onChange={e => setEntityName(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-onChain'>Is this entity onChain?</FormLabel>
-                      <Select
-                        value = {entityOnChain}
-                        placeholder='Select option'
+                      <FormLabel htmlFor="entity-name">
+                        Entity name (no spaces)
+                      </FormLabel>
+                      <Input
+                        value={entityName}
+                        onChange={(e) => setEntityName(e.target.value)}
                         sx={styles.InputStyle}
-                        onChange={e => setEntityOnChain(e.target.value)}>
-                          <option value="true">Yes</option>
-                          <option value="false">No</option>
-                      </Select>
-                      <FormLabel htmlFor='entity-network'>Entity network</FormLabel>
+                      />
+                      <FormLabel htmlFor="entity-onChain">
+                        Is this entity onChain?
+                      </FormLabel>
                       <Select
-                        value = {entityNetwork}
-                        placeholder='Select option'
+                        value={entityOnChain}
+                        placeholder="Select option"
                         sx={styles.InputStyle}
-                        onChange={e => setEntityNetwork(e.target.value)}>
-                          <option value='Arbitrum'>Arbitrum</option>
-                          <option value='Avalanche'>Avalanche</option>
-                          <option value='Cosmos'>Cosmos</option>
-                          <option value='EthereumMainnet'>Ethereum Mainnet</option>
-                          <option value='GnosisChain'>Gnosis Chain</option>
-                          <option value='ImmutableX'>Immutable X</option>
-                          <option value='Loopring'>Loopring</option>
-                          <option value='MetisAndromeda'>Metis Andromeda</option>
-                          <option value='Optimism'>Optimism</option>
-                          <option value='Polygon'>Polygon</option>
-                          <option value='Solana'>Solana</option>
-                          <option value='zkSync'>zkSync</option>
-                          <option value='Other'>Other</option>
-                          <option value='NotApplicable'>Not Applicable</option>
+                        onChange={(e) => setEntityOnChain(e.target.value)}
+                      >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
                       </Select>
-                      <FormLabel htmlFor='entity-address'>Entity wallet address</FormLabel>
-                      <Input onChange={e => setEntityAddress(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-address-source'>Entity wallet address source</FormLabel>
-                      <Input onChange={e => setEntityAddressSource(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-twitter'>Twitter</FormLabel>
-                      <Input onChange={e => setEntityTwitter(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-discord'>Discord</FormLabel>
-                      <Input onChange={e => setEntityDiscord(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-website'>Website</FormLabel>
-                      <Input onChange={e => setEntityWebsite(e.target.value)} sx={styles.InputStyle}/>
-                      <FormLabel htmlFor='entity-github'>Github</FormLabel>
-                      <Input onChange={e => setEntityGithub(e.target.value)} sx={styles.InputStyle}/>
+                      <FormLabel htmlFor="entity-network">
+                        Entity network
+                      </FormLabel>
+                      <Select
+                        value={entityNetwork}
+                        placeholder="Select option"
+                        sx={styles.InputStyle}
+                        onChange={(e) => setEntityNetwork(e.target.value)}
+                      >
+                        <option value="Arbitrum">Arbitrum</option>
+                        <option value="Avalanche">Avalanche</option>
+                        <option value="Cosmos">Cosmos</option>
+                        <option value="EthereumMainnet">
+                          Ethereum Mainnet
+                        </option>
+                        <option value="GnosisChain">Gnosis Chain</option>
+                        <option value="ImmutableX">Immutable X</option>
+                        <option value="Loopring">Loopring</option>
+                        <option value="MetisAndromeda">Metis Andromeda</option>
+                        <option value="Optimism">Optimism</option>
+                        <option value="Polygon">Polygon</option>
+                        <option value="Solana">Solana</option>
+                        <option value="zkSync">zkSync</option>
+                        <option value="Other">Other</option>
+                        <option value="NotApplicable">Not Applicable</option>
+                      </Select>
+                      <FormLabel htmlFor="entity-address">
+                        Entity wallet address
+                      </FormLabel>
+                      <Input
+                        onChange={(e) => setEntityAddress(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
+                      <FormLabel htmlFor="entity-address-source">
+                        Entity wallet address source
+                      </FormLabel>
+                      <Input
+                        onChange={(e) => setEntityAddressSource(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
+                      <FormLabel htmlFor="entity-twitter">Twitter</FormLabel>
+                      <Input
+                        onChange={(e) => setEntityTwitter(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
+                      <FormLabel htmlFor="entity-discord">Discord</FormLabel>
+                      <Input
+                        onChange={(e) => setEntityDiscord(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
+                      <FormLabel htmlFor="entity-website">Website</FormLabel>
+                      <Input
+                        onChange={(e) => setEntityWebsite(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
+                      <FormLabel htmlFor="entity-github">Github</FormLabel>
+                      <Input
+                        onChange={(e) => setEntityGithub(e.target.value)}
+                        sx={styles.InputStyle}
+                      />
                     </FormControl>
                   )}
-                  {blockType === "Note" && (
+                  {blockType === 'Note' && (
                     <FormControl>
-                      <Box sx={styles.EntityTagDialog(position.current, visible)}>
+                      <Box
+                        sx={styles.EntityTagDialog(position.current, visible)}
+                      >
                         <Popover placement="bottom-start" isOpen>
                           <PopoverTrigger>
                             <Box sx={styles.PopoverTrigger(visible)} />
@@ -707,8 +783,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === "@" && <EntitiesIcon />) ||
-                                    (activationChar === "#" && <TagIcon />)
+                                    (activationChar === '@' && (
+                                      <EntitiesIcon />
+                                    )) ||
+                                    (activationChar === '#' && <TagIcon />)
                                   }
                                 >
                                   <Text fontSize={bodyText} fontWeight="400">
@@ -718,13 +796,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                               </Box>
                             </PopoverHeader>
                             <PopoverBody>
-                              {activationChar == "@" && (
+                              {activationChar == '@' && (
                                 <Box fontWeight="400">
-                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                  <Text
+                                    color="diamond.gray.3"
+                                    fontSize={subText}
+                                  >
                                     ENTITIES
                                   </Text>
                                   {entityFuse
-                                    ?.search(pillText ?? "")
+                                    ?.search(pillText ?? '')
                                     .slice(0, 5)
                                     .map((i) => i.item)
                                     .map((tag: string, idx) => (
@@ -743,13 +824,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                     ))}
                                 </Box>
                               )}
-                              {activationChar === "#" && (
+                              {activationChar === '#' && (
                                 <Box fontWeight="400" mt="15px">
-                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                  <Text
+                                    color="diamond.gray.3"
+                                    fontSize={subText}
+                                  >
                                     TAGS
                                   </Text>
                                   {tagFuse
-                                    ?.search(pillText ?? "")
+                                    ?.search(pillText ?? '')
                                     .slice(0, 5)
                                     .map((i) => i.item)
                                     .map((tag: string, idx) => (
@@ -784,25 +868,28 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal
-                        sources={sources}
-                      />
+                      <LinkSourceModal sources={sources} />
                     </FormControl>
                   )}
-                  {blockType === "Partnership" && (
+                  {blockType === 'Partnership' && (
                     <FormControl>
-                      <FormLabel htmlFor='partner-type'>Partnership Type</FormLabel>
+                      <FormLabel htmlFor="partner-type">
+                        Partnership Type
+                      </FormLabel>
                       <Select
-                        value = {partnershipType}
-                        placeholder='Select option'
+                        value={partnershipType}
+                        placeholder="Select option"
                         sx={styles.InputStyle}
-                        onChange={e => setPartnershipType(e.target.value)}>
-                          <option value='Financial'>Financial</option>
-                          <option value='Integration'>Integration</option>
-                          <option value='Marketing'>Marketing</option>
-                          <option value='Technological'>Technological</option>
+                        onChange={(e) => setPartnershipType(e.target.value)}
+                      >
+                        <option value="Financial">Financial</option>
+                        <option value="Integration">Integration</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Technological">Technological</option>
                       </Select>
-                      <Box sx={styles.EntityTagDialog(position.current, visible)}>
+                      <Box
+                        sx={styles.EntityTagDialog(position.current, visible)}
+                      >
                         <Popover placement="bottom-start" isOpen>
                           <PopoverTrigger>
                             <Box sx={styles.PopoverTrigger(visible)} />
@@ -815,8 +902,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === "@" && <EntitiesIcon />) ||
-                                    (activationChar === "#" && <TagIcon />)
+                                    (activationChar === '@' && (
+                                      <EntitiesIcon />
+                                    )) ||
+                                    (activationChar === '#' && <TagIcon />)
                                   }
                                 >
                                   <Text fontSize={bodyText} fontWeight="400">
@@ -826,13 +915,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                               </Box>
                             </PopoverHeader>
                             <PopoverBody>
-                              {activationChar == "@" && (
+                              {activationChar == '@' && (
                                 <Box fontWeight="400">
-                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                  <Text
+                                    color="diamond.gray.3"
+                                    fontSize={subText}
+                                  >
                                     ENTITIES
                                   </Text>
                                   {entityFuse
-                                    ?.search(pillText ?? "")
+                                    ?.search(pillText ?? '')
                                     .slice(0, 5)
                                     .map((i) => i.item)
                                     .map((tag: string, idx) => (
@@ -851,13 +943,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                     ))}
                                 </Box>
                               )}
-                              {activationChar === "#" && (
+                              {activationChar === '#' && (
                                 <Box fontWeight="400" mt="15px">
-                                  <Text color="diamond.gray.3" fontSize={subText}>
+                                  <Text
+                                    color="diamond.gray.3"
+                                    fontSize={subText}
+                                  >
                                     TAGS
                                   </Text>
                                   {tagFuse
-                                    ?.search(pillText ?? "")
+                                    ?.search(pillText ?? '')
                                     .slice(0, 5)
                                     .map((i) => i.item)
                                     .map((tag: string, idx) => (
@@ -892,35 +987,33 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal
-                        sources={sources}
-                      />
+                      <LinkSourceModal sources={sources} />
                     </FormControl>
                   )}
                 </Grid>
               </Box>
             </ModalBody>
             <ModalFooter sx={styles.ModalFooter(clickedTip)}>
-              <Button onClick={closeHandler} variant="neutral">
+              <Button onClick={() => closeHandler()} variant="neutral">
                 Cancel
               </Button>
               <Button
                 isLoading={addingBlock}
-                onClick={() =>
-                  {if (blockType !== "Entity") {
+                onClick={() => {
+                  if (blockType !== 'Entity') {
                     submitBlockHandler({
                       action: nodeData
                         ? submitBlockAction.Update
                         : submitBlockAction.Add,
                     });
-                  } else if (blockType === "Entity") {
+                  } else if (blockType === 'Entity') {
                     submitEntityHandler({
                       action: nodeData
                         ? submitBlockAction.Update
                         : submitBlockAction.Add,
                     });
-                  }}
-                }
+                  }
+                }}
                 variant="primary"
               >
                 Save Block

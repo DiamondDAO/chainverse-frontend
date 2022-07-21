@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import '@chainverse/os/dist/chainverse-os.css';
 
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
@@ -17,7 +16,6 @@ import { ApolloProvider } from "@apollo/client";
 import client from "@/services/Apollo/apolloClient";
 import { CheckIfOnboarded } from "@/components/UtilityComponents/CheckIfOnboarded";
 import Script from "next/script";
-
 
 function MyApp({ Component, pageProps }: AppProps) {
   const chains = [...defaultChains, ...defaultL2Chains, ...developmentChains];
