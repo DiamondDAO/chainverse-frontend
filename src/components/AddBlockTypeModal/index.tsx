@@ -70,11 +70,13 @@ interface IAddBlockTypeModal {
 }
 
 const schema = yup.object().shape({
-  nameEntity: yup.string().required()
+  nameEntity: yup.string().required(),
+  _: yup.string().required()
 })
 
 type FormInput = {
   nameEntity: string;
+  _: string
 }
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
@@ -117,26 +119,27 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
 
-  const [disableSaveButton, setDisableSaveButton] = useState(true)
-  // const [nameError, setNameError] = useState(null)
-
-  // const formValidation = () => {
-  //   if (entityName === "") {
-  //     setNameError('Name cant be blank')
-  //     return true
-  //   } else {
-  //     setNameError(null)
-  //     return false
-  //   }
-  // }
-
   const position = useRef({ x: 0, y: 0 });
 
+  const [disableSaveButton, setDisableSaveButton] = useState(true)
+
   useEffect(() => {
-    if (entityName.length > 0) {
+    {blockType === 'Entity' && (
+      (entityName.length <= 0) ?
+      setDisableSaveButton(true) :
       setDisableSaveButton(false)
-    }
-  }, [entityName])
+    )}
+    {blockType === 'Partnership' && (
+      (_ && (pillText) && (sources.length > 0)) ?
+      setDisableSaveButton(false) :
+      setDisableSaveButton(true)
+    )}
+    {blockType === 'Note' && (
+      (_ && (pillText) && (sources.length > 0)) ?
+      setDisableSaveButton(false) :
+      setDisableSaveButton(true)
+    )}
+  }, [blockType, entityName, pillText, _, sources])
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -721,8 +724,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   {blockType === 'Entity' && (
                   <form>
                     <FormControl
-                      isInvalid={!!errors?.nameEntity?.message}
-                      // errortext={errors?.nameEntity?.message}
+                      isInvalid={!!errors?.nameEntity?.message}                    
                       isRequired
                     >
                       <FormLabel htmlFor="entity-name">
@@ -730,12 +732,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       </FormLabel>
                       <Input
                         {...register('nameEntity', {required: true})}
+                        // required={true}
                         type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
                         sx={styles.InputStyle}
-                      />
-                      
+                      />                      
                       <FormErrorMessage>Entity name is required</FormErrorMessage>
                     </FormControl>
                     <FormControl>
@@ -1018,7 +1020,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         </Popover>
                       </Box>
                       <Box
-                        {...register('nameEntity', {required: true})}
+                        {...register('_', {required: true})}
                         ref={inputRef}
                         onKeyPress={hashTagListener}
                         onKeyUp={keyUpListener}
@@ -1030,6 +1032,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
+                      {(_.length <= 0) ? <FormErrorMessage>Tag and Entity required</FormErrorMessage> : null}
                       <LinkSourceModal sources={sources}/>
                     </FormControl>
                   )}
