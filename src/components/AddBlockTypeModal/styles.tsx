@@ -39,7 +39,11 @@ export const PopoverHeader = {
 export const InputStyle = {
   width: "100%",
   height: "3em",
-  margin: "0px 0px 24px 0px",
+  margin: "0px 0px 5px 0px",
+}
+
+export const LabelStyle = {
+  margin: "18px 0px 5px 0px"
 }
 
 export const errorText = (error) => ({

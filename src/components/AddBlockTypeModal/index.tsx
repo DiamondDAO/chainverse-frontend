@@ -68,13 +68,13 @@ interface IAddBlockTypeModal {
   blockType: string;
 }
 
-const schema = yup.object().shape({
-  nameEntity: yup.string().required(),
-})
+// const schema = yup.object().shape({
+//   nameEntity: yup.string().required(),
+// })
 
-type FormInput = {
-  nameEntity: string;
-}
+// type FormInput = {
+//   nameEntity: string;
+// }
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   tags,
@@ -88,10 +88,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
 
-  const { register, formState: { errors } } = useForm<FormInput>({
-    mode: 'onBlur',
-    resolver: yupResolver(schema)
-  })
+  // const { register, formState: { errors } } = useForm<FormInput>({
+  //   mode: 'onBlur',
+  //   resolver: yupResolver(schema)
+  // })
 
   const [clickedTip, setClickedTip] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -137,9 +137,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDisableSaveButton(true)
     }
   }, [blockType, entityName, pillText, _, sources])
-
-  console.log('nodeData::', nodeData)
-  console.log('blockType::', blockType);
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -734,23 +731,26 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   {blockType === 'Entity' && (
                   <form>
                     <FormControl
-                      isInvalid={!!errors?.nameEntity?.message}                    
-                      isRequired
+                      // isInvalid={!!errors?.nameEntity?.message}                 
+                      // isRequired
                     >
-                      <FormLabel htmlFor="entity-name">
+                      <FormLabel htmlFor="entity-name" >
                         Entity name (no spaces)
                       </FormLabel>
                       <Input
-                        {...register('nameEntity', {required: true})}
+                        // {...register('nameEntity', {required: true})}
                         type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
                         sx={styles.InputStyle}
-                      />                      
-                      <FormErrorMessage>Entity name is required</FormErrorMessage>
+                      />
+                      {
+                        (entityName?.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Entity name is required</Text>
+                      }                     
                     </FormControl>
                     <FormControl>
-                      <FormLabel htmlFor="entity-onChain">
+                      <FormLabel htmlFor="entity-onChain" sx={styles.LabelStyle}>
                         Is this entity onChain?
                       </FormLabel>
                       <Select
@@ -762,7 +762,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         <option value="true">Yes</option>
                         <option value="false">No</option>
                       </Select>
-                      <FormLabel htmlFor="entity-network">
+                      <FormLabel htmlFor="entity-network" sx={styles.LabelStyle}>
                         Entity network
                       </FormLabel>
                       <Select
@@ -788,31 +788,31 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         <option value="Other">Other</option>
                         <option value="NotApplicable">Not Applicable</option>
                       </Select>
-                      <FormLabel htmlFor="entity-address">
+                      <FormLabel htmlFor="entity-address" sx={styles.LabelStyle}>
                         Entity wallet address
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddress(e.target.value)}
                         sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-address-source">
+                      <FormLabel htmlFor="entity-address-source" sx={styles.LabelStyle}>
                         Entity wallet address source
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddressSource(e.target.value)}
                         sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-twitter">Twitter</FormLabel>
+                      <FormLabel htmlFor="entity-twitter" sx={styles.LabelStyle}>Twitter</FormLabel>
                       <Input
                         onChange={(e) => setEntityTwitter(e.target.value)}
                         sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-discord">Discord</FormLabel>
+                      <FormLabel htmlFor="entity-discord" sx={styles.LabelStyle}>Discord</FormLabel>
                       <Input
                         onChange={(e) => setEntityDiscord(e.target.value)}
                         sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-website">Website</FormLabel>
+                      <FormLabel htmlFor="entity-website" sx={styles.LabelStyle}>Website</FormLabel>
                       <Input
                         onChange={(e) => setEntityWebsite(e.target.value)}
                         sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-github">Github</FormLabel>
+                      <FormLabel htmlFor="entity-github" sx={styles.LabelStyle}>Github</FormLabel>
                       <Input
                         onChange={(e) => setEntityGithub(e.target.value)}
                         sx={styles.InputStyle} />
