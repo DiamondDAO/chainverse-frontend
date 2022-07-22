@@ -1,3 +1,4 @@
+import { FC, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -20,10 +21,8 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
 } from '@chakra-ui/react';
 import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
-import React, { FC, useEffect, useRef, useState } from 'react';
 import Fuse from 'fuse.js';
 import { Pill } from '../Pill';
 import { TagIcon } from '../Icons/TagIcon';
@@ -72,12 +71,10 @@ interface IAddBlockTypeModal {
 
 const schema = yup.object().shape({
   nameEntity: yup.string().required(),
-  _: yup.string().required()
 })
 
 type FormInput = {
   nameEntity: string;
-  _: string
 }
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
@@ -124,12 +121,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const position = useRef({ x: 0, y: 0 });
 
   const [disableSaveButton, setDisableSaveButton] = useState(true)
-
+  
   useEffect(() => {
 
     const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
     const tagAndEntity = _.includes('@') && _.includes('#')
-    console.log('tagAndEntity::', tagAndEntity,  _.split(' '))
 
     if (blockType === 'Entity' && (entityName.length > 0)) {
       setDisableSaveButton(false)
@@ -144,16 +140,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [blockType, entityName, pillText, _, sources])
 
-  console.log('test::', blockType, entityName, pillText, sources, _);
-  console.log('pillText::', pillText);
-  console.log('text::',  _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')));
-  console.log('sources::', sources)
-  console.log(inputRef)
-  console.log(nodeData)
-
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
   }, [entityOnChain]);
+
   useEffect(() => {
     if (!isOpen) {
       setClickedTip(false);
@@ -701,28 +691,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
     setAddingBlock(false);
   };
-  const [noteEntitySelection, setNoteEntitySelection] = React.useState<
-    Option[]
-  >([]);
-  const [noteTagSelection, setNoteTagSelection] = React.useState<Option[]>([]);
-  const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<
-    Option[]
-  >([]);
-  const [partnerTagSelection, setPartnerTagSelection] = React.useState<
-    Option[]
-  >([]);
-
-  const requiredFields = () => {
-    if (!_.includes('#')) {
-      <Text sx={styles.errorText(error)}>Tag is required</Text>
-    } else if (!_.includes('@')) {
-      <Text sx={styles.errorText(error)}></Text>
-    }
-  }
+  const [noteEntitySelection, setNoteEntitySelection] = useState<Option[]>([]);
+  const [noteTagSelection, setNoteTagSelection] = useState<Option[]>([]);
+  const [partnerEntitySelection, setPartnerEntitySelection] = useState<Option[]>([]);
+  const [partnerTagSelection, setPartnerTagSelection] = useState<Option[]>([]);
 
   const onHandleSaveSource = (sources: string[]) => {
     setSources(sources)
   }
+
   return (
     <>
       <Modal
@@ -835,10 +812,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   </form>
                   )}
                   {blockType === 'Note' && (
-                    <FormControl
-                      isInvalid={!!errors?._?.message}
-                      errortext={errors?._?.message}
-                    >
+                    <FormControl>
                       <Box
                         sx={styles.EntityTagDialog(position.current, visible)}
                       >
@@ -940,10 +914,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {
-                        (_.includes('#') &&
-                         _.includes('@') ) && (
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) ?
-                          null :
+                        !(_.includes('#') &&
+                         _.includes('@') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
                           <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
@@ -955,8 +928,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                   )}
                   {blockType === 'Partnership' && (
                     <FormControl
-                      isInvalid={!!errors?._?.message}
-                      errortext={errors?._?.message}
                     >
                       <FormLabel htmlFor="partner-type">
                         Partnership Type
@@ -1061,7 +1032,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         </Popover>
                       </Box>
                       <Box
-                        {...register('_', {required: true})}
                         ref={inputRef}
                         onKeyPress={hashTagListener}
                         onKeyUp={keyUpListener}
@@ -1074,8 +1044,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {
-                        !(_.includes('#') && _.includes('@') && _.length > 0)  &&
-                          <Text sx={styles.errorText(error)}>Tag and Entity are required</Text>
+                        !(_.includes('#') &&
+                         _.includes('@') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
                       {

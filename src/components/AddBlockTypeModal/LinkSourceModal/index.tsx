@@ -1,3 +1,4 @@
+import { FC, useEffect, useRef, useState } from "react";
 import { validURL } from "@/common/utils";
 import { subText } from "@/theme";
 import {
@@ -11,7 +12,7 @@ import {
   Tooltip,
   FormControl,FormLabel,FormErrorMessage,FormHelperText,
   Select,
-} from "@chakra-ui/react";import React, { FC, useEffect, useRef, useState } from "react";
+} from "@chakra-ui/react";
 import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
@@ -30,7 +31,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
 
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
@@ -41,6 +42,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   }, [inputRef, sources]);
 
   const onHandleSave = () => {
+
     if (
       inputRef.current.value == "" ||
       validURL(inputRef.current.value)
@@ -55,13 +57,16 @@ export const LinkSourceModal: FC<ILinkSource> = ({
     }
   }
 
+  console.log('sources::', sources)
+  console.log('test::', inputRef.current)
+
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
       <Popover isOpen={isOpen} closeOnBlur={true}>
         <PopoverTrigger>
           <Box sx={styles.TriggerStyle}>
             <Box sx={styles.SourceStyle("")}>
-              {sources && (
+              {Array.isArray(sources) && (
                 <>
                   {sources.map((s, index) => (
                     <Box key={index} sx={styles.SourceStyle(s)}>
