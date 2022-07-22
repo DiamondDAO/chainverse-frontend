@@ -20,7 +20,6 @@ import {
   Select,
   FormControl,
   FormLabel,
-  FormErrorMessage,
 } from '@chakra-ui/react';
 import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
 import Fuse from 'fuse.js';
@@ -68,14 +67,6 @@ interface IAddBlockTypeModal {
   blockType: string;
 }
 
-// const schema = yup.object().shape({
-//   nameEntity: yup.string().required(),
-// })
-
-// type FormInput = {
-//   nameEntity: string;
-// }
-
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   tags,
   entities,
@@ -87,11 +78,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
-
-  // const { register, formState: { errors } } = useForm<FormInput>({
-  //   mode: 'onBlur',
-  //   resolver: yupResolver(schema)
-  // })
 
   const [clickedTip, setClickedTip] = useState(false);
   const [visible, setVisible] = useState(false);
