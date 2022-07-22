@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { validURL } from "@/common/utils";
 import { subText } from "@/theme";
 import {
@@ -10,10 +10,7 @@ import {
   PopoverTrigger,
   Text,
   Tooltip,
-  FormControl,FormLabel,FormErrorMessage,FormHelperText,
-  Select,
 } from "@chakra-ui/react";
-import { FiLink } from "react-icons/fi";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
@@ -32,33 +29,33 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
-  useEffect(() => {
-    if (inputRef !== null) {
-      inputRef.current.value = sources;
-    }
-  }, [inputRef, sources]);
-
   const onHandleSave = () => {
-
     if (
-      inputRef.current.value == "" ||
-      validURL(inputRef.current.value)
+      validURL(inputRef.current.value) &&
+      sources.length === 0
     ) {
       sources.push(inputRef.current.value)
       setError(false);
       inputRef.current.value = ""
       onSave([...sources])
       close();
+    } else if (
+      validURL(inputRef.current.value) &&
+      sources.length > 0
+    ) {
+      sources[0] = inputRef.current.value
+      setError(false)
+      inputRef.current.value = ""
+      onSave([...sources])
+      close() 
     } else {
       setError(true);
     }
   }
-
-  console.log('sources::', sources)
-  console.log('test::', inputRef.current)
 
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
@@ -66,7 +63,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
         <PopoverTrigger>
           <Box sx={styles.TriggerStyle}>
             <Box sx={styles.SourceStyle("")}>
-              {Array.isArray(sources) && (
+              {sources && (
                 <>
                   {sources.map((s, index) => (
                     <Box key={index} sx={styles.SourceStyle(s)}>
@@ -95,6 +92,12 @@ export const LinkSourceModal: FC<ILinkSource> = ({
             {error ? "Error: Please enter a valid URL and try again." : "URL"}
           </Text>
           <Input ref={inputRef} sx={styles.URLInput(error)} />
+          <Button
+            sx={styles.URLCancelButton}
+            onClick={close}
+          >
+            Cancel
+          </Button>
           <Button
             sx={styles.URLButton}
             onClick={onHandleSave}

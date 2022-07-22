@@ -24,11 +24,12 @@ export const SourceStyle = (source) => ({
 });
 
 export const PopoverContent = {
+  display: "inline-block",
   border: "1px solid #C3C3C3",
   borderRadius: "5px",
   boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.25)",
   width: "273px",
-  height: "84px",
+  height: "auto",
   p: "12px",
 };
 
@@ -49,11 +50,21 @@ export const URLInput = (error) => ({
 });
 
 export const URLButton = {
-  mt: "3px",
-  alignSelf: "end",
+  mt: "5px",
+  alignItems: "center",
+  float: "right",
   fontSize: bodyText,
   lineHeight: "125%",
   color: "diamond.link",
   variant: "link",
   fontWeight: "400",
 };
+
+export const URLCancelButton = {
+  mt: "5px",
+  alignItems: "center",
+  fontSize: bodyText,
+  lineHeight: "125%",
+  color: "red",
+  fontWeigth: "400"
+}

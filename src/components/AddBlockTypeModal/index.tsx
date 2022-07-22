@@ -52,7 +52,6 @@ import * as styles from './styles';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { stubFalse } from 'lodash';
 
 enum submitBlockAction {
   Add = 'add',
@@ -123,7 +122,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [disableSaveButton, setDisableSaveButton] = useState(true)
   
   useEffect(() => {
-
     const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
     const tagAndEntity = _.includes('@') && _.includes('#')
 
@@ -154,7 +152,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   useEffect(() => {
     if (nodeData?.sources && (nodeData?.sources.length > 0)) {
-      setSources(nodeData.sources?.[0]?.source);
+      setSources([nodeData.sources?.[0]?.source || '']);
+    } else {
+      setSources([])
     }
     if (nodeData) {
       setPartnershipType(nodeData?.type);
@@ -162,6 +162,14 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.sources, nodeData]);
 
+  useEffect(() => {
+    if (nodeData?.text && (nodeData?.text.length > 0)) {
+      setTextArea(nodeData?.text)
+    } else {
+      setTextArea('')
+    }
+  }, [nodeData?.text])
+  
   const hashTagListener = (e) => {
     if (
       String.fromCharCode(e.which) === '#' ||
@@ -203,14 +211,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setVisible(false);
     setDialogStartPosition(0);
   };
+  
   const closeHandler = (refresh?: boolean) => {
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
-    setSources([]);
-    setTextArea('');
-    setPillText('')
-    onClose(refresh);
+    onClose(refresh)
   };
 
   const [addNoteBlock, { error: addNoteBlockError }] = useMutation(
@@ -697,7 +703,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [partnerTagSelection, setPartnerTagSelection] = useState<Option[]>([]);
 
   const onHandleSaveSource = (sources: string[]) => {
-    setSources(sources)
+    setSources([...sources])
   }
 
   return (
@@ -733,7 +739,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       </FormLabel>
                       <Input
                         {...register('nameEntity', {required: true})}
-                        // required={true}
                         type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
