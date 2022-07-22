@@ -125,7 +125,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
     const tagAndEntity = _.includes('@') && _.includes('#')
 
-    if (blockType === 'Entity' && (entityName.length > 0)) {
+    if (blockType === 'Entity' && (entityName?.length > 0)) {
       setDisableSaveButton(false)
     } else if(blockType === 'Partnership' && 
     (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0))) {
@@ -137,6 +137,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDisableSaveButton(true)
     }
   }, [blockType, entityName, pillText, _, sources])
+
+  console.log('nodeData::', nodeData)
+  console.log('blockType::', blockType);
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
