@@ -156,19 +156,25 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     } else {
       setSources([])
     }
-    if (nodeData) {
+    if (nodeData?.type) {
       setPartnershipType(nodeData?.type);
-      setEntityName(nodeData?.name);
+    } else {
+      setPartnershipType('')
     }
-  }, [nodeData?.sources, nodeData]);
-
-  useEffect(() => {
     if (nodeData?.text && (nodeData?.text.length > 0)) {
       setTextArea(nodeData?.text)
     } else {
       setTextArea('')
     }
-  }, [nodeData?.text])
+  }, [nodeData?.sources, nodeData?.type, nodeData?.text]);
+
+  useEffect(() => {
+    if (nodeData?.name) {
+      setEntityName(nodeData?.name)
+    } else {
+      setEntityName('')
+    }
+  }, [nodeData?.name])
   
   const hashTagListener = (e) => {
     if (
@@ -216,6 +222,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
+    // if(blockType === 'Entity') {
+    //   setEntityName('')
+    // }
     onClose(refresh)
   };
 
@@ -711,7 +720,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       <Modal
         closeOnOverlayClick={false}
         onEsc={onClose}
-        blockScrollOnMount={false}
+        blockScrollOnMount={true}
         size={'2xl'}
         isOpen={isOpen}
         onClose={onClose}
