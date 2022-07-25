@@ -724,15 +724,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                 <Grid gridTemplateRows={'11fr 1fr'}>
                   {blockType === 'Entity' && (
                   <form>
-                    <FormControl
-                      // isInvalid={!!errors?.nameEntity?.message}                 
-                      // isRequired
+                    <FormControl            
                     >
                       <FormLabel htmlFor="entity-name" >
                         Entity name (no spaces)
                       </FormLabel>
                       <Input
-                        // {...register('nameEntity', {required: true})}
                         type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
