@@ -21,7 +21,7 @@ import {
   FormControl,
   FormLabel,
 } from '@chakra-ui/react';
-import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
+import { Option } from 'chakra-ui-simple-autocomplete';
 import Fuse from 'fuse.js';
 import { Pill } from '../Pill';
 import { TagIcon } from '../Icons/TagIcon';
@@ -48,9 +48,6 @@ import {
 import { bodyText, subText } from '@/theme';
 import { getCaretPosition, getCaretCoordinates } from './utils';
 import * as styles from './styles';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
 
 enum submitBlockAction {
   Add = 'add',
@@ -68,13 +65,13 @@ interface IAddBlockTypeModal {
 }
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
-  tags,
+  blockType,
   entities,
   isOpen,
-  onClose,
   nodeData,
+  onClose,
   saveToWorkspaceFn,
-  blockType,
+  tags,
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
@@ -154,6 +151,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.sources, nodeData?.type, nodeData?.text]);
 
+  console.log('nodeData::', nodeData)
+  console.log('sources::', sources)
+  console.log('textArea::', _);
+
   useEffect(() => {
     if (nodeData?.name) {
       setEntityName(nodeData?.name)
@@ -211,6 +212,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     // if(blockType === 'Entity') {
     //   setEntityName('')
     // }
+    if (!nodeData) {
+      setSources([]);
+      setTextArea('')
+      setPartnershipType('')
+    }
     onClose(refresh)
   };
 
