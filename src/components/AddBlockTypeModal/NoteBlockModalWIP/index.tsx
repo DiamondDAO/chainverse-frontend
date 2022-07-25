@@ -150,6 +150,9 @@ export const NoteBlockModal: FC<INoteBlockModal> = ({
       return value;
     };
   };
+  const onHandleSaveSource = (sources: string[]) => {
+    setSources([...sources])
+  }
 
   return (
     <FormControl>
@@ -244,6 +247,7 @@ export const NoteBlockModal: FC<INoteBlockModal> = ({
         {nodeData?.text}
       </Box>
       <LinkSourceModal
+        onSave={onHandleSaveSource}
         sources={sources}
       />
     </FormControl>
