@@ -39,8 +39,20 @@ export const PopoverHeader = {
 export const InputStyle = {
   width: "100%",
   height: "3em",
-  margin: "0px 0px 24px 0px",
+  margin: "0px 0px 5px 0px",
 }
+
+export const LabelStyle = {
+  margin: "18px 0px 5px 0px"
+}
+
+export const errorText = (error) => ({
+  color: "red",
+  fontSize: "14px",
+  lineHeight: "12px",
+  fontWeight: 400,
+  margin: "0px 0px 15px 0px"
+});
 
 export const TextboxStyles = {
   p: "0",
@@ -50,7 +62,7 @@ export const TextboxStyles = {
   width: "100%",
   height: "200px",
   padding: "0px 10px 0px 10px",
-  margin: "0px 0px 24px 0px",
+  margin: "0px 0px 8px 0px",
   overflow: "scroll",
   fontSize: ".875rem",
   "&:empty:before": {

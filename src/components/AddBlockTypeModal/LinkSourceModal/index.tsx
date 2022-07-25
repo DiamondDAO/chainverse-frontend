@@ -1,3 +1,4 @@
+import { FC, useRef, useState } from "react";
 import { validURL } from "@/common/utils";
 import { subText } from "@/theme";
 import {
@@ -9,18 +10,16 @@ import {
   PopoverTrigger,
   Text,
   Tooltip,
-  FormControl,FormLabel,FormErrorMessage,FormHelperText,
-  Select,
-} from "@chakra-ui/react";import React, { FC, useEffect, useRef, useState } from "react";
-import { FiLink } from "react-icons/fi";
+} from "@chakra-ui/react";
 import { a, useSpring } from "react-spring";
 import * as styles from "./styles";
 interface ILinkSource {
   sources: string[];
+  onSave: (sources: string[]) => void
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  sources,
+  sources,onSave
 }) => {
   const AnimatedBox = a(Box);
   const [linkStyle, api] = useSpring(() => {
@@ -29,15 +28,34 @@ export const LinkSourceModal: FC<ILinkSource> = ({
 
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
-  useEffect(() => {
-    if (inputRef !== null) {
-      inputRef.current.value = sources;
+  const onHandleSave = () => {
+    if (
+      validURL(inputRef.current.value) &&
+      sources.length === 0
+    ) {
+      sources.push(inputRef.current.value)
+      setError(false);
+      inputRef.current.value = ""
+      onSave([...sources])
+      close();
+    } else if (
+      validURL(inputRef.current.value) &&
+      sources.length > 0
+    ) {
+      sources[0] = inputRef.current.value
+      setError(false)
+      inputRef.current.value = ""
+      onSave([...sources])
+      close() 
+    } else {
+      setError(true);
     }
-  }, [inputRef, sources]);
+  }
 
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
@@ -75,20 +93,14 @@ export const LinkSourceModal: FC<ILinkSource> = ({
           </Text>
           <Input ref={inputRef} sx={styles.URLInput(error)} />
           <Button
+            sx={styles.URLCancelButton}
+            onClick={close}
+          >
+            Cancel
+          </Button>
+          <Button
             sx={styles.URLButton}
-            onClick={() => {
-              if (
-                inputRef.current.value == "" ||
-                validURL(inputRef.current.value)
-              ) {
-                sources.push(inputRef.current.value)
-                setError(false);
-                inputRef.current.value = ""
-                close();
-              } else {
-                setError(true);
-              }
-            }}
+            onClick={onHandleSave}
           >
             Save link
           </Button>

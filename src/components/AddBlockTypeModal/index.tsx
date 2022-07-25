@@ -1,3 +1,4 @@
+import { FC, useEffect, useRef, useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -19,11 +20,8 @@ import {
   Select,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
 } from '@chakra-ui/react';
-import { Autocomplete, Option } from 'chakra-ui-simple-autocomplete';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import { Option } from 'chakra-ui-simple-autocomplete';
 import Fuse from 'fuse.js';
 import { Pill } from '../Pill';
 import { TagIcon } from '../Icons/TagIcon';
@@ -65,14 +63,15 @@ interface IAddBlockTypeModal {
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
 }
+
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
-  tags,
+  blockType,
   entities,
   isOpen,
-  onClose,
   nodeData,
+  onClose,
   saveToWorkspaceFn,
-  blockType,
+  tags,
 }) => {
   const toast = useToast();
   const [{ data: walletData }] = useAccount();
@@ -84,6 +83,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [sources, setSources] = useState([]);
   const [addingBlock, setAddingBlock] = useState(false);
   const [pillText, setPillText] = useState('');
+  const [error, setError] = useState(false);
 
   //setting intial form values
   const [partnershipType, setPartnershipType] = useState('');
@@ -102,9 +102,29 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   const position = useRef({ x: 0, y: 0 });
 
+  const [disableSaveButton, setDisableSaveButton] = useState(true)
+  
+  useEffect(() => {
+    const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
+    const tagAndEntity = _.includes('@') && _.includes('#')
+
+    if (blockType === 'Entity' && (entityName?.length > 0)) {
+      setDisableSaveButton(false)
+    } else if(blockType === 'Partnership' && 
+    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0))) {
+      setDisableSaveButton(false)
+    } else if(blockType === 'Note' &&
+    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0)) ) {
+      setDisableSaveButton(false)
+    } else {
+      setDisableSaveButton(true)
+    }
+  }, [blockType, entityName, pillText, _, sources])
+
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
   }, [entityOnChain]);
+
   useEffect(() => {
     if (!isOpen) {
       setClickedTip(false);
@@ -114,15 +134,31 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (nodeData?.sources && nodeData?.sources.length > 0) {
-      setSources(nodeData.sources?.[0]?.source);
+    if (nodeData?.sources && (nodeData?.sources.length > 0)) {
+      setSources([nodeData.sources?.[0]?.source || '']);
+    } else {
+      setSources([])
     }
-    if (nodeData) {
+    if (nodeData?.type) {
       setPartnershipType(nodeData?.type);
-      setEntityName(nodeData?.name);
+    } else {
+      setPartnershipType('')
     }
-  }, [nodeData?.sources, nodeData]);
+    if (nodeData?.text && (nodeData?.text.length > 0)) {
+      setTextArea(nodeData?.text)
+    } else {
+      setTextArea('')
+    }
+  }, [nodeData?.sources, nodeData?.type, nodeData?.text]);
 
+  useEffect(() => {
+    if (nodeData?.name) {
+      setEntityName(nodeData?.name)
+    } else {
+      setEntityName('')
+    }
+  }, [nodeData?.name])
+  
   const hashTagListener = (e) => {
     if (
       String.fromCharCode(e.which) === '#' ||
@@ -164,12 +200,17 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setVisible(false);
     setDialogStartPosition(0);
   };
+  
   const closeHandler = (refresh?: boolean) => {
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
-    setSources([]);
-    onClose(refresh);
+    if (!nodeData) {
+      setSources([]);
+      setTextArea('')
+      setPartnershipType('')
+    }
+    onClose(refresh)
   };
 
   const [addNoteBlock, { error: addNoteBlockError }] = useMutation(
@@ -261,6 +302,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
     setTextArea(inputRef.current.innerText);
   };
+
   const tagFuse = new Fuse(tags, {
     includeScore: false,
     threshold: 0.3,
@@ -649,23 +691,21 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
     setAddingBlock(false);
   };
-  const [noteEntitySelection, setNoteEntitySelection] = React.useState<
-    Option[]
-  >([]);
-  const [noteTagSelection, setNoteTagSelection] = React.useState<Option[]>([]);
-  const [partnerEntitySelection, setPartnerEntitySelection] = React.useState<
-    Option[]
-  >([]);
-  const [partnerTagSelection, setPartnerTagSelection] = React.useState<
-    Option[]
-  >([]);
+  const [noteEntitySelection, setNoteEntitySelection] = useState<Option[]>([]);
+  const [noteTagSelection, setNoteTagSelection] = useState<Option[]>([]);
+  const [partnerEntitySelection, setPartnerEntitySelection] = useState<Option[]>([]);
+  const [partnerTagSelection, setPartnerTagSelection] = useState<Option[]>([]);
+
+  const onHandleSaveSource = (sources: string[]) => {
+    setSources([...sources])
+  }
 
   return (
     <>
       <Modal
         closeOnOverlayClick={false}
         onEsc={onClose}
-        blockScrollOnMount={false}
+        blockScrollOnMount={true}
         size={'2xl'}
         isOpen={isOpen}
         onClose={onClose}
@@ -683,16 +723,25 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               <Box sx={styles.ModalBodyStyle}>
                 <Grid gridTemplateRows={'11fr 1fr'}>
                   {blockType === 'Entity' && (
-                    <FormControl>
-                      <FormLabel htmlFor="entity-name">
+                  <form>
+                    <FormControl            
+                    >
+                      <FormLabel htmlFor="entity-name" >
                         Entity name (no spaces)
                       </FormLabel>
                       <Input
+                        type='text'
                         value={entityName}
                         onChange={(e) => setEntityName(e.target.value)}
                         sx={styles.InputStyle}
                       />
-                      <FormLabel htmlFor="entity-onChain">
+                      {
+                        (entityName?.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Entity name is required</Text>
+                      }                     
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel htmlFor="entity-onChain" sx={styles.LabelStyle}>
                         Is this entity onChain?
                       </FormLabel>
                       <Select
@@ -704,7 +753,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         <option value="true">Yes</option>
                         <option value="false">No</option>
                       </Select>
-                      <FormLabel htmlFor="entity-network">
+                      <FormLabel htmlFor="entity-network" sx={styles.LabelStyle}>
                         Entity network
                       </FormLabel>
                       <Select
@@ -730,41 +779,36 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         <option value="Other">Other</option>
                         <option value="NotApplicable">Not Applicable</option>
                       </Select>
-                      <FormLabel htmlFor="entity-address">
+                      <FormLabel htmlFor="entity-address" sx={styles.LabelStyle}>
                         Entity wallet address
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddress(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      <FormLabel htmlFor="entity-address-source">
+                        sx={styles.InputStyle} />
+                      <FormLabel htmlFor="entity-address-source" sx={styles.LabelStyle}>
                         Entity wallet address source
                       </FormLabel>
                       <Input
                         onChange={(e) => setEntityAddressSource(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      <FormLabel htmlFor="entity-twitter">Twitter</FormLabel>
+                        sx={styles.InputStyle} />
+                      <FormLabel htmlFor="entity-twitter" sx={styles.LabelStyle}>Twitter</FormLabel>
                       <Input
                         onChange={(e) => setEntityTwitter(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      <FormLabel htmlFor="entity-discord">Discord</FormLabel>
+                        sx={styles.InputStyle} />
+                      <FormLabel htmlFor="entity-discord" sx={styles.LabelStyle}>Discord</FormLabel>
                       <Input
                         onChange={(e) => setEntityDiscord(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      <FormLabel htmlFor="entity-website">Website</FormLabel>
+                        sx={styles.InputStyle} />
+                      <FormLabel htmlFor="entity-website" sx={styles.LabelStyle}>Website</FormLabel>
                       <Input
                         onChange={(e) => setEntityWebsite(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      <FormLabel htmlFor="entity-github">Github</FormLabel>
+                        sx={styles.InputStyle} />
+                      <FormLabel htmlFor="entity-github" sx={styles.LabelStyle}>Github</FormLabel>
                       <Input
                         onChange={(e) => setEntityGithub(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
+                        sx={styles.InputStyle} />
                     </FormControl>
+                  </form>
                   )}
                   {blockType === 'Note' && (
                     <FormControl>
@@ -868,11 +912,22 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal sources={sources} />
+                      {
+                        !(_.includes('#') &&
+                         _.includes('@') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                      }
+                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
+                      {
+                        (sources.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Source is required</Text>
+                      }
                     </FormControl>
                   )}
                   {blockType === 'Partnership' && (
-                    <FormControl>
+                    <FormControl
+                    >
                       <FormLabel htmlFor="partner-type">
                         Partnership Type
                       </FormLabel>
@@ -987,7 +1042,17 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      <LinkSourceModal sources={sources} />
+                      {
+                        !(_.includes('#') &&
+                         _.includes('@') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                      }
+                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
+                      {
+                        (sources.length === 0) &&
+                        <Text sx={styles.errorText(error)}>Source is required</Text>
+                      }
                     </FormControl>
                   )}
                 </Grid>
@@ -1014,6 +1079,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                     });
                   }
                 }}
+                disabled={disableSaveButton}
                 variant="primary"
               >
                 Save Block
