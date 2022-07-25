@@ -151,10 +151,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.sources, nodeData?.type, nodeData?.text]);
 
-  console.log('nodeData::', nodeData)
-  console.log('sources::', sources)
-  console.log('textArea::', _);
-
   useEffect(() => {
     if (nodeData?.name) {
       setEntityName(nodeData?.name)
@@ -209,9 +205,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
-    // if(blockType === 'Entity') {
-    //   setEntityName('')
-    // }
     if (!nodeData) {
       setSources([]);
       setTextArea('')
