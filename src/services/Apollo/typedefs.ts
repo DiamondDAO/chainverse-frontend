@@ -149,4 +149,16 @@ export const typeDefs = gql`
     type: String
     entity: Entity @relationship(type: "HAS_PROPOSAL", direction: IN)
   }
+
+  union SearchNodes = Note | Partnership | Response | Proposal
+
+  type Query {
+    fuzzyChainversePortalSearch(searchString: String): [SearchNodes] @cypher(
+      statement: """
+        CALL db.index.fulltext.queryNodes(
+          'chainversePortalSearchIndex', $searchString) 
+        YIELD node RETURN node
+      """
+    )
+  }
 `;
