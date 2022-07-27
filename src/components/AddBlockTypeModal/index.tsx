@@ -106,15 +106,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   
   useEffect(() => {
     const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
-    const tagAndEntity = _.includes('@') && _.includes('#')
+    const entity = _.includes('@')
 
     if (blockType === 'Entity' && (entityName?.length > 0)) {
       setDisableSaveButton(false)
     } else if(blockType === 'Partnership' && 
-    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0))) {
+    (onlyText.length > 0 && (entity) && (sources.length > 0))) {
       setDisableSaveButton(false)
     } else if(blockType === 'Note' &&
-    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0)) ) {
+    (onlyText.length > 0 && (entity) && (sources.length > 0)) ) {
       setDisableSaveButton(false)
     } else {
       setDisableSaveButton(true)
@@ -202,13 +202,16 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
   
   const closeHandler = (refresh?: boolean) => {
+
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
     if (!nodeData) {
       setSources([]);
-      setTextArea('')
-      setPartnershipType('')
+      setTextArea('');
+      setPartnershipType('');
+    } else {
+      setTextArea(nodeData?.text);
     }
     onClose(refresh)
   };
@@ -913,10 +916,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {
-                        !(_.includes('#') &&
-                         _.includes('@') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                        !(_.includes('@') &&
+                        _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
                       {
@@ -1043,10 +1045,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {
-                        !(_.includes('#') &&
-                         _.includes('@') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                        !(_.includes('@') &&
+                        _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
                       {

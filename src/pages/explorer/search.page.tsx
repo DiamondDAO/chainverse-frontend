@@ -4,59 +4,68 @@ import {
   InputGroup,
   InputLeftElement,
   Text,
-} from "@chakra-ui/react";
-import type { NextPage } from "next";
-import React, { useEffect, useMemo, useState } from "react";
-import { Layout } from "@/components/Layout";
-import { useLazyQuery, useQuery } from "@apollo/client";
+  useToast,
+} from '@chakra-ui/react';
+import type { NextPage } from 'next';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Layout } from '@/components/Layout';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import {
-  GET_ALL_NOTES,
-  GET_ALL_BLOCKS,
   GET_ALL_CREATED,
   GET_BLOCK_DATA,
   GET_ENTITIES_DATA,
   GET_TAGS_AND_ENTITIES,
   GET_TAG_DATA,
-} from "@/services/Apollo/Queries";
-import { ExplorerNavigator } from "@/components/Explorer/ExplorerNavigator";
-import { SearchIcon } from "@chakra-ui/icons";
-import Fuse from "fuse.js";
-import { filterUniqueObjects } from "@/common/utils";
-import { TagIcon } from "@/components/Icons/TagIcon";
-import { EntitiesIcon } from "@/components/Icons/EntitiesIcon";
-import Router, { useRouter } from "next/router";
-import { Loader } from "@/components/Loader";
-import { IconVariants } from "@/common/types";
-import { BlockIcon } from "@/components/Icons/BlockIcon";
-import { EntityTable } from "@/components/Explorer/EntityTable";
-import { BlockTable } from "@/components/Explorer/BlockTable";
+} from '@/services/Apollo/Queries';
+import { SearchIcon } from '@chakra-ui/icons';
+import Fuse from 'fuse.js';
+import { filterUniqueObjects } from '@/common/utils';
+import { TagIcon } from '@/components/Icons/TagIcon';
+import { EntitiesIcon } from '@/components/Icons/EntitiesIcon';
+import Router, { useRouter } from 'next/router';
+import { Loader } from '@/components/Loader';
+import { IconVariants } from '@/common/types';
+import { BlockIcon } from '@/components/Icons/BlockIcon';
+import { EntityTable } from '@/components/Explorer/EntityTable';
+import { BlockTable } from '@/components/Explorer/BlockTable';
 import {
   useGetBlockTableData,
   useGetEntityTableData,
   useGetTagsTableData,
-} from "./searchHooks";
-import { TagTable } from "@/components/Explorer/TagTable";
-import { useAccount } from "wagmi";
+} from './searchHooks';
+import { TagTable } from '@/components/Explorer/TagTable';
+import { useAccount } from 'wagmi';
 
 enum SearchTypes {
-  Blocks = "blocks",
-  Tags = "tags",
-  Entities = "entities",
+  Blocks = 'blocks',
+  Tags = 'tags',
+  Entities = 'entities',
 }
+
+// TODO: Remove this when blocks issue is fixed
+const notesData = {
+  wallets: [
+    {
+      blocks: [],
+    },
+  ],
+};
 
 const Search: NextPage = () => {
   const router = useRouter();
+  const toast = useToast();
   const { term, type } = router.query;
 
   // graphql data
-  const { data: notesData } = useQuery(GET_ALL_CREATED);
+  // TODO: Enabling this when blocks issue is fixed
+  // const { data: notesData } = useQuery(GET_ALL_CREATED);
   const { data: tagAndEntitiesData, loading } = useQuery(GET_TAGS_AND_ENTITIES);
-  const [getEntitiesData] = useLazyQuery(GET_ENTITIES_DATA);
+  const [getEntitiesData, { loading: loadingTagentities}] = useLazyQuery(GET_ENTITIES_DATA);
   const [getnodeData] = useLazyQuery(GET_BLOCK_DATA);
   const [getTagsData] = useLazyQuery(GET_TAG_DATA);
   const [{ data: walletData }] = useAccount();
   // search state
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [searchType, setSearchType] = useState(SearchTypes.Blocks);
 
   useEffect(() => {
@@ -83,7 +92,7 @@ const Search: NextPage = () => {
   // Tags
   const tags = useMemo(
     () =>
-      filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
+      filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map((i) => i.tag) ||
       [],
     [tagAndEntitiesData?.tags]
   );
@@ -93,7 +102,7 @@ const Search: NextPage = () => {
         ? new Fuse(tags, {
             includeScore: false,
             threshold: 0.3,
-          })?.search((term as string) || "")
+          })?.search((term as string) || '')
         : [],
     [tags, term]
   );
@@ -107,7 +116,7 @@ const Search: NextPage = () => {
   // Entities
   const entities = useMemo(
     () =>
-      filterUniqueObjects(tagAndEntitiesData?.entities, "name")?.map(
+      filterUniqueObjects(tagAndEntitiesData?.entities, 'name')?.map(
         (i) => i.name
       ) || [],
     [tagAndEntitiesData?.entities]
@@ -118,7 +127,7 @@ const Search: NextPage = () => {
         ? new Fuse(entities, {
             includeScore: false,
             threshold: 0.3,
-          })?.search((term as string) || "")
+          })?.search((term as string) || '')
         : [],
     [entities, term]
   );
@@ -133,7 +142,9 @@ const Search: NextPage = () => {
   // Blocks
   const blocks = useMemo(
     () =>
-      filterUniqueObjects(notesData?.wallets[0].blocks, "text" )?.map((i) => i) || [],
+      filterUniqueObjects(notesData?.wallets[0].blocks, 'text')?.map(
+        (i) => i
+      ) || [],
     [notesData]
   );
 
@@ -145,7 +156,7 @@ const Search: NextPage = () => {
         ? new Fuse(blocks, {
             includeScore: false,
             threshold: 0.7,
-          })?.search((term as string) || "")
+          })?.search((term as string) || '')
         : [],
     [blocks, term]
   );
@@ -163,7 +174,7 @@ const Search: NextPage = () => {
       getnodeData,
     });
 
-  if (loading) return <Loader />;
+  if (loading || loadingTagentities) return <Loader />;
 
   return (
     <>
@@ -176,24 +187,24 @@ const Search: NextPage = () => {
         <Box
           mt="40px"
           display="grid"
-          gridTemplateColumns={["1fr", null, null, "1fr"]}
+          gridTemplateColumns={['1fr', null, null, '1fr']}
         >
-          <Box sx={{ columnGap: "50px" }}>
-            <Box w="100%" zIndex={3} display={["none", null, null, "flex"]}>
+          <Box sx={{ columnGap: '50px' }}>
+            <Box w="100%" zIndex={3} display={['none', null, null, 'flex']}>
               {/* <ExplorerNavigator /> */}
             </Box>
           </Box>
-          <Box ml={["unset", null, null, "50px"]}>
+          <Box ml={['unset', null, null, '50px']}>
             <Box
               display="flex"
-              flexDirection={["column", null, "row"]}
+              flexDirection={['column', null, 'row']}
               justifyContent="space-between"
-              alignItems={["unset", null, "center"]}
+              alignItems={['unset', null, 'center']}
             >
-              <Box position={"relative"} w="100%" maxWidth="712px" mr="25px">
+              <Box position={'relative'} w="100%" maxWidth="712px" mr="25px">
                 <InputGroup
                   bg="white"
-                  alignItems={"center"}
+                  alignItems={'center'}
                   border="none"
                   borderRadius="5px"
                   height="50px"
@@ -207,7 +218,7 @@ const Search: NextPage = () => {
                   </InputLeftElement>
                   <Input
                     onKeyDown={(e) => {
-                      if (e.key === "Enter")
+                      if (e.key === 'Enter')
                         Router.push(
                           `/explorer/search?term=${searchValue}&type=${searchType}`
                         );
@@ -224,10 +235,10 @@ const Search: NextPage = () => {
                 </InputGroup>
               </Box>
               <Box
-                mt={["24px", null, "unset"]}
+                mt={['24px', null, 'unset']}
                 display="flex"
                 height="fit-content"
-                sx={{ columnGap: "12px" }}
+                sx={{ columnGap: '12px' }}
               >
                 <Box
                   onClick={() =>
@@ -237,18 +248,18 @@ const Search: NextPage = () => {
                   }
                   cursor="pointer"
                   color="black"
-                  alignItems={"center"}
+                  alignItems={'center'}
                   p="4px"
                   display="flex"
                   bg="transparent"
-                  borderRadius={"5px"}
-                  whiteSpace={"nowrap"}
+                  borderRadius={'5px'}
+                  whiteSpace={'nowrap'}
                   fontSize="12px"
                   w="fit-content"
                   sx={{
                     ...(searchType === SearchTypes.Entities && {
-                      color: "white",
-                      bg: "diamond.magenta",
+                      color: 'white',
+                      bg: 'diamond.magenta',
                     }),
                   }}
                 >
@@ -264,26 +275,40 @@ const Search: NextPage = () => {
                   </Box>
                 </Box>
                 <Box
-                  onClick={() =>
-                    Router.push(
-                      `/explorer/search?term=${searchValue}&type=blocks`
-                    )
-                  }
+                  onClick={() => {
+                    toast({
+                      title: `Block search has been disabled.`,
+                      description: 'We will let you know when its enabled again.',
+                      position: 'top',
+                      status: 'warning',
+                      duration: 5000,
+                      isClosable: true,
+                    });
+                    // Router.push(
+                    //   `/explorer/search?term=${searchValue}&type=blocks`
+                    // )
+                  }}
+                  disabled
                   cursor="pointer"
                   color="black"
                   display="flex"
-                  alignItems={"center"}
+                  alignItems={'center'}
                   p="4px"
                   bg="transparent"
                   w="fit-content"
-                  whiteSpace={"nowrap"}
-                  borderRadius={"5px"}
+                  whiteSpace={'nowrap'}
+                  borderRadius={'5px'}
                   fontSize="12px"
                   sx={{
-                    ...(searchType === SearchTypes.Blocks && {
-                      color: "white",
-                      bg: "diamond.magenta",
-                    }),
+                    ...(searchType === SearchTypes.Blocks
+                      ? {
+                          color: 'white',
+                          bg: 'diamond.magenta',
+                        }
+                      : {
+                          color: 'black',
+                          bg: '#F8F8F8',
+                        }),
                   }}
                 >
                   <BlockIcon
@@ -307,17 +332,17 @@ const Search: NextPage = () => {
                   color="black"
                   display="flex"
                   w="fit-content"
-                  alignItems={"center"}
+                  alignItems={'center'}
                   p="4px"
                   mx="2px"
-                  whiteSpace={"nowrap"}
+                  whiteSpace={'nowrap'}
                   bg="transparent"
-                  borderRadius={"5px"}
+                  borderRadius={'5px'}
                   fontSize="12px"
                   sx={{
                     ...(searchType === SearchTypes.Tags && {
-                      color: "white",
-                      bg: "diamond.magenta",
+                      color: 'white',
+                      bg: 'diamond.magenta',
                     }),
                   }}
                 >
@@ -328,7 +353,7 @@ const Search: NextPage = () => {
                         : IconVariants.Black
                     }
                   />
-                  <Box ml="4px" whiteSpace={"nowrap"}>
+                  <Box ml="4px" whiteSpace={'nowrap'}>
                     Tags ({`${tagFusSearchResult.length}`})
                   </Box>
                 </Box>
