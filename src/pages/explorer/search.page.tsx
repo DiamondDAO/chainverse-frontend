@@ -288,7 +288,6 @@ const Search: NextPage = () => {
                     //   `/explorer/search?term=${searchValue}&type=blocks`
                     // )
                   }}
-                  disabled
                   cursor="pointer"
                   color="black"
                   display="flex"
