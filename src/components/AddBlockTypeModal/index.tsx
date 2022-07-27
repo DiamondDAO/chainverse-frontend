@@ -99,14 +99,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [entityGithub, setEntityGithub] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
+  const [character, setCharacter] = useState([])
 
   const position = useRef({ x: 0, y: 0 });
 
   const [disableSaveButton, setDisableSaveButton] = useState(true)
   
   useEffect(() => {
-    const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@'))
-    const tagAndEntity = _.includes('@') && _.includes('#')
+    const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('['))
+    const tagAndEntity = _.includes('[')
 
     if (blockType === 'Entity' && (entityName?.length > 0)) {
       setDisableSaveButton(false)
@@ -120,6 +121,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDisableSaveButton(true)
     }
   }, [blockType, entityName, pillText, _, sources])
+
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -160,15 +162,29 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [nodeData?.name])
   
   const hashTagListener = (e) => {
+  
     if (
-      String.fromCharCode(e.which) === '#' ||
-      (String.fromCharCode(e.which) === '@' && !visible)
+      String.fromCharCode(e.which) === '#' &&
+      (!visible)
     ) {
-      setActivationChar(String.fromCharCode(e.which));
+      setActivationChar(String.fromCharCode(e.which).slice() + e.which)
       setDialogStartPosition(getCaretPosition(inputRef.current));
       position.current = getCaretCoordinates();
       setVisible(true);
     }
+
+    if (
+      (String.fromCharCode(e.which) === '[' && !visible)
+    ) {
+      setActivationChar(String.fromCharCode(e.which))
+      setDialogStartPosition(getCaretPosition(inputRef.current));
+      position.current = getCaretCoordinates();
+      setVisible(true);
+    }
+
+    console.log('e.which::', e.which);
+    console.log('algo::', String.fromCharCode(e.which));
+    console.log('character::', character);
   };
 
   const keyUpListener = (e) => {
@@ -212,6 +228,23 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
     onClose(refresh)
   };
+
+  const inputHandler = (e) => {
+    if (visible) {
+      setPillText(
+        inputRef.current?.innerText
+          .slice(dialogStartPosition)
+          .match(/[[#](?=\S*[-]*)([a-zA-Z0-9'-]+)]/g)?.[0]
+          ?.slice(1, 0)
+      );
+    }
+    setTextArea(inputRef.current.innerText);
+  };
+
+  // console.log('doubleBracket::', doubleBracket);
+
+  console.log('pillText::', pillText);
+  console.log('nodeData-Entity::', nodeData?.entities);
 
   const [addNoteBlock, { error: addNoteBlockError }] = useMutation(
     CREATE_NOTES,
@@ -291,18 +324,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   );
 
-  const inputHandler = (e) => {
-    if (visible) {
-      setPillText(
-        inputRef.current?.innerText
-          .slice(dialogStartPosition)
-          .match(/[@#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
-          ?.slice(1)
-      );
-    }
-    setTextArea(inputRef.current.innerText);
-  };
-
   const tagFuse = new Fuse(tags, {
     includeScore: false,
     threshold: 0.3,
@@ -327,10 +348,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         })) || [];
     const entity =
       inputRef.current.innerText
-        .match(/@(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
+        .match(/[[](?=\S*[-]*)([a-zA-Z0-9'-]+)]/g)
         ?.map((i) => ({
-          where: { node: { name: i.slice(1) } },
-          onCreate: { node: { name: i.slice(1) } },
+          where: { node: { name: i.slice(1, -1) } },
+          onCreate: { node: { name: i.slice(1, -1) } },
         })) || [];
     const sourceList =
       sources.map((i) => ({
@@ -827,7 +848,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === '@' && (
+                                    (activationChar === '[' && (
                                       <EntitiesIcon />
                                     )) ||
                                     (activationChar === '#' && <TagIcon />)
@@ -840,7 +861,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                               </Box>
                             </PopoverHeader>
                             <PopoverBody>
-                              {activationChar == '@' && (
+                              {activationChar == '[' && (
                                 <Box fontWeight="400">
                                   <Text
                                     color="diamond.gray.3"
@@ -907,16 +928,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         onInput={inputHandler}
                         suppressContentEditableWarning={true}
                         contentEditable
-                        data-placeholder="Type # to insert a tag, or @ to insert an entity or user"
+                        data-placeholder="Type # to insert a tag, or insert an entity or user between [[ ]]"
                         sx={styles.TextboxStyles}
                       >
                         {nodeData?.text}
                       </Box>
                       {
-                        !(_.includes('#') &&
-                         _.includes('@') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                        !(_.includes('[') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('[')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
                       {
@@ -957,7 +977,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === '@' && (
+                                    (activationChar === '[' && (
                                       <EntitiesIcon />
                                     )) ||
                                     (activationChar === '#' && <TagIcon />)
@@ -970,7 +990,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                               </Box>
                             </PopoverHeader>
                             <PopoverBody>
-                              {activationChar == '@' && (
+                              {activationChar == '[' && (
                                 <Box fontWeight="400">
                                   <Text
                                     color="diamond.gray.3"
@@ -1037,16 +1057,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         onInput={inputHandler}
                         suppressContentEditableWarning={true}
                         contentEditable
-                        data-placeholder="Type # to insert a tag, or @ to insert an entity or user"
+                        data-placeholder="Type # to insert a tag, or insert an entity or user between [[ ]]"
                         sx={styles.TextboxStyles}
                       >
                         {nodeData?.text}
                       </Box>
                       {
-                        !(_.includes('#') &&
-                         _.includes('@') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('@')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Tag, Entity and text are required</Text>
+                        !(_.includes('[') &&
+                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('[')).length > 0) &&
+                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
                       }
                       <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
                       {
