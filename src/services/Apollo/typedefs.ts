@@ -157,7 +157,7 @@ export const typeDefs = gql`
       statement: """
         CALL db.index.fulltext.queryNodes(
           'chainversePortalSearchIndex', $searchString+'~')
-        YIELD node RETURN node
+        YIELD node, score RETURN node order by score desc
         SKIP $skip LIMIT $limit
       """
     )
