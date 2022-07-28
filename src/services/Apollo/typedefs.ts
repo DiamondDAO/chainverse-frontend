@@ -153,11 +153,12 @@ export const typeDefs = gql`
   union SearchNodes = Note | Partnership | Response | Proposal
 
   type Query {
-    fuzzyChainversePortalSearch(searchString: String): [SearchNodes] @cypher(
+    fuzzyChainversePortalSearch(searchString: String, skip: Int, limit: Int): [SearchNodes] @cypher(
       statement: """
         CALL db.index.fulltext.queryNodes(
-          'chainversePortalSearchIndex', $searchString) 
+          'chainversePortalSearchIndex', $searchString+'~')
         YIELD node RETURN node
+        SKIP $skip LIMIT $limit
       """
     )
   }
