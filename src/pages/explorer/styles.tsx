@@ -28,6 +28,7 @@ export const ExplorerNavigatorInner = {
   zIndex: 3,
 };
 export const SearchStyle = {
+  maxWidth: "70%",
   display: "flex",
   justifyContent: "center",
 };

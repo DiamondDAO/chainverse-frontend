@@ -20,12 +20,16 @@ import { useSpring, a } from 'react-spring';
 import Fuse from 'fuse.js';
 import { filterUniqueObjects } from '@/common/utils';
 import Router from 'next/router';
-import { bodyText } from '@/theme';
 import * as styles from './styles';
-import { SearchOS, SearchTypes } from '@chainverse/os';
+import SearchOSClientProvider, {
+  SearchOS,
+  SearchTypes,
+  useSearchOSClient,
+} from '@chainverse/os';
 import { EntityTable } from '@/components/Explorer/EntityTable';
 import { BlockTable } from '@/components/Explorer/BlockTable';
 import { TagTable } from '@/components/Explorer/TagTable';
+import { SearchOSTable } from '@/components/Explorer/SearchOSTable';
 import {
   removeChainverseOS,
   showChainverseOS,
@@ -47,7 +51,8 @@ if (typeof window !== 'undefined') {
   window.removeChainverseOS = removeChainverseOS;
 }
 
-const Explorer: NextPage = () => {
+const ExplorerComponent = () => {
+  const { data: dataOS, loading: loadingOS, fetchMore } = useSearchOSClient();
   const [{ data: walletData }] = useAccount();
   const { data: notesData } = useQuery(GET_ALL_NOTES);
   const { data: tagAndEntitiesData } = useQuery(GET_TAGS_AND_ENTITIES);
@@ -126,17 +131,6 @@ const Explorer: NextPage = () => {
     }
   }, [api, displaySearchBox]);
 
-  // handlers
-  const handleOnChangeSearch = (data: any) => {
-    const { searchType } = data;
-    setSearchType(searchType);
-    setSearchData(data);
-  };
-  const onChangeTypeSearch = (data: any) => {
-    const { searchType } = data;
-    setSearchType(searchType);
-  };
-
   //@ts-ignore
   const { entity, tags: tagsResult, blocks: blocksResult } = searchData || {};
   const { entityData, getEntityDataHandler, hasMoreEntityData } = entity || {};
@@ -147,25 +141,13 @@ const Explorer: NextPage = () => {
   return (
     <>
       <Layout>
-        <Box sx={styles.ExplorerTitleContainer}>
-          <Text sx={styles.ExplorerTitle}>Explorer</Text>
-        </Box>
         <Box sx={styles.ExplorerBody}>
           <Box sx={styles.ExplorerNavigatorContainer}>
-            <Box sx={styles.ExplorerNavigatorInner}>
-              {/* <ExplorerNavigator /> */}
-            </Box>
+            <Box sx={styles.ExplorerNavigatorInner}></Box>
           </Box>
           <Box sx={styles.SearchStyle}>
             {isVisibleOS && (
-              <SearchOS
-                value="test"
-                onChangeType={onChangeTypeSearch}
-                onChange={(e) => console.log(e)}
-                onEnter={handleOnChangeSearch}
-                onFocus={(e) => console.log(e)}
-                placeholder="placeholder"
-              ></SearchOS>
+              <SearchOS value="test" placeholder="placeholder"></SearchOS>
             )}
             {!isAdvancedSearch && !isVisibleOS && (
               <Box ref={searchBoxRef} sx={styles.SearchContainer}>
@@ -254,6 +236,14 @@ const Explorer: NextPage = () => {
         >
           <Box sx={{ columnGap: '50px' }}></Box>
           <Box ml={['unset', null, null, '50px']}>
+            {isVisibleOS && (
+              <SearchOSTable
+                data={dataOS || []}
+                walletAddress={walletData?.address}
+                hasMore={true}
+                update={fetchMore}
+              />
+            )}
             {searchType === SearchTypes.Entities && (
               <EntityTable
                 data={entityData}
@@ -285,4 +275,13 @@ const Explorer: NextPage = () => {
   );
 };
 
+const Explorer: NextPage = () => {
+  return (
+    <>
+      <SearchOSClientProvider backendURI="/api/graphql">
+        <ExplorerComponent />
+      </SearchOSClientProvider>
+    </>
+  );
+};
 export default Explorer;
