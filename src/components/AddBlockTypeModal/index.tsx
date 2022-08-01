@@ -99,7 +99,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [entityGithub, setEntityGithub] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
-  const [character, setCharacter] = useState([])
+  const [character, setCharacter] = useState(null)
 
   const position = useRef({ x: 0, y: 0 });
 
@@ -162,19 +162,17 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [nodeData?.name])
   
   const hashTagListener = (e) => {
+    const previousCharacter = character
+    const currentCharacter = String.fromCharCode(e.which)
+    if ( currentCharacter === '[' ) {
+      setCharacter(String.fromCharCode(e.which))
+    } else {
+      setCharacter(null)
+    }
   
     if (
       String.fromCharCode(e.which) === '#' &&
       (!visible)
-    ) {
-      setActivationChar(String.fromCharCode(e.which).slice() + e.which)
-      setDialogStartPosition(getCaretPosition(inputRef.current));
-      position.current = getCaretCoordinates();
-      setVisible(true);
-    }
-
-    if (
-      (String.fromCharCode(e.which) === '[' && !visible)
     ) {
       setActivationChar(String.fromCharCode(e.which))
       setDialogStartPosition(getCaretPosition(inputRef.current));
@@ -182,9 +180,14 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setVisible(true);
     }
 
-    console.log('e.which::', e.which);
-    console.log('algo::', String.fromCharCode(e.which));
-    console.log('character::', character);
+    if (
+      (currentCharacter === previousCharacter && !visible)
+    ) {
+      setActivationChar(String.fromCharCode(e.which))
+      setDialogStartPosition(getCaretPosition(inputRef.current));
+      position.current = getCaretCoordinates();
+      setVisible(true);
+    }
   };
 
   const keyUpListener = (e) => {
@@ -195,6 +198,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       getCaretPosition(inputRef.current) <= dialogStartPosition
     ) {
       setVisible(false);
+      // setTextArea()
       setDialogStartPosition(0);
     }
   };
@@ -234,17 +238,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setPillText(
         inputRef.current?.innerText
           .slice(dialogStartPosition)
-          .match(/[[#](?=\S*[-]*)([a-zA-Z0-9'-]+)]/g)?.[0]
-          ?.slice(1, 0)
+          .match(/[[#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
+          ?.slice(1)
       );
     }
     setTextArea(inputRef.current.innerText);
   };
-
-  // console.log('doubleBracket::', doubleBracket);
-
-  console.log('pillText::', pillText);
-  console.log('nodeData-Entity::', nodeData?.entities);
 
   const [addNoteBlock, { error: addNoteBlockError }] = useMutation(
     CREATE_NOTES,
@@ -332,7 +331,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     includeScore: false,
     threshold: 0.3,
   });
-
   const submitBlockHandler = async ({
     action,
   }: {
@@ -348,10 +346,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
         })) || [];
     const entity =
       inputRef.current.innerText
-        .match(/[[](?=\S*[-]*)([a-zA-Z0-9'-]+)]/g)
+        .match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g)
         ?.map((i) => ({
-          where: { node: { name: i.slice(1, -1) } },
-          onCreate: { node: { name: i.slice(1, -1) } },
+          where: { node: { name: i.slice(2, -2) } },
+          onCreate: { node: { name: i.slice(2, -2) } },
         })) || [];
     const sourceList =
       sources.map((i) => ({
@@ -848,10 +846,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === '[' && (
-                                      <EntitiesIcon />
-                                    )) ||
-                                    (activationChar === '#' && <TagIcon />)
+                                    (activationChar === '#' && (<TagIcon />) ) ||
+                                    (activationChar === '[' && (<EntitiesIcon />) )
                                   }
                                 >
                                   <Text fontSize={bodyText} fontWeight="400">
