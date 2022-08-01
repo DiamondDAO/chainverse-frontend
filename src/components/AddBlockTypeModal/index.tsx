@@ -48,6 +48,7 @@ import {
 import { bodyText, subText } from '@/theme';
 import { getCaretPosition, getCaretCoordinates } from './utils';
 import * as styles from './styles';
+import balanced from './../../common/utils/balanced';
 
 enum submitBlockAction {
   Add = 'add',
@@ -62,6 +63,29 @@ interface IAddBlockTypeModal {
   nodeData?: any;
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
+}
+
+export function matchEntity(text) {
+  const entityArray = text.split('[[');
+
+  if (entityArray.length === 0) {
+    return null;
+  }
+  const lastEntityTag = entityArray[entityArray.length - 1];
+  if (lastEntityTag.includes(']]')) {
+    return {
+      completed: true,
+      inProgress: false,
+      text,
+      lastEntityTag,
+    };
+  }
+  return {
+    inProgress: true,
+    completed: false,
+    text,
+    lastEntityTag,
+  };
 }
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
@@ -99,29 +123,38 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [entityGithub, setEntityGithub] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
-  const [character, setCharacter] = useState(null)
+  const [character, setCharacter] = useState(null);
 
   const position = useRef({ x: 0, y: 0 });
 
-  const [disableSaveButton, setDisableSaveButton] = useState(true)
-  
+  const [disableSaveButton, setDisableSaveButton] = useState(true);
+
   useEffect(() => {
-    const onlyText = _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('['))
-    const tagAndEntity = _.includes('[')
+    const onlyText = _.split(' ').filter(
+      (x) => !x.startsWith('#') && !x.startsWith('[')
+    );
+    const tagAndEntity = _.includes('[');
 
-    if (blockType === 'Entity' && (entityName?.length > 0)) {
-      setDisableSaveButton(false)
-    } else if(blockType === 'Partnership' && 
-    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0))) {
-      setDisableSaveButton(false)
-    } else if(blockType === 'Note' &&
-    (onlyText.length > 0 && (tagAndEntity) && (sources.length > 0)) ) {
-      setDisableSaveButton(false)
+    if (blockType === 'Entity' && entityName?.length > 0) {
+      setDisableSaveButton(false);
+    } else if (
+      blockType === 'Partnership' &&
+      onlyText.length > 0 &&
+      tagAndEntity &&
+      sources.length > 0
+    ) {
+      setDisableSaveButton(false);
+    } else if (
+      blockType === 'Note' &&
+      onlyText.length > 0 &&
+      tagAndEntity &&
+      sources.length > 0
+    ) {
+      setDisableSaveButton(false);
     } else {
-      setDisableSaveButton(true)
+      setDisableSaveButton(true);
     }
-  }, [blockType, entityName, pillText, _, sources])
-
+  }, [blockType, entityName, pillText, _, sources]);
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -136,69 +169,65 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (nodeData?.sources && (nodeData?.sources.length > 0)) {
+    if (nodeData?.sources && nodeData?.sources.length > 0) {
       setSources([nodeData.sources?.[0]?.source || '']);
     } else {
-      setSources([])
+      setSources([]);
     }
     if (nodeData?.type) {
       setPartnershipType(nodeData?.type);
     } else {
-      setPartnershipType('')
+      setPartnershipType('');
     }
-    if (nodeData?.text && (nodeData?.text.length > 0)) {
-      setTextArea(nodeData?.text)
+    if (nodeData?.text && nodeData?.text.length > 0) {
+      setTextArea(nodeData?.text);
     } else {
-      setTextArea('')
+      setTextArea('');
     }
   }, [nodeData?.sources, nodeData?.type, nodeData?.text]);
 
   useEffect(() => {
     if (nodeData?.name) {
-      setEntityName(nodeData?.name)
+      setEntityName(nodeData?.name);
     } else {
-      setEntityName('')
+      setEntityName('');
     }
-  }, [nodeData?.name])
-  
+  }, [nodeData?.name]);
+
+  const balancedEntity = balanced.matches({
+    source: _,
+    balance: true,
+    open: '[[',
+    close: ']]',
+  });
+  console.log('balanced::', balancedEntity);
   const hashTagListener = (e) => {
-    const previousCharacter = character
-    const currentCharacter = String.fromCharCode(e.which)
-    if ( currentCharacter === '[' ) {
-      setCharacter(String.fromCharCode(e.which))
-    } else {
-      setCharacter(null)
-    }
-  
-    if (
-      String.fromCharCode(e.which) === '#' &&
-      (!visible)
-    ) {
-      setActivationChar(String.fromCharCode(e.which))
+    const currentcharacter = String.fromCharCode(e.which);
+    if (String.fromCharCode(e.which) === '#' && !visible) {
+      setActivationChar(String.fromCharCode(e.which));
       setDialogStartPosition(getCaretPosition(inputRef.current));
       position.current = getCaretCoordinates();
       setVisible(true);
     }
 
-    if (
-      (currentCharacter === previousCharacter && !visible)
-    ) {
-      setActivationChar(String.fromCharCode(e.which))
+    if (matchEntity(_ + currentcharacter)?.inProgress && !visible) {
+      setActivationChar('[');
       setDialogStartPosition(getCaretPosition(inputRef.current));
       position.current = getCaretCoordinates();
-      setVisible(true);
     }
   };
 
   const keyUpListener = (e) => {
+    const isSpace = e.key === ' ';
+    const isEnter = e.key === 'Enter';
+    const CaretPosition = getCaretPosition(inputRef.current);
     if (
-      (visible && e.key === ' ') ||
-      e.key === 'Enter' ||
+      (visible && isSpace) ||
+      isEnter ||
       '.,?!'.includes(e.key) ||
-      getCaretPosition(inputRef.current) <= dialogStartPosition
+      CaretPosition <= dialogStartPosition
     ) {
       setVisible(false);
-      // setTextArea()
       setDialogStartPosition(0);
     }
   };
@@ -209,28 +238,34 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       .slice(dialogStartPosition)
       .split(' ')[0].length;
 
-    inputRef.current.innerHTML =
+    const entityCloseTag = matchEntity(inputRef.current?.innerText)?.inProgress
+      ? ']]'
+      : '';
+    const textUpdated =
       inputRef.current?.innerText.slice(0, dialogStartPosition) +
       activationChar +
       autoCompletedText +
       inputRef.current?.innerText.slice(
         dialogStartPosition + currentTextLength
-      );
+      ) +
+      entityCloseTag;
 
+    inputRef.current.innerHTML = textUpdated;
+    setTextArea(textUpdated);
     setVisible(false);
     setDialogStartPosition(0);
   };
-  
+
   const closeHandler = (refresh?: boolean) => {
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
     if (!nodeData) {
       setSources([]);
-      setTextArea('')
-      setPartnershipType('')
+      setTextArea('');
+      setPartnershipType('');
     }
-    onClose(refresh)
+    onClose(refresh);
   };
 
   const inputHandler = (e) => {
@@ -241,6 +276,13 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           .match(/[[#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
           ?.slice(1)
       );
+    }
+    const currentTextAreaValue = inputRef.current.innerText;
+    if (matchEntity(currentTextAreaValue)?.inProgress && !visible) {
+      setVisible(true);
+    }
+    if (matchEntity(currentTextAreaValue)?.completed && visible) {
+      setVisible(false);
     }
     setTextArea(inputRef.current.innerText);
   };
@@ -345,12 +387,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
           onCreate: { node: { tag: i.slice(1) } },
         })) || [];
     const entity =
-      inputRef.current.innerText
-        .match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g)
-        ?.map((i) => ({
-          where: { node: { name: i.slice(2, -2) } },
-          onCreate: { node: { name: i.slice(2, -2) } },
-        })) || [];
+      balancedEntity.map((entityTag) => ({
+        where: { node: { name: entityTag.data.slice(2, -2) } },
+        onCreate: { node: { name: entityTag.data.slice(2, -2) } },
+      })) || [];
     const sourceList =
       sources.map((i) => ({
         where: { node: { source: i } },
@@ -712,12 +752,14 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
   const [noteEntitySelection, setNoteEntitySelection] = useState<Option[]>([]);
   const [noteTagSelection, setNoteTagSelection] = useState<Option[]>([]);
-  const [partnerEntitySelection, setPartnerEntitySelection] = useState<Option[]>([]);
+  const [partnerEntitySelection, setPartnerEntitySelection] = useState<
+    Option[]
+  >([]);
   const [partnerTagSelection, setPartnerTagSelection] = useState<Option[]>([]);
 
   const onHandleSaveSource = (sources: string[]) => {
-    setSources([...sources])
-  }
+    setSources([...sources]);
+  };
 
   return (
     <>
@@ -742,92 +784,134 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
               <Box sx={styles.ModalBodyStyle}>
                 <Grid gridTemplateRows={'11fr 1fr'}>
                   {blockType === 'Entity' && (
-                  <form>
-                    <FormControl            
-                    >
-                      <FormLabel htmlFor="entity-name" >
-                        Entity name (no spaces)
-                      </FormLabel>
-                      <Input
-                        type='text'
-                        value={entityName}
-                        onChange={(e) => setEntityName(e.target.value)}
-                        sx={styles.InputStyle}
-                      />
-                      {
-                        (entityName?.length === 0) &&
-                        <Text sx={styles.errorText(error)}>Entity name is required</Text>
-                      }                     
-                    </FormControl>
-                    <FormControl>
-                      <FormLabel htmlFor="entity-onChain" sx={styles.LabelStyle}>
-                        Is this entity onChain?
-                      </FormLabel>
-                      <Select
-                        value={entityOnChain}
-                        placeholder="Select option"
-                        sx={styles.InputStyle}
-                        onChange={(e) => setEntityOnChain(e.target.value)}
-                      >
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                      </Select>
-                      <FormLabel htmlFor="entity-network" sx={styles.LabelStyle}>
-                        Entity network
-                      </FormLabel>
-                      <Select
-                        value={entityNetwork}
-                        placeholder="Select option"
-                        sx={styles.InputStyle}
-                        onChange={(e) => setEntityNetwork(e.target.value)}
-                      >
-                        <option value="Arbitrum">Arbitrum</option>
-                        <option value="Avalanche">Avalanche</option>
-                        <option value="Cosmos">Cosmos</option>
-                        <option value="EthereumMainnet">
-                          Ethereum Mainnet
-                        </option>
-                        <option value="GnosisChain">Gnosis Chain</option>
-                        <option value="ImmutableX">Immutable X</option>
-                        <option value="Loopring">Loopring</option>
-                        <option value="MetisAndromeda">Metis Andromeda</option>
-                        <option value="Optimism">Optimism</option>
-                        <option value="Polygon">Polygon</option>
-                        <option value="Solana">Solana</option>
-                        <option value="zkSync">zkSync</option>
-                        <option value="Other">Other</option>
-                        <option value="NotApplicable">Not Applicable</option>
-                      </Select>
-                      <FormLabel htmlFor="entity-address" sx={styles.LabelStyle}>
-                        Entity wallet address
-                      </FormLabel>
-                      <Input
-                        onChange={(e) => setEntityAddress(e.target.value)}
-                        sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-address-source" sx={styles.LabelStyle}>
-                        Entity wallet address source
-                      </FormLabel>
-                      <Input
-                        onChange={(e) => setEntityAddressSource(e.target.value)}
-                        sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-twitter" sx={styles.LabelStyle}>Twitter</FormLabel>
-                      <Input
-                        onChange={(e) => setEntityTwitter(e.target.value)}
-                        sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-discord" sx={styles.LabelStyle}>Discord</FormLabel>
-                      <Input
-                        onChange={(e) => setEntityDiscord(e.target.value)}
-                        sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-website" sx={styles.LabelStyle}>Website</FormLabel>
-                      <Input
-                        onChange={(e) => setEntityWebsite(e.target.value)}
-                        sx={styles.InputStyle} />
-                      <FormLabel htmlFor="entity-github" sx={styles.LabelStyle}>Github</FormLabel>
-                      <Input
-                        onChange={(e) => setEntityGithub(e.target.value)}
-                        sx={styles.InputStyle} />
-                    </FormControl>
-                  </form>
+                    <form>
+                      <FormControl>
+                        <FormLabel htmlFor="entity-name">
+                          Entity name (no spaces)
+                        </FormLabel>
+                        <Input
+                          type="text"
+                          value={entityName}
+                          onChange={(e) => setEntityName(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                        {entityName?.length === 0 && (
+                          <Text sx={styles.errorText(error)}>
+                            Entity name is required
+                          </Text>
+                        )}
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel
+                          htmlFor="entity-onChain"
+                          sx={styles.LabelStyle}
+                        >
+                          Is this entity onChain?
+                        </FormLabel>
+                        <Select
+                          value={entityOnChain}
+                          placeholder="Select option"
+                          sx={styles.InputStyle}
+                          onChange={(e) => setEntityOnChain(e.target.value)}
+                        >
+                          <option value="true">Yes</option>
+                          <option value="false">No</option>
+                        </Select>
+                        <FormLabel
+                          htmlFor="entity-network"
+                          sx={styles.LabelStyle}
+                        >
+                          Entity network
+                        </FormLabel>
+                        <Select
+                          value={entityNetwork}
+                          placeholder="Select option"
+                          sx={styles.InputStyle}
+                          onChange={(e) => setEntityNetwork(e.target.value)}
+                        >
+                          <option value="Arbitrum">Arbitrum</option>
+                          <option value="Avalanche">Avalanche</option>
+                          <option value="Cosmos">Cosmos</option>
+                          <option value="EthereumMainnet">
+                            Ethereum Mainnet
+                          </option>
+                          <option value="GnosisChain">Gnosis Chain</option>
+                          <option value="ImmutableX">Immutable X</option>
+                          <option value="Loopring">Loopring</option>
+                          <option value="MetisAndromeda">
+                            Metis Andromeda
+                          </option>
+                          <option value="Optimism">Optimism</option>
+                          <option value="Polygon">Polygon</option>
+                          <option value="Solana">Solana</option>
+                          <option value="zkSync">zkSync</option>
+                          <option value="Other">Other</option>
+                          <option value="NotApplicable">Not Applicable</option>
+                        </Select>
+                        <FormLabel
+                          htmlFor="entity-address"
+                          sx={styles.LabelStyle}
+                        >
+                          Entity wallet address
+                        </FormLabel>
+                        <Input
+                          onChange={(e) => setEntityAddress(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                        <FormLabel
+                          htmlFor="entity-address-source"
+                          sx={styles.LabelStyle}
+                        >
+                          Entity wallet address source
+                        </FormLabel>
+                        <Input
+                          onChange={(e) =>
+                            setEntityAddressSource(e.target.value)
+                          }
+                          sx={styles.InputStyle}
+                        />
+                        <FormLabel
+                          htmlFor="entity-twitter"
+                          sx={styles.LabelStyle}
+                        >
+                          Twitter
+                        </FormLabel>
+                        <Input
+                          onChange={(e) => setEntityTwitter(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                        <FormLabel
+                          htmlFor="entity-discord"
+                          sx={styles.LabelStyle}
+                        >
+                          Discord
+                        </FormLabel>
+                        <Input
+                          onChange={(e) => setEntityDiscord(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                        <FormLabel
+                          htmlFor="entity-website"
+                          sx={styles.LabelStyle}
+                        >
+                          Website
+                        </FormLabel>
+                        <Input
+                          onChange={(e) => setEntityWebsite(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                        <FormLabel
+                          htmlFor="entity-github"
+                          sx={styles.LabelStyle}
+                        >
+                          Github
+                        </FormLabel>
+                        <Input
+                          onChange={(e) => setEntityGithub(e.target.value)}
+                          sx={styles.InputStyle}
+                        />
+                      </FormControl>
+                    </form>
                   )}
                   {blockType === 'Note' && (
                     <FormControl>
@@ -846,8 +930,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                                   onClick={onClickPillHandler}
                                   asButton
                                   icon={
-                                    (activationChar === '#' && (<TagIcon />) ) ||
-                                    (activationChar === '[' && (<EntitiesIcon />) )
+                                    (activationChar === '#' && <TagIcon />) ||
+                                    (activationChar === '[' && <EntitiesIcon />)
                                   }
                                 >
                                   <Text fontSize={bodyText} fontWeight="400">
@@ -929,21 +1013,29 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      {
-                        !(_.includes('[') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('[')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
-                      }
-                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
-                      {
-                        (sources.length === 0) &&
-                        <Text sx={styles.errorText(error)}>Source is required</Text>
-                      }
+                      {!(
+                        _.includes('[') &&
+                        _.split(' ').filter(
+                          (x) => !x.startsWith('#') && !x.startsWith('[')
+                        ).length > 0
+                      ) && (
+                        <Text sx={styles.errorText(error)}>
+                          Entity and text are required
+                        </Text>
+                      )}
+                      <LinkSourceModal
+                        sources={sources}
+                        onSave={onHandleSaveSource}
+                      />
+                      {sources.length === 0 && (
+                        <Text sx={styles.errorText(error)}>
+                          Source is required
+                        </Text>
+                      )}
                     </FormControl>
                   )}
                   {blockType === 'Partnership' && (
-                    <FormControl
-                    >
+                    <FormControl>
                       <FormLabel htmlFor="partner-type">
                         Partnership Type
                       </FormLabel>
@@ -1058,16 +1150,25 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      {
-                        !(_.includes('[') &&
-                         _.split(' ').filter(x => !x.startsWith('#') && !x.startsWith('[')).length > 0) &&
-                          <Text sx={styles.errorText(error)}>Entity and text are required</Text>
-                      }
-                      <LinkSourceModal sources={sources} onSave={onHandleSaveSource} />
-                      {
-                        (sources.length === 0) &&
-                        <Text sx={styles.errorText(error)}>Source is required</Text>
-                      }
+                      {!(
+                        _.includes('[') &&
+                        _.split(' ').filter(
+                          (x) => !x.startsWith('#') && !x.startsWith('[')
+                        ).length > 0
+                      ) && (
+                        <Text sx={styles.errorText(error)}>
+                          Entity and text are required
+                        </Text>
+                      )}
+                      <LinkSourceModal
+                        sources={sources}
+                        onSave={onHandleSaveSource}
+                      />
+                      {sources.length === 0 && (
+                        <Text sx={styles.errorText(error)}>
+                          Source is required
+                        </Text>
+                      )}
                     </FormControl>
                   )}
                 </Grid>
