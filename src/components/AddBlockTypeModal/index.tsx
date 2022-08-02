@@ -131,23 +131,23 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   useEffect(() => {
     const onlyText = _.split(' ').filter(
-      (x) => !x.startsWith('#') && !x.startsWith('[')
+      (x) => !x.startsWith('#') && !x.startsWith('[[')
     );
-    const tagAndEntity = _.includes('[');
+    const validEntity = _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g)
 
     if (blockType === 'Entity' && entityName?.length > 0) {
       setDisableSaveButton(false);
     } else if (
       blockType === 'Partnership' &&
       onlyText.length > 0 &&
-      tagAndEntity &&
+      validEntity &&
       sources.length > 0
     ) {
       setDisableSaveButton(false);
     } else if (
       blockType === 'Note' &&
       onlyText.length > 0 &&
-      tagAndEntity &&
+      validEntity &&
       sources.length > 0
     ) {
       setDisableSaveButton(false);
@@ -199,6 +199,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     open: '[[',
     close: ']]',
   });
+  console.log('balancedEntity:', balancedEntity)
   const hashTagListener = (e) => {
     const currentcharacter = String.fromCharCode(e.which);
 
@@ -216,6 +217,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       position.current = getCaretCoordinates();
     }
   };
+
+  console.log('activationChar:', activationChar)
+  console.log('entity:', nodeData?.entities)
+  console.log('tags:', nodeData?.tags)
 
   const keyUpListener = (e) => {
     const isSpace = e.key === ' ';
@@ -1019,9 +1024,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {!(
-                        _.includes('[') &&
+                        _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g) &&
                         _.split(' ').filter(
-                          (x) => !x.startsWith('#') && !x.startsWith('[')
+                          (x) => !x.startsWith('#') && !x.startsWith('[[')
                         ).length > 0
                       ) && (
                         <Text sx={styles.errorText(error)}>
@@ -1156,9 +1161,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                         {nodeData?.text}
                       </Box>
                       {!(
-                        _.includes('[') &&
+                        _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g) &&
                         _.split(' ').filter(
-                          (x) => !x.startsWith('#') && !x.startsWith('[')
+                          (x) => !x.startsWith('#') && !x.startsWith('[[')
                         ).length > 0
                       ) && (
                         <Text sx={styles.errorText(error)}>
