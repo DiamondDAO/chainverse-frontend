@@ -35,8 +35,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
 
   const onHandleSave = () => {
     if (
-      validURL(inputRef.current.value) &&
-      sources.length === 0
+      sources.length === 0 && validURL(inputRef.current.value)      
     ) {
       sources.push(inputRef.current.value)
       setError(false);
