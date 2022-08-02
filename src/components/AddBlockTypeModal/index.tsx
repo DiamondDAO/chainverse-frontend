@@ -65,10 +65,10 @@ interface IAddBlockTypeModal {
   blockType: string;
 }
 
-export function matchEntity(text) {
+const matchEntity = (text) => {
   const entityArray = text.split('[[');
 
-  if (entityArray.length === 0) {
+  if (entityArray.length === 0 || !text.includes('[[')) {
     return null;
   }
   const lastEntityTag = entityArray[entityArray.length - 1];
@@ -196,18 +196,18 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   const balancedEntity = balanced.matches({
     source: _,
-    balance: true,
     open: '[[',
     close: ']]',
   });
-  console.log('balanced::', balancedEntity);
   const hashTagListener = (e) => {
     const currentcharacter = String.fromCharCode(e.which);
-    if (String.fromCharCode(e.which) === '#' && !visible) {
-      setActivationChar(String.fromCharCode(e.which));
+
+    if (currentcharacter === '#' && !visible) {
+      setActivationChar(currentcharacter);
       setDialogStartPosition(getCaretPosition(inputRef.current));
       position.current = getCaretCoordinates();
       setVisible(true);
+      return
     }
 
     if (matchEntity(_ + currentcharacter)?.inProgress && !visible) {
@@ -238,7 +238,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       .slice(dialogStartPosition)
       .split(' ')[0].length;
 
-    const entityCloseTag = matchEntity(inputRef.current?.innerText)?.inProgress
+    const entityCloseTag = matchEntity(inputRef.current?.innerText)?.inProgress && activationChar === '['
       ? ']]'
       : '';
     const textUpdated =
@@ -278,10 +278,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       );
     }
     const currentTextAreaValue = inputRef.current.innerText;
-    if (matchEntity(currentTextAreaValue)?.inProgress && !visible) {
+    const matchEntityResult = matchEntity(currentTextAreaValue);
+    if (matchEntityResult?.inProgress && !visible) {
       setVisible(true);
     }
-    if (matchEntity(currentTextAreaValue)?.completed && visible) {
+    if (
+      matchEntityResult?.completed &&
+      activationChar === '[' &&
+      visible
+    ) {
       setVisible(false);
     }
     setTextArea(inputRef.current.innerText);
