@@ -257,6 +257,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const closeHandler = (refresh?: boolean) => {
+
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }

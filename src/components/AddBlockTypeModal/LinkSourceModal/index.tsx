@@ -56,6 +56,10 @@ export const LinkSourceModal: FC<ILinkSource> = ({
       setError(true);
     }
   }
+  const onHandleCancel = () => {
+    inputRef.current.value = ""
+    close();
+  }
 
   return (
     <AnimatedBox style={linkStyle} sx={styles.Container}>
@@ -94,7 +98,7 @@ export const LinkSourceModal: FC<ILinkSource> = ({
           <Input ref={inputRef} sx={styles.URLInput(error)} />
           <Button
             sx={styles.URLCancelButton}
-            onClick={close}
+            onClick={onHandleCancel}
           >
             Cancel
           </Button>
