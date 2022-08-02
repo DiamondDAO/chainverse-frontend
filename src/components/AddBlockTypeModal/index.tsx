@@ -218,10 +218,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   };
 
-  console.log('activationChar:', activationChar)
-  console.log('entity:', nodeData?.entities)
-  console.log('tags:', nodeData?.tags)
-
   const keyUpListener = (e) => {
     const isSpace = e.key === ' ';
     const isEnter = e.key === 'Enter';
