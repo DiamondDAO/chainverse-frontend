@@ -199,7 +199,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     open: '[[',
     close: ']]',
   });
-  console.log('balancedEntity:', balancedEntity)
   const hashTagListener = (e) => {
     const currentcharacter = String.fromCharCode(e.which);
 
