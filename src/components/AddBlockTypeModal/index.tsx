@@ -86,7 +86,7 @@ const matchEntity = (text) => {
     text,
     lastEntityTag,
   };
-}
+};
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   blockType,
@@ -128,12 +128,22 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const position = useRef({ x: 0, y: 0 });
 
   const [disableSaveButton, setDisableSaveButton] = useState(true);
-
+  const balancedEntity = balanced.matches({
+    source: _,
+    open: '[[',
+    close: ']]',
+  });
+  console.log('disableSaveButton::', disableSaveButton);
+  // const entities = balancedEntity.map(x=> x.data)
+  let textWithNoEntity = _;
+  balancedEntity.forEach((entity) => {
+    textWithNoEntity = textWithNoEntity.replace(entity.data, '');
+  });
   useEffect(() => {
-    const onlyText = _.split(' ').filter(
-      (x) => !x.startsWith('#') && !x.startsWith('[[')
-    );
-    const validEntity = _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g)
+    const onlyText = textWithNoEntity.split(' ').filter((x) => !x.startsWith('#') && x.length > 0);
+    console.log('textWithNoEntity::', textWithNoEntity);
+    console.log('onlyText::', onlyText);
+    const validEntity = balancedEntity.length > 0;
 
     if (blockType === 'Entity' && entityName?.length > 0) {
       setDisableSaveButton(false);
@@ -154,7 +164,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     } else {
       setDisableSaveButton(true);
     }
-  }, [blockType, entityName, pillText, _, sources]);
+  }, [blockType, entityName, pillText, _, sources, balancedEntity]);
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -194,11 +204,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.name]);
 
-  const balancedEntity = balanced.matches({
-    source: _,
-    open: '[[',
-    close: ']]',
-  });
+  console.log('balancedEntity::', balancedEntity);
   const hashTagListener = (e) => {
     const currentcharacter = String.fromCharCode(e.which);
 
@@ -207,7 +213,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDialogStartPosition(getCaretPosition(inputRef.current));
       position.current = getCaretCoordinates();
       setVisible(true);
-      return
+      return;
     }
 
     if (matchEntity(_ + currentcharacter)?.inProgress && !visible) {
@@ -238,9 +244,11 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       .slice(dialogStartPosition)
       .split(' ')[0].length;
 
-    const entityCloseTag = matchEntity(inputRef.current?.innerText)?.inProgress && activationChar === '['
-      ? ']]'
-      : '';
+    const entityCloseTag =
+      matchEntity(inputRef.current?.innerText)?.inProgress &&
+      activationChar === '['
+        ? ']]'
+        : '';
     const textUpdated =
       inputRef.current?.innerText.slice(0, dialogStartPosition) +
       activationChar +
@@ -257,7 +265,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const closeHandler = (refresh?: boolean) => {
-
     if (blockType === ('Note' || 'Partnership')) {
       inputRef.current.innerText = '';
     }
@@ -283,11 +290,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     if (matchEntityResult?.inProgress && !visible) {
       setVisible(true);
     }
-    if (
-      matchEntityResult?.completed &&
-      activationChar === '[' &&
-      visible
-    ) {
+    if (matchEntityResult?.completed && activationChar === '[' && visible) {
       setVisible(false);
     }
     setTextArea(inputRef.current.innerText);
@@ -767,6 +770,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setSources([...sources]);
   };
 
+  const entityAndTextRequired =
+    balancedEntity.length > 0 &&
+    textWithNoEntity.split(' ').filter((x) => !x.startsWith('#') && x.length>0).length > 0;
+  console.log('entityAndTextRequired::', entityAndTextRequired);
   return (
     <>
       <Modal
@@ -1019,12 +1026,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      {!(
-                        _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g) &&
-                        _.split(' ').filter(
-                          (x) => !x.startsWith('#') && !x.startsWith('[[')
-                        ).length > 0
-                      ) && (
+                      {!entityAndTextRequired && (
                         <Text sx={styles.errorText(error)}>
                           Entity and text are required
                         </Text>
@@ -1156,12 +1158,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       >
                         {nodeData?.text}
                       </Box>
-                      {!(
-                        _.match(/[[][[](?=\S*[-]*)([a-zA-Z0-9'-]+)]]/g) &&
-                        _.split(' ').filter(
-                          (x) => !x.startsWith('#') && !x.startsWith('[[')
-                        ).length > 0
-                      ) && (
+                      {!entityAndTextRequired && (
                         <Text sx={styles.errorText(error)}>
                           Entity and text are required
                         </Text>
