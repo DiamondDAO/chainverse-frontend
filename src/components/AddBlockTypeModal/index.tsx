@@ -703,9 +703,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setSources([...sources])
   }
 
-  console.log('sources:', nodeData?.sources)
-  console.log('entity:', nodeData?.entities)
-
   return (
     <>
       <Modal

@@ -30,13 +30,10 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-  // const [sources, setSources] = useState([])
 
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
- 
-  
   const onHandleSave = () => {
     if (
       sources.length >= 0 &&
@@ -53,19 +50,15 @@ export const LinkSourceModal: FC<ILinkSource> = ({
     }
   }
 
-  console.log('sources(LinkModal)', sources);
-
   const onHandleCancel = () => {
     inputRef.current.value = ""
     close();
+    setError(false);
   }
 
   const onHandleDeleteSource = (name: string) => {
-    
     sources = sources.filter( x => x !== name)
     onSave([...sources])
-
-    console.log('filter:', sources.filter( x => x !== name));
   }
 
   return (
