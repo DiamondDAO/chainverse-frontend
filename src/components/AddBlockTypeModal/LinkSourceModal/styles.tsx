@@ -68,3 +68,15 @@ export const URLCancelButton = {
   color: "red",
   fontWeigth: "400"
 }
+
+export const URLDeleteButton = {
+  color: "red",
+  width: "10px !important",
+  height: "10px !important",
+  fontWeight: "400",
+  fontSize: "12px",
+  padding: "0px !important",
+  ml: "5px",
+  minWidth: "10px",
+  minHeight: "10px"
+}

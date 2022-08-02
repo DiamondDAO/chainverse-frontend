@@ -135,7 +135,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   useEffect(() => {
     if (nodeData?.sources && (nodeData?.sources.length > 0)) {
-      setSources([nodeData.sources?.[0]?.source || '']);
+      setSources(nodeData?.sources?.map(x=> x.source));
     } else {
       setSources([])
     }
@@ -702,6 +702,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const onHandleSaveSource = (sources: string[]) => {
     setSources([...sources])
   }
+
+  console.log('sources:', nodeData?.sources)
+  console.log('entity:', nodeData?.entities)
 
   return (
     <>

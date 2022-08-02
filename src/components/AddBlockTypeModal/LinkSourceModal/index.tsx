@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { validURL } from "@/common/utils";
 import { subText } from "@/theme";
 import {
@@ -19,7 +19,8 @@ interface ILinkSource {
 }
 
 export const LinkSourceModal: FC<ILinkSource> = ({
-  sources,onSave
+  sources,
+  onSave,
 }) => {
   const AnimatedBox = a(Box);
   const [linkStyle, api] = useSpring(() => {
@@ -29,35 +30,42 @@ export const LinkSourceModal: FC<ILinkSource> = ({
   const [error, setError] = useState(false);
   const inputRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  // const [sources, setSources] = useState([])
 
   const open = () => setIsOpen(!isOpen);
   const close = () => setIsOpen(false);
 
+ 
+  
   const onHandleSave = () => {
     if (
-      sources.length === 0 && validURL(inputRef.current.value)      
+      sources.length >= 0 &&
+      validURL(inputRef.current.value) &&
+      !sources.includes(inputRef.current.value)
     ) {
       sources.push(inputRef.current.value)
       setError(false);
       inputRef.current.value = ""
       onSave([...sources])
       close();
-    } else if (
-      validURL(inputRef.current.value) &&
-      sources.length > 0
-    ) {
-      sources[0] = inputRef.current.value
-      setError(false)
-      inputRef.current.value = ""
-      onSave([...sources])
-      close() 
     } else {
       setError(true);
     }
   }
+
+  console.log('sources(LinkModal)', sources);
+
   const onHandleCancel = () => {
     inputRef.current.value = ""
     close();
+  }
+
+  const onHandleDeleteSource = (name: string) => {
+    
+    sources = sources.filter( x => x !== name)
+    onSave([...sources])
+
+    console.log('filter:', sources.filter( x => x !== name));
   }
 
   return (
@@ -80,6 +88,12 @@ export const LinkSourceModal: FC<ILinkSource> = ({
                           {s}
                         </span>
                       </Tooltip>
+                      <Button
+                        sx={styles.URLDeleteButton}
+                        onClick={() => onHandleDeleteSource(s)}
+                      >
+                        x
+                      </Button>
                     </Box>
                   ))}
                 </>
