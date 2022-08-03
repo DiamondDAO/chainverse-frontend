@@ -123,7 +123,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   const [entityGithub, setEntityGithub] = useState('');
   const inputRef = useRef<HTMLDivElement>(null);
   const [_, setTextArea] = useState('');
-  const [character, setCharacter] = useState(null);
 
   const position = useRef({ x: 0, y: 0 });
 
@@ -133,16 +132,15 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     open: '[[',
     close: ']]',
   });
-  console.log('disableSaveButton::', disableSaveButton);
   // const entities = balancedEntity.map(x=> x.data)
   let textWithNoEntity = _;
   balancedEntity.forEach((entity) => {
     textWithNoEntity = textWithNoEntity.replace(entity.data, '');
   });
   useEffect(() => {
-    const onlyText = textWithNoEntity.split(' ').filter((x) => !x.startsWith('#') && x.length > 0);
-    console.log('textWithNoEntity::', textWithNoEntity);
-    console.log('onlyText::', onlyText);
+    const onlyText = textWithNoEntity.split(' ').filter(
+      (x) => !x.startsWith('#') && x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g) && x.length > 0
+    );
     const validEntity = balancedEntity.length > 0;
 
     if (blockType === 'Entity' && entityName?.length > 0) {
@@ -204,7 +202,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.name]);
 
-  console.log('balancedEntity::', balancedEntity);
   const hashTagListener = (e) => {
     const currentcharacter = String.fromCharCode(e.which);
 
@@ -237,6 +234,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setDialogStartPosition(0);
     }
   };
+    
+  console.log('position.current:', position.current);
+  console.log('dialogStartPosition:', dialogStartPosition)
 
   const onClickPillHandler = (e) => {
     const autoCompletedText = e.target.innerText;
@@ -262,6 +262,10 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     setTextArea(textUpdated);
     setVisible(false);
     setDialogStartPosition(0);
+
+    console.log('currentTextLength:', inputRef.current?.innerText
+    .slice(dialogStartPosition)
+    .split(' ')[0]);
   };
 
   const closeHandler = (refresh?: boolean) => {
@@ -772,8 +776,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   const entityAndTextRequired =
     balancedEntity.length > 0 &&
-    textWithNoEntity.split(' ').filter((x) => !x.startsWith('#') && x.length>0).length > 0;
-  console.log('entityAndTextRequired::', entityAndTextRequired);
+    textWithNoEntity.split(' ').filter(
+      (x) => !x.startsWith('#') && x.length>0 && x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
+    ).length > 0
   return (
     <>
       <Modal
