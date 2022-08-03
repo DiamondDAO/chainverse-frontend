@@ -294,48 +294,76 @@ const Workspace: NextPage = () => {
       ],
     });
 
-  const addBlockToWorkspaceHandler = async (data?: any) => {
-    try {
-      await addBlockToWorkspace({
-        variables: {
-          where: { uuid: workspaceId },
-          connect: {
-            blocks: {
-              Note: [
-                {
-                  where: {
-                    node: {
-                      uuid: data.uuid,
+    const addBlockToWorkspaceHandler = async (data?: any) => {
+      try {
+        if (data.__typename === "Note") {
+          console.log(data)
+          await addBlockToWorkspace({
+            variables: {
+              where: {
+                uuid: workspaceId
+              },
+              connect: {
+                blocks: {
+                  Note: [
+                    {
+                      where: {
+                        node: {
+                          uuid: data?.uuid,
+                        },
+                      },
                     },
-                  },
+                  ],
                 },
-              ],
-              Partnership: [
-                {
-                  where: {
-                    node: {
-                      uuid: data.uuid,
-                    },
-                  },
-                },
-              ],
+              },
             },
-            entities: [
-              {
-                where: {
-                  node: {
-                    uuid: data.uuid,
-                  }
-                }
-              }
-            ],
-          },
-        },
-      });
-    } catch (e) {
-      throw e;
-    }
-  };
+          });
+        } else if (data.__typename === 'Partnership') {
+          await addBlockToWorkspace({
+            variables: {
+              where: {
+                uuid: workspaceId
+              },
+              connect: {
+                blocks: {
+                  Partnership: [
+                    {
+                      where: {
+                        node: {
+                          uuid: data?.uuid,
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          });
+        } else if (data.__typename === 'Entity') {
+          await addBlockToWorkspace({
+            variables: {
+              where: {
+                uuid: workspaceId
+              },
+              connect: {
+                entities: [
+                  {
+                    where: {
+                      node: {
+                        uuid: data?.uuid,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+        }
+      } catch (e) {
+        throw e;
+      }
+    };
+  
   const tags = useMemo(
     () =>
       filterUniqueObjects(tagAndEntitiesData?.tags, "tag")?.map((i) => i.tag) ||
@@ -481,7 +509,7 @@ const Workspace: NextPage = () => {
                     onOpen();
                     setBlockType('Entity');
                   },
-                  deleteBlock: deleteBlockHandler,
+                  deleteBlock: deleteEntityHandler,
                 }}
               />
               <AddBlockTypeModal
@@ -489,7 +517,14 @@ const Workspace: NextPage = () => {
                 entities={entities}
                 isOpen={isOpen}
                 saveToWorkspaceFn={addBlockToWorkspaceHandler}
-                onClose={onClose}
+                onClose={(refresh) => {
+                  onClose();
+                  if(refresh){
+                    setTimeout(() => {
+                      window.location.reload()
+                    }, 2000);
+                  }
+                }}
                 blockType={blockType}
                 nodeData={currentNode}
               />
