@@ -224,7 +224,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     const isSpace = e.key === ' ';
     const isEnter = e.key === 'Enter';
     const CaretPosition = getCaretPosition(inputRef.current);
-    if (
+    if ( activationChar === '#' &&
       (visible && isSpace) ||
       isEnter ||
       '.,?!'.includes(e.key) ||
@@ -232,12 +232,21 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     ) {
       setVisible(false);
       setDialogStartPosition(0);
+      setPillText('')
+      setActivationChar('')
+    }
+
+    if ( activationChar === '[' &&
+      (visible && isEnter) ||
+      '.,?!'.includes(e.key) ||
+      CaretPosition <= dialogStartPosition
+    ) {
+      setVisible(false);
+      setDialogStartPosition(0);
+      setActivationChar('')
     }
   };
-    
-  console.log('position.current:', position.current);
-  console.log('dialogStartPosition:', dialogStartPosition)
-
+  
   const onClickPillHandler = (e) => {
     const autoCompletedText = e.target.innerText;
     const currentTextLength = inputRef.current?.innerText
@@ -261,7 +270,9 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     inputRef.current.innerHTML = textUpdated;
     setTextArea(textUpdated);
     setVisible(false);
+    setActivationChar('');
     setDialogStartPosition(0);
+    setPillText('');
 
     console.log('currentTextLength:', inputRef.current?.innerText
     .slice(dialogStartPosition)
@@ -281,21 +292,33 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const inputHandler = (e) => {
-    if (visible) {
+    if (visible && activationChar === '#') {
       setPillText(
         inputRef.current?.innerText
           .slice(dialogStartPosition)
-          .match(/[[#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
+          .match(/[#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
           ?.slice(1)
       );
+    }
+    if (visible && activationChar === '[') {
+      setPillText(
+        inputRef.current?.innerText
+          .slice(dialogStartPosition)
+          .match(/[[](?=\S*[-]*)([a-zA-Za\szA\sZ0-9'-]+)/g)?.[0]
+          ?.slice(1)
+      )
     }
     const currentTextAreaValue = inputRef.current.innerText;
     const matchEntityResult = matchEntity(currentTextAreaValue);
     if (matchEntityResult?.inProgress && !visible) {
       setVisible(true);
+      position.current = getCaretCoordinates();
+      setActivationChar('[')
     }
     if (matchEntityResult?.completed && activationChar === '[' && visible) {
       setVisible(false);
+      setActivationChar('')
+      setPillText('')
     }
     setTextArea(inputRef.current.innerText);
   };
