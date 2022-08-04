@@ -64,6 +64,7 @@ interface IAddBlockTypeModal {
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
 }
+
 function hasWhiteSpace(s) {
   return (/\s/).test(s);
 }
@@ -101,17 +102,6 @@ const evaluateTextArea = (text, cursorPosition) => {
   }
   const editingEntityIndex= textUntilCurrentPosition.indexOf(editingEntityValue)
   const editingHashTagIndex= textUntilCurrentPosition.indexOf(editingHashtagValue)
-  // const evaluate = {
-  //   cursorPosition,
-  //   allUncompletedEntityArray,
-  //   textUntilCurrentPosition,
-  //   editingEntityValue,
-  //   editingEntityIndex,
-  //   hashTagArray,
-  //   editingHashtagValue,
-  //   editingHashTagIndex
-  // }
-  // console.log('matchEntity::', evaluate);
 
   const lastResult = {
     editingHashTag: editingHashTagIndex >= 0,
@@ -122,8 +112,6 @@ const evaluateTextArea = (text, cursorPosition) => {
     editingHashTagIndex,
     editingEntityIndex
   }
-
-  console.log('lastResult::', lastResult);
   return lastResult
 };
 
@@ -171,12 +159,12 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     open: '[[',
     close: ']]',
   });
-  console.log('pillText::', pillText);
-  const currentCursorPosition = getCaretPosition(inputRef.current);
+
   let textWithNoEntity = _;
   balancedEntity.forEach((entity) => {
     textWithNoEntity = textWithNoEntity.replace(entity.data, '');
   });
+
   useEffect(() => {
     const onlyText = textWithNoEntity
       .split(' ')
@@ -207,7 +195,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     } else {
       setDisableSaveButton(true);
     }
-  }, [blockType, entityName, pillText, _, sources, balancedEntity]);
+  }, [blockType, entityName, _, sources, balancedEntity, textWithNoEntity]);
 
   useEffect(() => {
     setEntityOnChainBool(entityOnChain === 'true' ? true : false);
@@ -247,69 +235,19 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     }
   }, [nodeData?.name]);
 
-  const hashTagListener = (e) => {
-    // const currentcharacter = String.fromCharCode(e.which);
-
-    // if (currentcharacter === '#' && !visible) {
-    //   setActivationChar(currentcharacter);
-    //   // setDialogStartPosition(getCaretPosition(inputRef.current));
-    //   position.current = getCaretCoordinates();
-    //   setVisible(true);
-    //   return;
-    // }
-    // console.log('hashTagListener::', entity);
-    // if (entity?.inProgress && !visible) {
-    //   setActivationChar('[');
-    //   // setDialogStartPosition(getCaretPosition(inputRef.current));
-    //   position.current = getCaretCoordinates();
-    // }
-  };
-
   const onKeyUpListener = (e) => {
-    const isSpace = e.key === ' ';
     const isEnter = e.key === 'Enter';
-    // const isBackspace = e.key === 'Backspace';
-    const CaretPosition = getCaretPosition(inputRef.current);
-    // console.log('isBackspace::', {
-    //   isBackspace,
-    //   activationChar,
-    //   pillText,
-    //   CaretPosition,
-    //   dialogStartPosition,
-    // });
-    // if (isBackspace) {
-    //   setDialogStartPosition(CaretPosition);
-    //   return;
-    // }
-
-
-
-    // if (
-    //   activationChar === '#' &&
-    //   ((visible && isSpace) ||
-    //     isEnter ||
-    //     '.,?!'.includes(e.key) ||
-    //     CaretPosition <= dialogStartPosition)
-    // ) {
-    //   setVisible(false);
-    //   setDialogStartPosition(0);
-    //   setPillText('');
-    //   setActivationChar('');
-    //   return;
-    // }
-
-    // if (
-    //   activationChar === '[' &&
-    //   ((visible && isEnter) ||
-    //     '.,?!'.includes(e.key) ||
-    //     CaretPosition <= dialogStartPosition)
-    // ) {
-    //   setVisible(false);
-    //   setDialogStartPosition(0);
-    //   setActivationChar('');
-    //   return;
-    // }
-    // setDialogStartPosition(CaretPosition);
+    if (
+      activationChar === '#' &&
+      (visible && isEnter) ||
+      '.,!?'.includes(e.key)
+    ) {
+      setVisible(false);
+      setDialogStartPosition(0)
+      setPillText('')
+      setActivationChar('')
+      return;
+    }
   };
 
   const onClickPillHandler = (e) => {
@@ -352,7 +290,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   };
 
   const onInputHandler = (e) => {
-    const textAreaValue = inputRef.current?.innerText
     const CaretPosition = getCaretPosition(inputRef.current);
     const currentTextAreaValue = inputRef.current.innerText;
     const textAreaEval = evaluateTextArea(
@@ -363,7 +300,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
       setPillText(textAreaEval.editingHashtagValue.replace('#', ''))
     }
     if (textAreaEval?.editingEntity) {
-      setPillText(textAreaEval.editingEntityValue.replace('[[', ''))
+      setPillText(textAreaEval.editingEntityValue.replace('[[', '').replace(']', ''))
     }
     if (textAreaEval?.editingHashTag && !visible) {
       setActivationChar('#');
@@ -470,6 +407,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     includeScore: false,
     threshold: 0.3,
   });
+  
   const submitBlockHandler = async ({
     action,
   }: {
@@ -1110,7 +1048,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       </Box>
                       <Box
                         ref={inputRef}
-                        onKeyPress={hashTagListener}
                         onKeyUp={onKeyUpListener}
                         onInput={onInputHandler}
                         suppressContentEditableWarning={true}
@@ -1242,7 +1179,6 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       </Box>
                       <Box
                         ref={inputRef}
-                        onKeyPress={hashTagListener}
                         onKeyUp={onKeyUpListener}
                         onInput={onInputHandler}
                         suppressContentEditableWarning={true}
