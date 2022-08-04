@@ -4,8 +4,8 @@ export function truncateAddress(address = "", width = 10): string {
   }
   return `${address.slice(0, width)}...${address.slice(-width)}`;
 }
-export function validURL(str: string) {
-  var pattern = new RegExp(
+export function validURL(str: string) {  
+  const pattern = new RegExp(
     "^(https?:\\/\\/)?" + // protocol
       "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
       "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
@@ -14,7 +14,15 @@ export function validURL(str: string) {
       "(\\#[-a-z\\d_]*)?$",
     "i"
   ); // fragment locator
-  return !!pattern.test(str);
+  
+  const listOfUrl = str.split('https://').filter(x => x.length>0)
+  const validUrl = listOfUrl.every(url => {
+    if (!!pattern.test(`https://${url}`)) {
+      return true
+    }
+    return false
+  });
+  return validURL;
 }
 export const filterUniqueObjects = (objectArray: any[], key: string) => {
   const tempArray = [];
