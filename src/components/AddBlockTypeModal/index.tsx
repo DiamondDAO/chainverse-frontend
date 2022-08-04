@@ -64,28 +64,67 @@ interface IAddBlockTypeModal {
   saveToWorkspaceFn?: (data: any) => Promise<void>;
   blockType: string;
 }
+function hasWhiteSpace(s) {
+  return (/\s/).test(s);
+}
 
-const matchEntity = (text) => {
-  const entityArray = text.split('[[');
+const evaluateTextArea = (text, cursorPosition) => {
+  const textArray = text.split('[[');
+  const entityArray = [];
+  const allUncompletedEntityArray = [];
+  textArray.forEach((element) => {
+    const noTags = element.split('#')[0];
+    if (noTags && noTags.includes(']]')) {
+      entityArray.push('[[' + noTags);
+    }
+    if (noTags && !noTags.includes(']]')) {
+      allUncompletedEntityArray.push('[[' + noTags);
+    }
+  });
+  const textUntilCurrentPosition = text.slice(0, cursorPosition)
+  const hashTagArray = textUntilCurrentPosition.split('#')
+  hashTagArray.shift()
+  const entitiesUntilcursor = textUntilCurrentPosition.split('[[')
+  const lastOpenentityUntilcursor = entitiesUntilcursor[entitiesUntilcursor.length -1]
+  let editingEntityValue;
+  let editingHashtagValue;
+  if (!lastOpenentityUntilcursor.includes('#') && !lastOpenentityUntilcursor.includes(']]')) {
+    editingEntityValue = '[['+lastOpenentityUntilcursor
+  }
+  if (hashTagArray.length > 0) {
+    const hashTagValue = hashTagArray[hashTagArray.length -1]
+    if (hashTagValue === '') {
+      editingHashtagValue = '#'
+    } else if (hashTagValue && !hasWhiteSpace(hashTagValue)) {
+      editingHashtagValue = '#'+hashTagArray[hashTagArray.length -1]
+    }
+  }
+  const editingEntityIndex= textUntilCurrentPosition.indexOf(editingEntityValue)
+  const editingHashTagIndex= textUntilCurrentPosition.indexOf(editingHashtagValue)
+  // const evaluate = {
+  //   cursorPosition,
+  //   allUncompletedEntityArray,
+  //   textUntilCurrentPosition,
+  //   editingEntityValue,
+  //   editingEntityIndex,
+  //   hashTagArray,
+  //   editingHashtagValue,
+  //   editingHashTagIndex
+  // }
+  // console.log('matchEntity::', evaluate);
 
-  if (entityArray.length === 0 || !text.includes('[[')) {
-    return null;
+  const lastResult = {
+    editingHashTag: editingHashTagIndex >= 0,
+    editingEntity: editingEntityIndex >= 0,
+    editingText: editingHashTagIndex === -1 && editingEntityIndex === -1,
+    editingEntityValue,
+    editingHashtagValue,
+    editingHashTagIndex,
+    editingEntityIndex
   }
-  const lastEntityTag = entityArray[entityArray.length - 1];
-  if (lastEntityTag.includes(']]')) {
-    return {
-      completed: true,
-      inProgress: false,
-      text,
-      lastEntityTag,
-    };
-  }
-  return {
-    inProgress: true,
-    completed: false,
-    text,
-    lastEntityTag,
-  };
+
+  console.log('lastResult::', lastResult);
+  return lastResult
 };
 
 export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
@@ -132,15 +171,21 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     open: '[[',
     close: ']]',
   });
-  // const entities = balancedEntity.map(x=> x.data)
+  console.log('pillText::', pillText);
+  const currentCursorPosition = getCaretPosition(inputRef.current);
   let textWithNoEntity = _;
   balancedEntity.forEach((entity) => {
     textWithNoEntity = textWithNoEntity.replace(entity.data, '');
   });
   useEffect(() => {
-    const onlyText = textWithNoEntity.split(' ').filter(
-      (x) => !x.startsWith('#') && x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g) && x.length > 0
-    );
+    const onlyText = textWithNoEntity
+      .split(' ')
+      .filter(
+        (x) =>
+          !x.startsWith('#') &&
+          x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g) &&
+          x.length > 0
+      );
     const validEntity = balancedEntity.length > 0;
 
     if (blockType === 'Entity' && entityName?.length > 0) {
@@ -203,80 +248,95 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
   }, [nodeData?.name]);
 
   const hashTagListener = (e) => {
-    const currentcharacter = String.fromCharCode(e.which);
+    // const currentcharacter = String.fromCharCode(e.which);
 
-    if (currentcharacter === '#' && !visible) {
-      setActivationChar(currentcharacter);
-      setDialogStartPosition(getCaretPosition(inputRef.current));
-      position.current = getCaretCoordinates();
-      setVisible(true);
-      return;
-    }
-
-    if (matchEntity(_ + currentcharacter)?.inProgress && !visible) {
-      setActivationChar('[');
-      setDialogStartPosition(getCaretPosition(inputRef.current));
-      position.current = getCaretCoordinates();
-    }
+    // if (currentcharacter === '#' && !visible) {
+    //   setActivationChar(currentcharacter);
+    //   // setDialogStartPosition(getCaretPosition(inputRef.current));
+    //   position.current = getCaretCoordinates();
+    //   setVisible(true);
+    //   return;
+    // }
+    // console.log('hashTagListener::', entity);
+    // if (entity?.inProgress && !visible) {
+    //   setActivationChar('[');
+    //   // setDialogStartPosition(getCaretPosition(inputRef.current));
+    //   position.current = getCaretCoordinates();
+    // }
   };
 
-  const keyUpListener = (e) => {
+  const onKeyUpListener = (e) => {
     const isSpace = e.key === ' ';
     const isEnter = e.key === 'Enter';
+    // const isBackspace = e.key === 'Backspace';
     const CaretPosition = getCaretPosition(inputRef.current);
-    if ( activationChar === '#' &&
-      (visible && isSpace) ||
-      isEnter ||
-      '.,?!'.includes(e.key) ||
-      CaretPosition <= dialogStartPosition
-    ) {
-      setVisible(false);
-      setDialogStartPosition(0);
-      setPillText('')
-      setActivationChar('')
-    }
+    // console.log('isBackspace::', {
+    //   isBackspace,
+    //   activationChar,
+    //   pillText,
+    //   CaretPosition,
+    //   dialogStartPosition,
+    // });
+    // if (isBackspace) {
+    //   setDialogStartPosition(CaretPosition);
+    //   return;
+    // }
 
-    if ( activationChar === '[' &&
-      (visible && isEnter) ||
-      '.,?!'.includes(e.key) ||
-      CaretPosition <= dialogStartPosition
-    ) {
-      setVisible(false);
-      setDialogStartPosition(0);
-      setActivationChar('')
-    }
+
+
+    // if (
+    //   activationChar === '#' &&
+    //   ((visible && isSpace) ||
+    //     isEnter ||
+    //     '.,?!'.includes(e.key) ||
+    //     CaretPosition <= dialogStartPosition)
+    // ) {
+    //   setVisible(false);
+    //   setDialogStartPosition(0);
+    //   setPillText('');
+    //   setActivationChar('');
+    //   return;
+    // }
+
+    // if (
+    //   activationChar === '[' &&
+    //   ((visible && isEnter) ||
+    //     '.,?!'.includes(e.key) ||
+    //     CaretPosition <= dialogStartPosition)
+    // ) {
+    //   setVisible(false);
+    //   setDialogStartPosition(0);
+    //   setActivationChar('');
+    //   return;
+    // }
+    // setDialogStartPosition(CaretPosition);
   };
-  
+
   const onClickPillHandler = (e) => {
+    const CaretPosition = getCaretPosition(inputRef.current);
     const autoCompletedText = e.target.innerText;
-    const currentTextLength = inputRef.current?.innerText
-      .slice(dialogStartPosition)
-      .split(' ')[0].length;
-
-    const entityCloseTag =
-      matchEntity(inputRef.current?.innerText)?.inProgress &&
-      activationChar === '['
-        ? ']]'
-        : '';
-    const textUpdated =
-      inputRef.current?.innerText.slice(0, dialogStartPosition) +
-      activationChar +
-      autoCompletedText +
-      inputRef.current?.innerText.slice(
-        dialogStartPosition + currentTextLength
-      ) +
-      entityCloseTag;
-
+    let prevText, afterText, textUpdated
+    const currentTextAreaValue = inputRef.current?.innerText
+    const textAreaEval = evaluateTextArea(
+      currentTextAreaValue,
+      CaretPosition
+    );
+    if (textAreaEval.editingHashTag) {
+      prevText = currentTextAreaValue.slice(0, textAreaEval.editingHashTagIndex)
+      afterText = currentTextAreaValue.slice(CaretPosition, currentTextAreaValue.length)
+      textUpdated = prevText + '#'+autoCompletedText + afterText + ' '
+    }
+    if (textAreaEval.editingEntity) {
+      prevText = currentTextAreaValue.slice(0, textAreaEval.editingEntityIndex)
+      afterText = currentTextAreaValue.slice(CaretPosition, currentTextAreaValue.length)
+      textUpdated = prevText + '[['+autoCompletedText+']]' + afterText + ' '
+    }
     inputRef.current.innerHTML = textUpdated;
     setTextArea(textUpdated);
     setVisible(false);
     setActivationChar('');
     setDialogStartPosition(0);
     setPillText('');
-
-    console.log('currentTextLength:', inputRef.current?.innerText
-    .slice(dialogStartPosition)
-    .split(' ')[0]);
   };
 
   const closeHandler = (refresh?: boolean) => {
@@ -291,34 +351,35 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     onClose(refresh);
   };
 
-  const inputHandler = (e) => {
-    if (visible && activationChar === '#') {
-      setPillText(
-        inputRef.current?.innerText
-          .slice(dialogStartPosition)
-          .match(/[#](?=\S*[-]*)([a-zA-Z0-9'-]+)/g)?.[0]
-          ?.slice(1)
-      );
-    }
-    if (visible && activationChar === '[') {
-      setPillText(
-        inputRef.current?.innerText
-          .slice(dialogStartPosition)
-          .match(/[[](?=\S*[-]*)([a-zA-Za\szA\sZ0-9'-]+)/g)?.[0]
-          ?.slice(1)
-      )
-    }
+  const onInputHandler = (e) => {
+    const textAreaValue = inputRef.current?.innerText
+    const CaretPosition = getCaretPosition(inputRef.current);
     const currentTextAreaValue = inputRef.current.innerText;
-    const matchEntityResult = matchEntity(currentTextAreaValue);
-    if (matchEntityResult?.inProgress && !visible) {
+    const textAreaEval = evaluateTextArea(
+      currentTextAreaValue,
+      CaretPosition
+    );
+    if (textAreaEval?.editingHashTag) {
+      setPillText(textAreaEval.editingHashtagValue.replace('#', ''))
+    }
+    if (textAreaEval?.editingEntity) {
+      setPillText(textAreaEval.editingEntityValue.replace('[[', ''))
+    }
+    if (textAreaEval?.editingHashTag && !visible) {
+      setActivationChar('#');
       setVisible(true);
       position.current = getCaretCoordinates();
-      setActivationChar('[')
     }
-    if (matchEntityResult?.completed && activationChar === '[' && visible) {
+    if (textAreaEval?.editingEntity && !visible) {
+      setActivationChar('[');
+      setVisible(true);
+      position.current = getCaretCoordinates();
+    }
+    if (textAreaEval.editingText) {
       setVisible(false);
-      setActivationChar('')
-      setPillText('')
+      setActivationChar('');
+      setPillText('');
+      setDialogStartPosition(0);
     }
     setTextArea(inputRef.current.innerText);
   };
@@ -799,9 +860,14 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
 
   const entityAndTextRequired =
     balancedEntity.length > 0 &&
-    textWithNoEntity.split(' ').filter(
-      (x) => !x.startsWith('#') && x.length>0 && x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
-    ).length > 0
+    textWithNoEntity
+      .split(' ')
+      .filter(
+        (x) =>
+          !x.startsWith('#') &&
+          x.length > 0 &&
+          x.match(/(?=\S*[-]*)([a-zA-Z0-9'-]+)/g)
+      ).length > 0;
   return (
     <>
       <Modal
@@ -1045,8 +1111,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       <Box
                         ref={inputRef}
                         onKeyPress={hashTagListener}
-                        onKeyUp={keyUpListener}
-                        onInput={inputHandler}
+                        onKeyUp={onKeyUpListener}
+                        onInput={onInputHandler}
                         suppressContentEditableWarning={true}
                         contentEditable
                         data-placeholder="Type # to insert a tag, or insert an entity or user between [[ ]]"
@@ -1177,8 +1243,8 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
                       <Box
                         ref={inputRef}
                         onKeyPress={hashTagListener}
-                        onKeyUp={keyUpListener}
-                        onInput={inputHandler}
+                        onKeyUp={onKeyUpListener}
+                        onInput={onInputHandler}
                         suppressContentEditableWarning={true}
                         contentEditable
                         data-placeholder="Type # to insert a tag, or insert an entity or user between [[ ]]"
