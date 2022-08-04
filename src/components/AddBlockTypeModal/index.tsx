@@ -100,8 +100,8 @@ const evaluateTextArea = (text, cursorPosition) => {
       editingHashtagValue = '#'+hashTagArray[hashTagArray.length -1]
     }
   }
-  const editingEntityIndex= textUntilCurrentPosition.indexOf(editingEntityValue)
-  const editingHashTagIndex= textUntilCurrentPosition.indexOf(editingHashtagValue)
+  const editingEntityIndex= textUntilCurrentPosition.lastIndexOf(editingEntityValue)
+  const editingHashTagIndex= textUntilCurrentPosition.lastIndexOf(editingHashtagValue)
 
   const lastResult = {
     editingHashTag: editingHashTagIndex >= 0,
@@ -407,7 +407,7 @@ export const AddBlockTypeModal: FC<IAddBlockTypeModal> = ({
     includeScore: false,
     threshold: 0.3,
   });
-  
+
   const submitBlockHandler = async ({
     action,
   }: {
