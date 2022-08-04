@@ -591,8 +591,8 @@ const Workspace: NextPage = () => {
           />
           <AddBlockTypeModal
             tags={
-              filterUniqueObjects(tagAndEntitiesData?.tags, 'text')?.map(
-                (i) => i.text
+              filterUniqueObjects(tagAndEntitiesData?.tags, 'tag')?.map(
+                (i) => i.tag
               ) || []
             }
             entities={
