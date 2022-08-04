@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
-import { theme } from "../common/theme";
+import { theme } from "../theme/index";
 import { RouterContext } from "next/dist/shared/lib/router-context";
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

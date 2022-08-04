@@ -11,14 +11,13 @@ import {
 import type { NextPage } from "next";
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
-import { borderStyles } from "@/common/theme";
+import { borderStyles } from "@/theme";
 import { useAccount } from "wagmi";
 import { truncateAddress } from "@/common/utils";
 import Router from "next/router";
-import { PreferenceData } from "@/common/types";
 import { useLazyQuery } from "@apollo/client";
 import { GET_PROMPT_INFO } from "@/services/Apollo/Queries";
-
+import * as styles from "./styles";
 const AccountInfoProperties = ({
   property,
   value,
@@ -26,19 +25,13 @@ const AccountInfoProperties = ({
   property: string;
   value: string;
 }) => (
-  <Box
-    display={"flex"}
-    width="100%"
-    justifyContent={"space-between"}
-    flexWrap={"wrap"}
-  >
-    <Text mr="5px" fontWeight="bold">
-      {property}
-    </Text>
+  <Box sx={styles.AccountInfoStyles}>
+    <Text sx={styles.AccountInfoText}>{property}</Text>
     <Text>{value}</Text>
   </Box>
 );
 
+// TODO: fix hard coding of questions
 const Preferences: NextPage = () => {
   const [{ data, loading }] = useAccount({ fetchEns: true });
   const [activeSince, setActiveSince] = useState("");
@@ -53,9 +46,9 @@ const Preferences: NextPage = () => {
       getPromptInfo({
         variables: {
           promptWhere: {
-            uuid_IN: [
-              "51c96370-99fd-4883-9901-b452170755ec", //skills
-              "f5039f3d-94ad-43ba-b86b-2d74a46cda94", //interets
+            text_IN: [
+              "What skills do you bring to the Web3 community space?", //skills
+              "What topics are you interested in?", //interets
             ],
           },
           blockWhere: {
@@ -76,23 +69,24 @@ const Preferences: NextPage = () => {
 
   useEffect(() => {
     if (promptData) {
-      console.log(promptData);
       parseBlocks(
-        promptData.prompts.find(
-          (i) => i.uuid === "51c96370-99fd-4883-9901-b452170755ec"
+        promptData.prompts?.find(
+          (i) =>
+            i.text === "What skills do you bring to the Web3 community space?"
         ),
         setSkills
       );
       parseBlocks(
-        promptData.prompts.find(
-          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
+        promptData.prompts?.find(
+          (i) => i.text === "What topics are you interested in?"
         ),
         setInterests
       );
       setActiveSince(
-        promptData.prompts.find(
-          (i) => i.uuid === "f5039f3d-94ad-43ba-b86b-2d74a46cda94"
-        )?.blocks[0]?.wallet.dateAdded
+        promptData.prompts?.find(
+          (i) =>
+            i.text === "What skills do you bring to the Web3 community space?"
+        )?.blocks[0]?.wallet.createdAt
       );
     }
   }, [promptData]);
@@ -119,19 +113,13 @@ const Preferences: NextPage = () => {
       )}
       {(promptLoading || !data?.address) && <Box>Loading...</Box>}
       {!promptLoading && data?.address && (
-        <Container maxW="container.lg">
-          <Box display="flex" justifyContent="center">
+        <>
+          <Box display="flex">
             <Heading mb="20px">Preferences</Heading>
           </Box>
-          <Grid templateColumns={["1fr", null, "1fr 2fr"]} gap={6}>
-            <Box
-              display="flex"
-              flexDir="column"
-              alignItems={"center"}
-              p="20px"
-              {...borderStyles}
-            >
-              <Heading mb="10px" as="h1" size="md">
+          <Grid sx={styles.GridStyles}>
+            <Box sx={styles.AccountInfoBorder}>
+              <Heading sx={styles.HeadingStyle} as="h1">
                 Account Info
               </Heading>
               <Avatar size="xl" mb="20px" src="./img/logo-black.png" />
@@ -142,25 +130,21 @@ const Preferences: NextPage = () => {
               />
             </Box>
             <Box p="20px" {...borderStyles}>
-              <Heading mb="10px" size="md">
-                Skills
-              </Heading>
+              <Heading sx={styles.HeadingStyle}>Skills</Heading>
               <UnorderedList pl="10px">
                 {skills?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}
               </UnorderedList>
-              <Heading my="10px" size="md">
-                Interests
-              </Heading>
-              <UnorderedList pl="10px">
+              <Heading sx={styles.HeadingStyle}>Interests</Heading>
+              <UnorderedList sx={styles.listStyle}>
                 {interests?.map((reason, idx) => (
                   <ListItem key={idx}>{reason}</ListItem>
                 ))}
               </UnorderedList>
             </Box>
           </Grid>
-        </Container>
+        </>
       )}
     </Layout>
   );

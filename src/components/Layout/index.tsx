@@ -1,14 +1,14 @@
 import { Box, Container, Text } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { NavBar } from "@/components/Navbar";
-import { useAccount, useConnect } from "wagmi";
-
+import { useConnect } from "wagmi";
+import * as styles from "./styles";
 interface ILayout {
   children: React.ReactNode;
   graphBg?: boolean;
 }
 
-export const Layout: FC<ILayout> = ({ children, graphBg }) => {
+export const Layout: FC<ILayout> = ({ children }) => {
   const [
     {
       data: { connected },
@@ -17,23 +17,9 @@ export const Layout: FC<ILayout> = ({ children, graphBg }) => {
   ] = useConnect();
 
   return (
-    <Box
-      sx={{
-        ...(graphBg && {
-          bgSize: "15px 15px",
-          bgImage:
-            "radial-gradient(circle at 1px 1px, #D8E3EA 1px, transparent 0)",
-        }),
-      }}
-      minH="100vh"
-    >
+    <Box sx={styles.LayoutContainer}>
       <NavBar />
-      <Container
-        mt="30px"
-        mb="40px"
-        px={["12px", null, "40px"]}
-        maxW="container.2xl"
-      >
+      <Container sx={styles.InnerContainer}>
         {loading && <Text>Loading...</Text>}
         {!loading && !connected && (
           <Text textAlign="center">

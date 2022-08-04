@@ -1,68 +1,45 @@
-import { Box, Text, Image, useTheme, HStack } from "@chakra-ui/react";
+import { Box, Image, useTheme } from "@chakra-ui/react";
+import {Button, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import { Layout } from "@/components/Layout";
+import { filterUniqueObjects } from "@/common/utils";
+import { bodyText, subText } from "@/theme";
+// import { BlockDrawer } from "@/components/Drawers/BlockDrawer";
+import { Block } from "@/common/types";
+import { useAccount } from "wagmi";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+
 import Router from "next/router";
 import React, { FC } from "react";
-import { borderStyles } from "@/common/theme";
+import { borderStyles } from "@/theme";
 import { AccountMenu } from "./AccountMenu";
+// import { AddBlockMenu } from "./AddBlockMenu";
 import { NavPages } from "./NavPages";
+import * as styles from "./styles";
+import { CreateSnapshotIcon } from "@/components/Icons/CreateSnapshotIcon";
 
-export interface INavbar {}
-
-export const NavBar: FC<INavbar> = ({}) => {
+export const NavBar: FC = () => {
   const { space } = useTheme();
   const navigationPages = [
-    { text: "Home", link: "/home" },
-    { text: "Workspace", link: "/workspace" },
-    { text: "Explorer", link: "/" },
+    { text: "Explorer", link: "/explorer" },
+    { text: "Workspace", link: "/workspace" }
   ];
   return (
-    <Box p="10px">
-      <Box
-        sx={{
-          bg: "white",
-          fontSize: "xs",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          px: "7px",
-          color: "diamond.gray.5",
-        }}
-        {...borderStyles}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={styles.NavbarContainer}>
+      <Box sx={styles.NavBarBody}>
+        <Box sx={styles.NavItemsContainer}>
           <Image
-            cursor="pointer"
+            sx={styles.NavLogo}
             onClick={() => Router.push("/")}
             alt="nav-logo"
-            mr="7px"
-            width="18px"
-            height="15px"
-            src="./img/nav_diamond.png"
+            src="/img/nav_diamond.png"
           />
           <NavPages pages={navigationPages} />
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            borderLeft={"0.5px solid"}
-            borderColor="diamond.gray.2"
-            py="7px"
-            px={space.medium}
-            background={"diamond.white"}
-            color={"diamond.gray.5"}
-            onClick={() => {}}
-            cursor="pointer"
-          >
-            <Text>Add block</Text>
-          </Box>
-          <Box
-            borderLeft={"0.5px solid"}
-            borderColor="diamond.gray.2"
-            sx={{
-              py: "7px",
-              height: "100%",
-              pr: "10px",
-              pl: space.medium,
-            }}
-          >
+        <Box sx={styles.NavAccountMenu}>
+          {/*}<Box sx={styles.AccountMenuWrapper}>
+            <AddBlockMenu />
+          </Box>*/}
+          <Box sx={styles.AccountMenuWrapper}>
             <AccountMenu />
           </Box>
         </Box>

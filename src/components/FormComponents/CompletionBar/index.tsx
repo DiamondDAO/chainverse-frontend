@@ -1,13 +1,12 @@
 import { Box } from "@chakra-ui/react";
 import React, { FC } from "react";
 
-type Props = {};
+import * as styles from "./styles";
 
 const Diamond = ({ complete }: { complete: boolean }) => (
   <Box
+    sx={styles.DiamondSVGStyle}
     as="svg"
-    width={["20px", null, null, "30px"]}
-    height={["20px", null, null, "30px"]}
     viewBox="0 0 57 46"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -55,30 +54,13 @@ export const CompletionBar: FC<ICompletionBar> = ({
   currentStep,
 }) => {
   return (
-    <Box display="flex" alignItems="center">
+    <Box sx={styles.CompletionBarContainer}>
       {stepArray.map((title, idx) => (
-        <>
-          {idx !== 0 && (
-            <Box
-              mx={"8px"}
-              flex="1 1 auto"
-              as="span"
-              borderTopWidth={"1.5px"}
-              borderTopStyle="solid"
-              borderColor="diamond.gray.2"
-            />
-          )}
+        <React.Fragment key={idx}>
+          {idx !== 0 && <Box as="span" sx={styles.CompletionBarLine} />}
           <Diamond complete={idx <= currentStep} />
-
-          <Box
-            color={idx <= currentStep ? "diamond.blue.3" : "diamond.gray.3"}
-            fontSize={["xs", null, null, "sm"]}
-            fontWeight={idx <= currentStep ? "bold" : "normal"}
-            ml="5px"
-          >
-            {title}
-          </Box>
-        </>
+          <Box sx={styles.CompletionBarText(idx, currentStep)}>{title}</Box>
+        </React.Fragment>
       ))}
     </Box>
   );
