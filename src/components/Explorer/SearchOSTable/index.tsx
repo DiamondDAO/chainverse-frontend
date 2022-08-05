@@ -16,7 +16,7 @@ import { EntityDrawer } from '../../Drawers/EntityDrawer';
 import { useAddEntityHandler } from './handlers';
 import * as styles from '../styles';
 
-export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
+export const SearchOSTable = ({ data, update, hasMore, walletAddress, setDisplayGraph }) => {
   const {
     isOpen: drawerIsOpen,
     onOpen: drawerOnOpen,
@@ -88,6 +88,9 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
       // drawerOnOpen();
     }
     setSelectedRow(rowData);
+    if (setDisplayGraph) {
+      setDisplayGraph(true)
+    }
   };
 
   // Render the UI for your table
