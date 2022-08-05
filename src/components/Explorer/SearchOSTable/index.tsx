@@ -26,7 +26,6 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
 
   const addEntityHandler = useAddEntityHandler(walletAddress);
 
-  console.log('selectedRow::', selectedRow);
   useEffect(() => {
     if (!drawerIsOpen) {
       setSelectedRow({});
@@ -38,31 +37,34 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
         Header: 'Name',
         accessor: 'name',
         style: {
-          fontWeight: '500',
-          width: '150px',
+          fontWeight: '400',
+          width: '250px',
         },
       },
       {
         Header: '# of Notes relations',
         accessor: 'notesAggregate',
         style: {
-          width: '250px',
+          textAlign: 'center',
+          width: '150px',
         },
         Cell: (props) => {
-          console.log('notesAggregate', props.value)
-          return <>notesAggregate</>;
+          return <>{props.value.count}</>;
         },
       },
       {
         Header: '# of Proposals relations',
         accessor: 'proposalsAggregate',
+        style: {
+          textAlign: 'center',
+          width: '150px',
+        },
         Cell: (props) => {
-          console.log('proposalsAggregate::', props.value)
-          return <>proposalsAggregate</>;
+          return <>{props.value.count}</>;
         },
       },
       {
-        Header: 'Actions',
+        Header: '',
         accessor: 'actions',
         Cell: (props) => {
           return <>View More...</>;
@@ -78,6 +80,15 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
       columns,
       data,
     });
+  // handlers
+  const onRowClick = (rowData: any, idx: number) => {
+
+    if (rowData.cells.length !== idx) {
+      // TODO: uncomment when fixing entity tyDef issue
+      // drawerOnOpen();
+    }
+    setSelectedRow(rowData);
+  };
 
   // Render the UI for your table
   return (
@@ -120,14 +131,7 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
                   {row.cells.map((cell, idx) => {
                     return (
                       <Td
-                        onClick={
-                          row.cells.length !== idx
-                            ? () => {
-                                drawerOnOpen();
-                                setSelectedRow(row);
-                              }
-                            : () => {}
-                        }
+                        onClick={() => onRowClick(row, idx)}
                         sx={styles.TableCell}
                         key={idx}
                         {...cell.getCellProps([
