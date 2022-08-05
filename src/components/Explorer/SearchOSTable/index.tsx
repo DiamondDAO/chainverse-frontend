@@ -8,21 +8,11 @@ import {
   Td,
   Th,
   Thead,
-  Tooltip,
   Tr,
-  Text,
   useDisclosure,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
 } from '@chakra-ui/react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { BiDetail } from 'react-icons/bi';
 import { EntityDrawer } from '../../Drawers/EntityDrawer';
-import { GET_WORKSPACE_OWNED } from '@/services/Apollo/Queries';
-import { useLazyQuery } from '@apollo/client';
-import { AddWorkspaceType } from '@/common/types';
-import { useAccount } from 'wagmi';
 import { useAddEntityHandler } from './handlers';
 import * as styles from '../styles';
 
@@ -36,7 +26,7 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
 
   const addEntityHandler = useAddEntityHandler(walletAddress);
 
-  console.log('selectedRow::', selectedRow)
+  console.log('selectedRow::', selectedRow);
   useEffect(() => {
     if (!drawerIsOpen) {
       setSelectedRow({});
@@ -45,111 +35,39 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
   const columns = useMemo(
     () => [
       {
-        Header: 'Type',
-        accessor: '__typename',
+        Header: 'Name',
+        accessor: 'name',
         style: {
           fontWeight: '500',
-          width: '150px'
+          width: '150px',
         },
       },
       {
-        Header: 'ID',
-        accessor: 'id',
+        Header: '# of Notes relations',
+        accessor: 'notesAggregate',
         style: {
           width: '250px',
-        }
-      },
-      {
-        Header: 'Text',
-        accessor: 'body',
+        },
         Cell: (props) => {
-          return <>{props.value?.substring(0, 20)}</>;
+          console.log('notesAggregate', props.value)
+          return <>notesAggregate</>;
         },
       },
-      // {
-      //   Header: "Actions",
-      //   accessor: "actions",
-      //   Cell: (props) => {
-      //     const [{ data: walletData }] = useAccount();
-      //     const [getWorkspaceOwned, { data: workspaceData, loading }] =
-      //       useLazyQuery(GET_WORKSPACE_OWNED);
-      //     useEffect(() => {
-      //       if (walletData?.address) {
-      //         getWorkspaceOwned({
-      //           variables: {
-      //             where: { wallet: { address: walletData?.address } },
-      //           },
-      //         });
-      //       }
-      //     }, [walletAddress]);
-      //     const workspaces = workspaceData?.workspaces;
-      //     const [isOpen, setIsOpen] = useState(false);
-      //     const open = () => setIsOpen(!isOpen);
-      //     const close = () => setIsOpen(false);
-
-      //     return (
-      //       <Box display="flex">
-      //         <Tooltip label="View details" placement="top">
-      //           <Box
-      //             onClick={() => {
-      //               drawerOnOpen();
-      //               setSelectedRow(props.row);
-      //             }}
-      //             sx={styles.DetailsTooltip}
-      //           >
-      //             <BiDetail size="14px" />
-      //           </Box>
-      //         </Tooltip>
-      //         <Popover isOpen={isOpen} onClose={close}>
-      //           <PopoverTrigger>
-      //             <Tooltip label="Add to workspace" placement="top">
-      //               <Box onClick={open} sx={styles.DetailsTooltip}>
-      //                 <PlusIcon width="14px" />
-      //               </Box>
-      //             </Tooltip>
-      //           </PopoverTrigger>
-      //           <PopoverContent>
-      //             <Box p="12px">
-      //               <Text sx={styles.SelectWorkspaceText}>
-      //                 SELECT A WORKSPACE
-      //               </Text>
-      //               <Box sx={styles.WorkspaceModalBodyBorder} />
-      //               <Box sx={styles.WorkspaceContainer}>
-      //                 <Box
-      //                   sx={styles.SandboxStyle}
-      //                   onClick={() => {
-      //                     addEntityHandler(props.row, AddWorkspaceType.Sandbox);
-      //                     close();
-      //                   }}
-      //                 >
-      //                   <Box>Sandbox</Box>
-      //                 </Box>
-      //                 {workspaces?.map((workspace) => {
-      //                   return (
-      //                     <Box
-      //                       onClick={() => {
-      //                         addEntityHandler(
-      //                           props.row,
-      //                           AddWorkspaceType.Workspace,
-      //                           workspace.uuid
-      //                         );
-      //                         close();
-      //                       }}
-      //                       key={workspace.uuid}
-      //                       sx={styles.WorkspaceStyle}
-      //                     >
-      //                       <Box>{workspace.name}</Box>
-      //                     </Box>
-      //                   );
-      //                 })}
-      //               </Box>
-      //             </Box>
-      //           </PopoverContent>
-      //         </Popover>
-      //       </Box>
-      //     );
-      //   },
-      // },
+      {
+        Header: '# of Proposals relations',
+        accessor: 'proposalsAggregate',
+        Cell: (props) => {
+          console.log('proposalsAggregate::', props.value)
+          return <>proposalsAggregate</>;
+        },
+      },
+      {
+        Header: 'Actions',
+        accessor: 'actions',
+        Cell: (props) => {
+          return <>View More...</>;
+        },
+      },
     ],
     []
   );
@@ -228,12 +146,14 @@ export const SearchOSTable = ({ data, update, hasMore, walletAddress }) => {
           </Tbody>
         </ChakraTable>
       </Box>
-      <EntityDrawer
-        addEntityHandler={addEntityHandler}
-        nodeData={(selectedRow as any)?.original}
-        isOpen={drawerIsOpen}
-        onClose={drawerOnClose}
-      />
+      {drawerIsOpen && (
+        <EntityDrawer
+          addEntityHandler={addEntityHandler}
+          nodeData={(selectedRow as any)?.original}
+          isOpen={drawerIsOpen}
+          onClose={drawerOnClose}
+        />
+      )}
     </InfiniteScroll>
   );
 };
