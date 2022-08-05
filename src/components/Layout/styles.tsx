@@ -7,5 +7,5 @@ export const InnerContainer = {
   mt: "30px",
   mb: "40px",
   px: ["12px", null, "40px"],
-  maxWidth: "container.2xl",
+  maxWidth: "100%",
 };

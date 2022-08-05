@@ -28,8 +28,10 @@ export const ExplorerNavigatorInner = {
   zIndex: 3,
 };
 export const SearchStyle = {
+  maxWidth: "60%",
   display: "flex",
   justifyContent: "center",
+  alignItems: "center"
 };
 
 export const SearchContainer = {
