@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { Box } from '@chakra-ui/react';
 import type { NextPage } from 'next';
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, useRef, useCallback, Suspense } from 'react';
 import { Layout } from '@/components/Layout';
 import SearchOSClientProvider, {
   SearchOS,
@@ -11,6 +11,8 @@ import { SearchOSTable } from '@/components/Explorer/SearchOSTable';
 import { useAccount } from 'wagmi';
 
 import SpriteText from 'three-spritetext';
+import * as THREE from 'three'
+import {CSS2DRenderer, CSS2DObject} from 'three/examples/jsm/renderers/CSS2DRenderer'
 const Force3D = dynamic(() => import('../../services/D3/ForceGraph3d'), {
   ssr: false,
 });
@@ -355,7 +357,9 @@ const miserablesData = {
 const ExplorerComponent = () => {
   const { data: dataOS, loading, fetchMore } = useSearchOSClient();
   const [{ data: walletData }] = useAccount();
-  const [displayGraph, setDisplayGraph] = useState(false);
+  const [displayGraph, setDisplayGraph] = useState(false);	
+  
+  // const extraRenderers = new CSS2DRenderer();
 
   return (
     <>
@@ -382,6 +386,7 @@ const ExplorerComponent = () => {
           <Box className="w-[45%]">
             {displayGraph && (
               <Force3D
+                // extraRenderers={extraRenderers}
                 graphData={miserablesData}
                 nodeAutoColorBy="group"
                 backgroundColor="gray"
@@ -391,6 +396,15 @@ const ExplorerComponent = () => {
                   sprite.textHeight = 8;
                   return sprite;
                 }}
+                onNodeDragEnd={node => {
+                  node.fx = node.x;
+                  node.fy = node.y;
+                  node.fz = node.z;
+                }}
+                nodeThreeObjectExtend={true}
+                linkDirectionalArrowLength={3.5}
+                linkDirectionalArrowRelPos={1}
+                linkCurvature={0.25}
                 width={850}
               />
             )}
