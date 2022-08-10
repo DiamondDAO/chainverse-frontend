@@ -21,10 +21,10 @@ const NodeChartDynamic = React.lazy(
 const ExplorerComponent = () => {
   const { data: dataOS, loading, fetchMore } = useSearchOSClient();
   const [{ data: walletData }] = useAccount();
-  const [isMounted, setIsMointed]  = useState(false);
+  const [isMounted, setIsMounted]  = useState(false);
   const [displayGraph, setDisplayGraph]  = useState(false);
   useEffect(() => {
-    setIsMointed(true)
+    setIsMounted(true)
   }, []);
 
   return (

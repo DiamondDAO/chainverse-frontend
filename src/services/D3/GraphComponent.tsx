@@ -1,10 +1,11 @@
-import React from 'react';
-import * as THREE from 'three';
+import { useCallback, useRef, useState } from 'react';
 import { ForceGraph3D } from 'react-force-graph';
 import {
   CSS2DRenderer,
   CSS2DObject,
 } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { NodeMenu } from './NodeMenuComponent';
+
 const miserablesData = {
   nodes: [
     { id: 'Myriel', group: 1 },
@@ -345,24 +346,72 @@ const miserablesData = {
 
 export default function App() {
   const extraRenderers = [new CSS2DRenderer()];
+  const [coords, setCoords] = useState({x: 0, y: 0})
+  const [visible, setVisible] = useState(false);
+  const [node, setNode] = useState('')
+
+  const fgRef: any = useRef();
+
+  const handleClick = useCallback(node => {
+    setVisible(false)
+    const distance = 40;
+    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+    fgRef.current?.cameraPosition(
+      { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+      node,
+      3000
+    );
+  }, [fgRef]);
+  
+  const handleRightClick = useCallback((node, mouseEvent) => {
+    setNode(node.id)
+    setCoords({x:mouseEvent.pageX, y:mouseEvent.pageY})
+    setVisible(true)
+  }, []);
+
+  const onClose = () => {
+    setVisible(false)
+    setCoords({x:0, y:0})
+    setNode('')
+  }
   return (
-    <ForceGraph3D
-      extraRenderers={extraRenderers}
-      backgroundColor={'rgba(0,0,0,0)'}
-      nodeColor={() => 'red'}
-      linkColor={() => 'blue'}
-      graphData={miserablesData}
-      nodeThreeObject={(node) => {
-        const nodeEl = document.createElement('div');
-        nodeEl.textContent = node.id;
-        nodeEl.style.color = node.color;
-        nodeEl.className = 'node-label';
-        return new CSS2DObject(nodeEl);
-      }}
-      onNodeRightClick={(node) => {
-        console.log('onNodeRightClick::', { node });
-      }}
-      nodeThreeObjectExtend={true}
-    />
+    <>
+        <ForceGraph3D
+          onBackgroundRightClick={onClose}
+          onBackgroundClick={onClose}
+          ref={fgRef}
+          extraRenderers={extraRenderers}
+          backgroundColor={'grey'}
+          nodeAutoColorBy='group'
+          linkColor={() => 'black'}
+          graphData={miserablesData}
+          nodeThreeObject={(node) => {
+            const nodeEl = document.createElement('div');
+            nodeEl.textContent = node.id;
+            nodeEl.style.color = node.color;
+            nodeEl.className = 'node-label';
+            return new CSS2DObject(nodeEl);
+          }}
+          nodeThreeObjectExtend={true}
+          onNodeDragEnd={node => {
+            node.fx = node.x;
+            node.fy = node.y;
+            node.fz = node.z;
+          }}
+          linkDirectionalArrowLength={3.5}
+          linkDirectionalArrowRelPos={1}
+          linkCurvature={0.25}
+          onNodeClick={handleClick}
+          onNodeRightClick={handleRightClick}
+        />
+        <NodeMenu
+          coords={coords}
+          visible={visible}
+          onClose={onClose}
+          node={node}
+        >
+        </NodeMenu>
+    </>
   );
 }
