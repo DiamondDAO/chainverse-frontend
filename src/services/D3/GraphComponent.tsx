@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ForceGraph3D } from 'react-force-graph';
 import {
   CSS2DRenderer,
@@ -344,16 +344,54 @@ const miserablesData = {
   ],
 };
 
+const useOutsideClick = (ref) => {
+  const [outsideClick, setOutsideClick] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!ref.current?.contains(e.target)) {
+        setOutsideClick(true);
+      } else {
+        setOutsideClick(false);
+      }
+      setOutsideClick(null);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref]);
+
+  return outsideClick;
+};
+
 export default function App() {
   const extraRenderers = [new CSS2DRenderer()];
-  const [coords, setCoords] = useState({x: 0, y: 0})
+
+  const [enableNavigation, setEnableNavigation] = useState(true);
+  const [coords, setCoords] = useState({x: 0, y: 0});
   const [visible, setVisible] = useState(false);
   const [node, setNode] = useState('')
 
   const fgRef: any = useRef();
+  const menuRef = useRef(null);
+  const menuClickedOutside = useOutsideClick(menuRef);
 
-  const handleClick = useCallback(node => {
-    setVisible(false)
+  useEffect(() => {
+    if ( menuClickedOutside ) {
+      setVisible(false)
+    } 
+  }, [menuClickedOutside])
+
+  useEffect(() => {
+    if (visible === true) {
+      setEnableNavigation(false)
+    } else {
+      setEnableNavigation(true)
+    }
+  }, [visible])
+
+  const handleNodeClick = useCallback(node => {
     const distance = 40;
     const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
@@ -364,7 +402,7 @@ export default function App() {
     );
   }, [fgRef]);
   
-  const handleRightClick = useCallback((node, mouseEvent) => {
+  const handleNodeRightClick = useCallback((node, mouseEvent) => {
     setNode(node.id)
     setCoords({x:mouseEvent.pageX, y:mouseEvent.pageY})
     setVisible(true)
@@ -378,8 +416,7 @@ export default function App() {
   return (
     <>
         <ForceGraph3D
-          onBackgroundRightClick={onClose}
-          onBackgroundClick={onClose}
+          enableNavigationControls={enableNavigation}
           ref={fgRef}
           extraRenderers={extraRenderers}
           backgroundColor={'grey'}
@@ -402,10 +439,11 @@ export default function App() {
           linkDirectionalArrowLength={3.5}
           linkDirectionalArrowRelPos={1}
           linkCurvature={0.25}
-          onNodeClick={handleClick}
-          onNodeRightClick={handleRightClick}
+          onNodeClick={handleNodeClick}
+          onNodeRightClick={handleNodeRightClick}
         />
         <NodeMenu
+          ref={menuRef}
           coords={coords}
           visible={visible}
           onClose={onClose}
