@@ -14,10 +14,10 @@
     "chromatic": "npx chromatic --project-token=0edcf7bf162e"
   },
   "dependencies": {
-    "@chainverse/os": "^0.1.6",
     "@apollo/client": "^3.5.8",
-    "@chakra-ui/icons": "^1.1.1",
-    "@chakra-ui/react": "^1.7.2",
+    "@chainverse/os": "^0.1.6",
+    "@chakra-ui/icons": "^1.1.7",
+    "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "^11.7.0",
     "@emotion/styled": "^11.6.0",
     "@hookform/resolvers": "^2.9.6",
